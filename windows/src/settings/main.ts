@@ -1109,10 +1109,12 @@ function generalSection(): HTMLElement {
 
   const sound = toggle(settings.soundEnabled, (v) => { settings.soundEnabled = v; void save(); });
   const openOnHover = toggle(settings.openOnHover, (v) => { settings.openOnHover = v; void save(); });
+  const foldOnLeave = toggle(settings.foldOnLeave ?? true, (v) => { settings.foldOnLeave = v; void save(); });
   const autostart = toggle(settings.autostart, (v) => { settings.autostart = v; void save(); });
   generalSync = () => {
     setSwitch(sound, settings.soundEnabled);
     setSwitch(openOnHover, settings.openOnHover);
+    setSwitch(foldOnLeave, settings.foldOnLeave ?? true);
     setSwitch(autostart, settings.autostart);
     // A field being edited keeps what is in it; it catches up when it is left.
     if (document.activeElement !== volume) volume.value = String(settings.soundVolume);
@@ -1139,6 +1141,11 @@ function generalSection(): HTMLElement {
       openOnHover,
     ),
     h("div", { class: "hint", text: t("Hovering the island opens it; it folds again shortly after the pointer leaves. Click inside to keep it open.") }),
+    h("div", { class: "row" },
+      h("label", { text: t("Fold when the pointer leaves") }),
+      foldOnLeave,
+    ),
+    h("div", { class: "hint", text: t("The open island folds a moment after the pointer leaves it, except while this window is open, a card waits for an answer or something is being typed.") }),
     h("div", { class: "row" },
       h("label", { text: t("Open for every pill’s alerts") }),
       toggle(settings.alertsFromAllPills, (v) => { settings.alertsFromAllPills = v; void save(); }),

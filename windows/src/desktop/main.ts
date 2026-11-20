@@ -204,7 +204,8 @@ class DesktopCat {
       const fresh = this.mode === "poll" || now - this.lastPointer < 1500;
       const g = this.cursor && fresh ? gaze(lookOrigin(0, 0), this.cursor) : { lookX: 0, lookY: 0 };
       engine.lookX = g.lookX;
-      engine.lookY = g.lookY;
+      // Left to right only, as in the island.
+      engine.lookY = 0;
     }
     // Dances while Spotify plays, by the compact island's rules.
     engine.setDancing(this.snap.dancing && !this.asleep);

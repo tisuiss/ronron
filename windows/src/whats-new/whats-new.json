@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.8.1",
+      "items": [
+        {
+          "icon": "clock",
+          "title": {
+            "en": "Week by week",
+            "zh-Hans": "逐周浏览",
+            "hi": "सप्ताह-दर-सप्ताह",
+            "es": "Semana a semana",
+            "ar": "أسبوعًا بعد أسبوع",
+            "fr": "Semaine par semaine",
+            "bn": "সপ্তাহে সপ্তাহে",
+            "pt-BR": "Semana a semana",
+            "ru": "Неделя за неделей",
+            "id": "Minggu demi minggu",
+            "de": "Woche für Woche",
+            "tr": "Hafta hafta",
+            "ko": "주 단위로",
+            "ja": "週ごとに"
+          },
+          "detail": {
+            "en": "Move through the Calendar space with ‹ and ›; delete a mail too.",
+            "zh-Hans": "在日历空间用 ‹ 和 › 切换周；也可以删除邮件。",
+            "hi": "Calendar स्पेस में ‹ और › से आगे-पीछे जाएँ; मेल भी हटाएँ।",
+            "es": "Muévete en Calendario con ‹ y ›; y elimina correos.",
+            "ar": "تنقّل في التقويم بـ ‹ و ›؛ واحذف البريد أيضًا.",
+            "fr": "Naviguez dans l'Agenda avec ‹ et › ; et supprimez un mail.",
+            "bn": "ক্যালেন্ডারে ‹ ও › দিয়ে সরুন; মেলও মুছুন।",
+            "pt-BR": "Navegue na Agenda com ‹ e ›; e exclua e-mails.",
+            "ru": "Листайте календарь ‹ и ›; и удаляйте письма.",
+            "id": "Jelajahi Kalender dengan ‹ dan ›; hapus mail juga.",
+            "de": "Im Kalender mit ‹ und › blättern; Mails löschen.",
+            "tr": "Takvimde ‹ ve › ile gezin; postaları da silin.",
+            "ko": "캘린더에서 ‹ ›로 이동하고 메일도 삭제하세요.",
+            "ja": "カレンダーを ‹ › で移動、メールの削除も。"
+          }
+        },
+        {
+          "icon": "eye",
+          "title": {
+            "en": "Folds when you leave",
+            "zh-Hans": "离开时自动收起",
+            "hi": "छोड़ते ही सिमटता है",
+            "es": "Se pliega al salir",
+            "ar": "يُطوى عند المغادرة",
+            "fr": "Se replie quand vous partez",
+            "bn": "সরে গেলে গুটিয়ে যায়",
+            "pt-BR": "Recolhe quando você sai",
+            "ru": "Сворачивается, когда уходите",
+            "id": "Terlipat saat Anda pergi",
+            "de": "Klappt ein, wenn du gehst",
+            "tr": "Ayrılınca katlanır",
+            "ko": "벗어나면 접힘",
+            "ja": "離れると閉じる"
+          },
+          "detail": {
+            "en": "The island folds once the pointer leaves; the eyes look left and right.",
+            "zh-Hans": "指针离开后岛会收起；眼睛只左右看。",
+            "hi": "पॉइंटर हटते ही आइलैंड सिमटता है; आँखें बस दाएँ-बाएँ देखती हैं।",
+            "es": "La isla se pliega al salir el puntero; los ojos miran a los lados.",
+            "ar": "تُطوى الجزيرة عند خروج المؤشر؛ والعينان تنظران يمينًا ويسارًا.",
+            "fr": "L'île se replie quand la souris sort ; les yeux suivent de gauche à droite.",
+            "bn": "পয়েন্টার সরে গেলে আইল্যান্ড গুটায়; চোখ ডানে-বাঁয়ে দেখে।",
+            "pt-BR": "A ilha recolhe quando o ponteiro sai; os olhos olham para os lados.",
+            "ru": "Остров сворачивается, когда курсор уходит; глаза смотрят влево-вправо.",
+            "id": "Pulau terlipat saat penunjuk pergi; mata menoleh kiri-kanan.",
+            "de": "Die Insel klappt ein, wenn der Zeiger geht; die Augen schauen seitlich.",
+            "tr": "İşaretçi ayrılınca ada katlanır; gözler sağa sola bakar.",
+            "ko": "포인터가 벗어나면 접히고, 눈은 좌우로만 봅니다.",
+            "ja": "ポインターが離れると閉じ、目は左右だけを追います。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.8.0",
       "items": [
         {

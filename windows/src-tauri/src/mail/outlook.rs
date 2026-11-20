@@ -220,6 +220,15 @@ pub fn unflag_script(entry_id: &str, store_id: &str) -> String {
     ))
 }
 
+/// Deletes the message: Outlook moves it to Deleted Items, where it can be got back.
+pub fn delete_script(entry_id: &str, store_id: &str) -> String {
+    script(&format!(
+        "$i = Ronron-Item {} {}\n$i.Delete()\nWrite-Output '{{\"ok\":true}}'",
+        ps(entry_id),
+        ps(store_id)
+    ))
+}
+
 /// The message's text (`limit` characters) and its attachments' names.
 pub fn detail_script(entry_id: &str, store_id: &str, limit: usize) -> String {
     script(&format!(

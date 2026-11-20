@@ -64,6 +64,9 @@ async function main() {
   await onEvent<{ x: number; y: number }>("cursor", ({ x, y }) => island.onCursor(x, y));
   await onEvent<boolean>("pointer-inside", (inside) => island.setPointerInside(inside));
   await onEvent<null>("closed-hover", () => island.wakeFromClosed());
+  // The Ronron window on screen keeps the island from folding when the pointer leaves.
+  await onEvent<boolean>("hub-visible", (shown) => island.setHubShown(shown));
+  void Bridge.hubShown().then((shown) => island.setHubShown(shown === true));
 
   /** Pause has to reach Rust too, or the pollers keep calling out. */
   const setPaused = (on: boolean) => {

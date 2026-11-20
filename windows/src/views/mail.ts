@@ -137,18 +137,18 @@ export function buildMailCard(host: MailCardHost): MailCard {
     sync();
   }
 
-  async function act(m: MailMessage, kind: "read" | "flag" | "unflag" | "junk" | "ignore" | "vip") {
+  async function act(m: MailMessage, kind: "read" | "flag" | "unflag" | "junk" | "ignore" | "vip" | "delete") {
     // Shown at once; Outlook catches up.
     const id = messageId(m);
     const change = (list: MailMessage[] | null) =>
       list?.flatMap((x) => {
         if (messageId(x) !== id) return [x];
-        if (kind === "junk" || kind === "ignore") return [];
+        if (kind === "junk" || kind === "ignore" || kind === "delete") return [];
         return [{ ...x, unread: kind === "read" ? false : x.unread, flagged: kind === "flag" || kind === "vip" ? true : kind === "unflag" ? false : x.flagged }];
       }) ?? null;
     results = change(results);
     if (open && messageId(open) === id) {
-      open = kind === "junk" || kind === "ignore" ? null : change([open])?.[0] ?? null;
+      open = kind === "junk" || kind === "ignore" || kind === "delete" ? null : change([open])?.[0] ?? null;
     }
     listKey = "";
     sync();
@@ -250,6 +250,7 @@ export function buildMailCard(host: MailCardHost): MailCard {
         onclick: () => void act(m, m.flagged ? "unflag" : "flag"),
       }),
       h("button", { class: "link-btn dim", text: t("Junk"), onclick: () => void act(m, "junk") }),
+      h("button", { class: "link-btn dim", title: t("Moved to Deleted Items"), text: t("Delete"), onclick: () => void act(m, "delete") }),
     );
     // ⋯: Always important (VIP), Always ignore this sender.
     const more = h("div", { class: "mail-more-menu" });

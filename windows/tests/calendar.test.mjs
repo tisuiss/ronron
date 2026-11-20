@@ -27,7 +27,7 @@ test("month, day and booking navigation preserve notes as text and stay inside t
   const date = new Date(2026, 9, 28, 12);
   const root = calendarDetail({ rangeStart: new Date(2026, 9, 1).getTime(), rangeEnd: new Date(2026, 10, 30).getTime(),
     bookings: [{ id: "1", title: "Planning", start: date.toISOString(), end: new Date(date.getTime() + 1800000).toISOString(),
-      attendeeName: "Guest", attendeeEmail: "guest@example.com", attendeeNotes: "<b>Agenda</b>" }] }, () => closed++, () => opened++);
+      attendeeName: "Guest", attendeeEmail: "guest@example.com", attendeeNotes: "<b>Agenda</b>" }] }, () => closed++, () => opened++, undefined, date);
   assert.equal(root.querySelector(".cal-previous").disabled, true);
   root.querySelector(".cal-next").fire("click");
   assert.equal(root.querySelector(".cal-next").disabled, true);

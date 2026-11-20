@@ -376,6 +376,22 @@ pub async fn mail_act(app: AppHandle, message: Message, kind: String) -> Result<
             rt().last.iter_mut().filter(|x| x.id() == message.id()).for_each(|x| x.flagged = false);
         }
         "junk" => perform(&Action::Junk, &message, Reason::Manual).await?,
+        // A click on Delete: to Deleted Items, never for good.
+        "delete" => {
+            if is_graph(&message) {
+                graph::delete(&message.entry_id).await?;
+            } else {
+                outlook::run(outlook::delete_script(&message.entry_id, &message.store_id), TIMEOUT)
+                    .await
+                    .map_err(|e| e.to_string())?;
+            }
+            let mut r = rt();
+            let id = message.id();
+            if r.last.iter().any(|x| x.id() == id && x.unread) {
+                r.last_unread = (r.last_unread - 1).max(0);
+            }
+            r.last.retain(|x| x.id() != id);
+        }
         "ignore" => {
             rt().store.add_banned(&message.address);
             perform(&Action::Junk, &message, Reason::Manual).await?;
