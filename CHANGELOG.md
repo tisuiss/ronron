@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.2 — November 20, 2026
+
+- **Mail space**: the inbox takes the whole width beside the unread count, without the preview tile. A click on a message shows it in the inbox's place, with Reply, Open, Mark as read and Important; **‹ Inbox** (or Esc) goes back.
+
 ## 0.7.1 — November 20, 2026
 
 - **A pill open takes the island**: clicking a pill in the overview gives its card the whole width and makes the island as tall as a space; the pills stack in a column on the right, the open one lit. Clicking it again, or the overview's tab, goes back.

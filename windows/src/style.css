@@ -4165,7 +4165,48 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
   color: #c9ccd1;
 }
 
-/* Mail */
+/* Mail: two tiles; the message replaces the inbox in the big one */
+.space.inbox {
+  grid-template-columns: 140px minmax(0, 1fr);
+}
+.sp-pane {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sp-read,
+.sp-mails.reading > .sp-pane:not(.sp-read) {
+  display: none;
+}
+.sp-mails.reading > .sp-read {
+  display: flex;
+}
+.sp-back {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 10px 0 8px;
+  border: 0;
+  border-radius: 12px;
+  background: #ffffff0d;
+  color: var(--dim-2);
+  font: 500 12px var(--font);
+  cursor: default;
+}
+.sp-back:hover {
+  background: #3a2a1c;
+  color: #ffc58f;
+}
+.sp-buttons.row {
+  flex-direction: row;
+}
+.sp-buttons.row .sp-btn {
+  flex: 1 1 auto;
+}
 .sp-search-box {
   height: 28px;
   flex: none;
@@ -4250,7 +4291,7 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
 }
 .sp-mail-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
 }
 .sp-mail-head .sp-from {

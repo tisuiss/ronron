@@ -107,8 +107,10 @@ test("Mail: the unread count, the list, and a message's actions", async () => {
   view.sync();
   assert.ok(sent("mail_refresh").length > 0);
   assert.equal(view.el.querySelector(".sp-big").textContent, "3");
-  assert.match(text(view.el), /Select a message/);
+  assert.equal(view.el.querySelector(".reading"), null);
   view.el.querySelector(".sp-mail-row").fire("click");
+  // The message takes the inbox's place.
+  assert.ok(view.el.querySelector(".sp-mails").classList.contains("reading"));
   assert.ok(sent("mail_detail").length > 0);
   assert.match(text(view.el), /Facture/);
   const button = (label) => view.el.find(".sp-btn").find((b) => b.textContent === label);
@@ -117,6 +119,10 @@ test("Mail: the unread count, the list, and a message's actions", async () => {
   // Reply opens the mail program: nothing is sent from Ronron.
   button("Reply").fire("click");
   assert.deepEqual(sent("mail_open").at(-1), { message: m, reply: true });
+  // Back to the inbox.
+  view.el.querySelector(".sp-back").fire("click");
+  assert.ok(!view.el.querySelector(".sp-mails").classList.contains("reading"));
+  assert.equal(view.el.find(".sp-mail-row").length, 1);
 });
 
 test("To Do: today's tasks, ticking one off, and the list picker", () => {
