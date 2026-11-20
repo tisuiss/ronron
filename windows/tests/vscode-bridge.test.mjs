@@ -7,6 +7,7 @@ import { createRequire } from "node:module";
 import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 import net from "node:net";
 import { visibleProviders } from "../src/core/providers.ts";
@@ -14,7 +15,7 @@ import { chipLabel } from "../src/core/subscriptions.ts";
 
 const require = createRequire(import.meta.url);
 const lib = require("../../vscode/remote/lib.js");
-const CLIENT = new URL("../../vscode/remote/hook-client.js", import.meta.url).pathname;
+const CLIENT = fileURLToPath(new URL("../../vscode/remote/hook-client.js", import.meta.url));
 
 test("the remote hooks are the computer's: same events, same timeouts", () => {
   const rust = readFileSync(new URL("../src-tauri/src/hooks.rs", import.meta.url), "utf8");
