@@ -37,6 +37,9 @@ pub struct Settings {
     /// Hovering the island opens it all the way, and it folds again shortly
     /// after the pointer leaves (the Mac's "Open on hover"). Off by default.
     pub open_on_hover: bool,
+    /// The open island folds shortly after the pointer leaves it, unless the
+    /// Ronron window is on screen. On by default.
+    pub fold_on_leave: bool,
     pub alerts_from_all_pills: bool,
     pub absence_interval: f64,
     pub active_integrations: Vec<String>,
@@ -176,6 +179,7 @@ impl Default for Settings {
             sound_volume: 0.12,
             auto_close_interval: 15.0,
             open_on_hover: false,
+            fold_on_leave: true,
             alerts_from_all_pills: false,
             absence_interval: 180.0,
             header_pills: Vec::new(),
@@ -487,6 +491,7 @@ mod tests {
   "soundVolume": 0.5,
   "autoCloseInterval": 30.0,
   "openOnHover": true,
+  "foldOnLeave": false,
   "alertsFromAllPills": true,
   "absenceInterval": 60.0,
   "activeIntegrations": ["integration_notion"],
@@ -1013,6 +1018,7 @@ mod tests {
                 "soundVolume",
                 "autoCloseInterval",
                 "openOnHover",
+                "foldOnLeave",
                 "alertsFromAllPills",
                 "absenceInterval",
                 "activeIntegrations",

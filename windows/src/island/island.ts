@@ -440,9 +440,24 @@ export class Island {
 
   // ── FSM ─────────────────────────────────────────────────────────────────────
 
+  /** Whether the Ronron window is on screen: the island then waits as before (fold on leave). */
+  private hubShown = false;
+
+  setHubShown(shown: boolean) {
+    this.hubShown = shown;
+    this.applyFoldOnLeave();
+    // The window just closed with the pointer away: the short countdown starts now.
+    if (!shown && this.fsm.foldOnLeave && !this.wasInIsland && this.fsm.state === "home") this.fsm.mouseLeft();
+  }
+
+  private applyFoldOnLeave() {
+    this.fsm.foldOnLeave = (State.settings.foldOnLeave ?? true) && !this.hubShown;
+  }
+
   private wireFsm() {
     this.fsm.homeToPetitDelay = State.settings.autoCloseInterval;
     this.fsm.openOnHover = State.settings.openOnHover;
+    this.applyFoldOnLeave();
     this.fsm.onTransition = (from, to) => {
       // The greeting is over, however it ended: back to his desktop spot.
       if (from === "ronron" && to !== "ronron") this.desktop.launch();
@@ -1488,9 +1503,10 @@ export class Island {
     return Math.tanh((State.mouse.x - botScreenX) / 260);
   }
 
+  /** His eyes follow the pointer from left to right only: never up or down. */
   private lookY(): number {
     if (State.mode === "hidden") return this.closedLook.y;
-    return -Math.tanh((State.mouse.y - this.botCy.value) / 200);
+    return 0;
   }
 
   private updateCountdown(nowMs: number) {
@@ -1613,6 +1629,7 @@ export class Island {
     Sound.setVolume(State.settings.soundVolume);
     this.fsm.homeToPetitDelay = State.settings.autoCloseInterval;
     this.fsm.openOnHover = State.settings.openOnHover;
+    this.applyFoldOnLeave();
     State.notify();
     // ponytail: one timer for the life of the window; a minute is the clock's finest tick.
     this.clockTimer ??= window.setInterval(() => this.updateClock(), 10_000);

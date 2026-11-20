@@ -117,6 +117,13 @@ export function buildAgendaSpace(actions: ViewActions): ViewHost {
   const right = tile("sp-event");
   const el = spaceView("agenda", left, middle, right);
   let selectedDay = dayKey(new Date());
+  /** Weeks from this one: ‹ and › move it, within the weeks the calendars were read for. */
+  let weekOffset = 0;
+  /** The island left the space: it opens on today the next time. */
+  let away = false;
+  State.subscribe(() => {
+    if (State.view !== "agenda" || State.mode !== "expanded") away = true;
+  });
   let selectedEvent: string | null = null;
   let key = "";
 
@@ -127,7 +134,7 @@ export function buildAgendaSpace(actions: ViewActions): ViewHost {
     const bookings = readBookings(data.bookings) ?? [];
     const calendars = readCalendars(data.calendars);
     const colorOf = (b: Booking, i: number) => calendars.find((c) => c.id === b.calendarId)?.color ?? EVENT_COLORS[i % EVENT_COLORS.length];
-    const k = JSON.stringify([language(), Math.floor(now / 60_000), calendars, selectedDay, selectedEvent, signedOut(CALENDAR_ID),
+    const k = JSON.stringify([language(), Math.floor(now / 60_000), calendars, weekOffset, selectedDay, selectedEvent, signedOut(CALENDAR_ID),
       info(CALENDAR_ID)?.error ?? "", bookings.map((b) => [b.id, b.start.getTime(), b.end.getTime(), b.title])]);
     if (k === key) return;
     key = k;
@@ -144,10 +151,31 @@ export function buildAgendaSpace(actions: ViewActions): ViewHost {
 
     // Middle: this week, and the selected day's events.
     clear(middle);
-    const monday = weekStart(today);
+    const thisMonday = weekStart(today);
+    const monday = new Date(thisMonday.getFullYear(), thisMonday.getMonth(), thisMonday.getDate() + weekOffset * 7);
     const days = Array.from({ length: 7 }, (_, i) => new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i));
     const range = `${days[0].toLocaleDateString(language(), { day: "numeric", month: "short" })} – ${days[6].toLocaleDateString(language(), { day: "numeric", month: "short" })}`;
-    middle.append(h("div", { class: "sp-title" }, h("b", { text: t("This week") }), h("span", { text: range })));
+    // The weeks the calendars were read for (calendar365.rs: a few weeks back, two months ahead).
+    const from = Number(data.rangeStart), until = Number(data.rangeEnd);
+    const canBack = !Number.isFinite(from) || monday.getTime() > from;
+    const canOn = !Number.isFinite(until) || days[6].getTime() + 86_400_000 < until;
+    const move = (by: number) => {
+      actions.blip();
+      weekOffset += by;
+      const m = new Date(thisMonday.getFullYear(), thisMonday.getMonth(), thisMonday.getDate() + weekOffset * 7);
+      selectedDay = weekOffset === 0 ? dayKey(new Date()) : dayKey(m);
+      selectedEvent = null;
+      draw();
+    };
+    const prev = h("button", { class: "sp-icon", title: t("Previous week"), "aria-label": t("Previous week"), onclick: () => move(-1) }, svg(ICONS.chevronLeft, 10, { stroke: 2.4 })) as HTMLButtonElement;
+    const nextWeek = h("button", { class: "sp-icon", title: t("Next week"), "aria-label": t("Next week"), onclick: () => move(1) }, svg(ICONS.chevronRight, 10, { stroke: 2.4 })) as HTMLButtonElement;
+    prev.disabled = !canBack;
+    nextWeek.disabled = !canOn;
+    middle.append(h("div", { class: "sp-title sp-week-nav" },
+      h("b", { text: weekOffset === 0 ? t("This week") : range }),
+      weekOffset === 0 ? h("span", { text: range }) : h("button", { class: "link-btn", text: t("Today"), onclick: () => move(-weekOffset) }),
+      h("span", { class: "sp-spacer" }),
+      prev, nextWeek));
     if (signedOut(CALENDAR_ID)) {
       middle.append(h("div", { class: "sp-empty", text: t("Sign in to Microsoft 365 in Settings.") }));
       clear(right);
@@ -224,14 +252,14 @@ export function buildAgendaSpace(actions: ViewActions): ViewHost {
   return {
     el,
     sync() {
-      if (State.view !== "agenda") {
-        // Back on today the next time the space opens.
-        if (selectedDay !== dayKey(new Date()) || selectedEvent) {
-          selectedDay = dayKey(new Date());
-          selectedEvent = null;
-          key = "";
-        }
-        return;
+      if (State.view !== "agenda") return;
+      if (away) {
+        // Back on today each time the space opens.
+        away = false;
+        weekOffset = 0;
+        selectedDay = dayKey(new Date());
+        selectedEvent = null;
+        key = "";
       }
       if (leftHeader("agenda", CALENDAR_ID, actions)) return;
       draw();
@@ -275,7 +303,9 @@ export function buildMailSpace(actions: ViewActions): ViewHost {
   let listKey = "";
   let refreshed = 0;
 
-  const displayed = (): MailMessage[] => results ?? mailData().messages;
+  /** Deleted from here: gone from the list before the mailbox's next read says so. */
+  const hidden = new Set<string>();
+  const displayed = (): MailMessage[] => (results ?? mailData().messages).filter((m) => !hidden.has(messageId(m)));
 
   async function runSearch() {
     const q = field.value.trim();
@@ -333,9 +363,19 @@ export function buildMailSpace(actions: ViewActions): ViewHost {
     draw();
   }
 
-  async function act(m: MailMessage, kind: "read" | "flag" | "unflag") {
+  async function act(m: MailMessage, kind: "read" | "flag" | "unflag" | "delete") {
     // Shown at once; the mailbox catches up.
     const id = messageId(m);
+    if (kind === "delete") {
+      // To Deleted Items; the message leaves the list and the inbox comes back.
+      if (results) results = results.filter((x) => messageId(x) !== id);
+      hidden.add(id);
+      selected = null;
+      listKey = "";
+      draw();
+      await MailBridge.act(m, "delete");
+      return;
+    }
     const change = (x: MailMessage): MailMessage => messageId(x) !== id ? x : {
       ...x,
       unread: kind === "read" ? false : x.unread,
@@ -437,6 +477,7 @@ export function buildMailSpace(actions: ViewActions): ViewHost {
       text: m.flagged ? t("Not important") : t("Important"),
       onclick: () => void act(m, m.flagged ? "unflag" : "flag"),
     }));
+    buttons.append(h("button", { class: "sp-btn danger", title: t("Moved to Deleted Items"), text: t("Delete"), onclick: () => void act(m, "delete") }));
     readPane.append(buttons);
   }
 

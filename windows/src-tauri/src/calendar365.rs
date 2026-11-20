@@ -1,6 +1,6 @@
 //! The calendars, read only: the Microsoft 365 account's calendars through Graph
-//! (sign-in: crate::msgraph) and the iCal ones (crate::ical), from yesterday to 30
-//! days ahead, in the shape the Cal.com card and its month view already read
+//! (sign-in: crate::msgraph) and the iCal ones (crate::ical), from four weeks back
+//! to nine weeks ahead, in the shape the Cal.com card and its month view already read
 //! (`bookings`, `rangeStart`, `rangeEnd`), with `calendars` (each one's name,
 //! colour, whether it is shown and its reminder) and each event's `calendarId`.
 
@@ -14,7 +14,9 @@ use crate::settings::{CalendarPref, IcalCalendar};
 use crate::msgraph;
 
 pub const ID: &str = "integration_calendar";
-const WINDOW_DAYS: i64 = 30;
+/// Read from four weeks back to nine weeks ahead: the Calendar space moves week by week inside it.
+const PAST_DAYS: i64 = 28;
+const WINDOW_DAYS: i64 = 63;
 const PAGE: usize = 100;
 const MAX_PAGES: usize = 5;
 const DAY_MS: i64 = 24 * 60 * 60 * 1000;
@@ -70,7 +72,7 @@ pub async fn calendar_sources() -> Result<Vec<Value>, String> {
 pub async fn ical_check(url: String) -> Result<usize, String> {
     let text = crate::ical::fetch(&url).await?;
     let now = now_ms();
-    Ok(crate::ical::read(&text, "check", now - DAY_MS, now + WINDOW_DAYS * DAY_MS).len())
+    Ok(crate::ical::read(&text, "check", now, now + 30 * DAY_MS).len())
 }
 
 /// "webcal://…" as the https address Ronron keeps, or an error to show.
@@ -103,7 +105,7 @@ fn pref<'a>(prefs: &'a [CalendarPref], id: &str) -> Option<&'a CalendarPref> {
 
 async fn fetch(prefs: &[CalendarPref], icals: &[IcalCalendar]) -> Result<Value, String> {
     let now = now_ms();
-    let (from, until) = (now - DAY_MS, now + WINDOW_DAYS * DAY_MS);
+    let (from, until) = (now - PAST_DAYS * DAY_MS, now + WINDOW_DAYS * DAY_MS);
     let mut calendars = Vec::new();
     let mut events = Vec::new();
     let mut errors = Vec::new();

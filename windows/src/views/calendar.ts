@@ -5,7 +5,7 @@ import { language, t } from "../i18n/i18n";
 
 /** Month → day → booking, inside the existing integration detail card. */
 export function calendarDetail(data: Record<string, unknown>, close: () => void, open: () => void,
-  look: { name: string; color: string } = { name: "Cal.com", color: "#C9956A" }): HTMLElement {
+  look: { name: string; color: string } = { name: "Cal.com", color: "#C9956A" }, today: Date = new Date()): HTMLElement {
   const root = h("div", { class: "int-card cal-card" });
   const bookings = readBookings(data.bookings);
   const from = new Date(Number(data.rangeStart)), until = new Date(Number(data.rangeEnd));
@@ -14,7 +14,14 @@ export function calendarDetail(data: Record<string, unknown>, close: () => void,
     return root;
   }
   const firstDay = dayKey(from), lastDay = dayKey(until);
-  let month = new Date(from.getFullYear(), from.getMonth(), 1);
+  // The month of today (kept inside the months read), even when the calendar was read from a few weeks back.
+  const thisMonth = () => {
+    const m = new Date(today.getFullYear(), today.getMonth(), 1);
+    if (monthIndex(m) < monthIndex(from)) return new Date(from.getFullYear(), from.getMonth(), 1);
+    if (monthIndex(m) > monthIndex(until)) return new Date(until.getFullYear(), until.getMonth(), 1);
+    return m;
+  };
+  let month = thisMonth();
   let selectedDay: Date | null = null;
   let selectedBooking: Booking | null = null;
   const dateText = (date: Date) => date.toLocaleDateString(language(), { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -58,7 +65,7 @@ export function calendarDetail(data: Record<string, unknown>, close: () => void,
       const weekdays = h("div", { class: "cal-weekdays" });
       for (let day = 0; day < 7; day++) weekdays.append(h("span", { text: new Date(2024, 0, 1 + day).toLocaleDateString(language(), { weekday: "short" }) }));
       root.append(h("div", { class: "int-actions cal-nav", style: "justify-content:space-between" }, previous,
-        h("button", { class: "link-btn", text: t("Today"), onclick: () => { month = new Date(from.getFullYear(), from.getMonth(), 1); render(); } }), next), weekdays);
+        h("button", { class: "link-btn", text: t("Today"), onclick: () => { month = thisMonth(); render(); } }), next), weekdays);
       const grid = h("div", { class: "cal-grid" });
       for (const date of monthDays(month)) {
         const key = dayKey(date), count = onDay(date).length;

@@ -147,7 +147,7 @@ export const MailBridge = {
   search: (query: string, filter: MailFilter) => call<MailMessage[]>("mail_search", { query, filter }),
   detail: (message: MailMessage) => call<{ text: string; attachments: string[] }>("mail_detail", { message }),
   open: (message: MailMessage, reply: boolean) => call<void>("mail_open", { message, reply }),
-  act: (message: MailMessage, kind: "read" | "flag" | "unflag" | "junk" | "ignore" | "vip") =>
+  act: (message: MailMessage, kind: "read" | "flag" | "unflag" | "junk" | "ignore" | "vip" | "delete") =>
     call<void>("mail_act", { message, kind }),
   triage: () => call<TriageView>("mail_triage"),
   setTriage: (settings: MailSettings) => call<void>("mail_triage_set", { settings }),

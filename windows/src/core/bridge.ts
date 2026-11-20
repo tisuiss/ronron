@@ -284,6 +284,8 @@ export const Bridge = {
   quit: () => call<void>("quit_app"),
 
   openSettingsWindow: () => call<void>("open_settings_window"),
+  /** Whether the Ronron window is on screen. */
+  hubShown: () => call<boolean>("hub_shown"),
 
   /** Writes to %LOCALAPPDATA%\Ronron\ronron.log, next to the Rust lines. */
   log: (message: string) => call<void>("log_line", { message }),

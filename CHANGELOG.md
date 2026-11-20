@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.1 — November 20, 2026
+
+- **Delete a mail** from the Mail space or the Mail card: it goes to Deleted Items (Microsoft 365 or the classic Outlook), where it can be got back.
+- **Calendar week by week**: ‹ and › in the Calendar space, from four weeks back to nine weeks ahead (the calendars are read for that span now), and **Today** to come back. The month view opens on the current month.
+- **Ronron's eyes** follow the pointer from left to right only, in the island and on the desktop.
+- **Fold when the pointer leaves** (Settings → General, on by default): the open island folds a moment after the pointer leaves it, except while the Ronron window is on screen, a card waits for an answer or something is being typed.
+
 ## 0.8.0 — November 20, 2026
 
 - **Several calendars**: the Microsoft 365 account's calendars, and up to eight iCal ones (`webcal://` or `https://`, kept in the credential store), each shown or not and in its own colour (Settings → Integrations → Calendars). Recurring iCal events are expanded in their time zone.

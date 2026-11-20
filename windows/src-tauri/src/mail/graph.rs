@@ -229,6 +229,11 @@ pub async fn undo(id: &str, action: &Action) -> Result<(), String> {
     }
 }
 
+/// To Deleted Items (recoverable from there): Ronron never deletes for good.
+pub async fn delete(id: &str) -> Result<(), String> {
+    move_to(id, "deleteditems").await.map(|_| ())
+}
+
 pub async fn unflag(id: &str) -> Result<(), String> {
     patch(id, json!({ "flag": { "flagStatus": "notFlagged" } })).await
 }

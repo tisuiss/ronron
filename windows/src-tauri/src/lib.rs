@@ -817,6 +817,8 @@ static HUB_SHOWN: AtomicBool = AtomicBool::new(false);
 fn set_hub_shown(win: &tauri::WebviewWindow, shown: bool) {
     if HUB_SHOWN.swap(shown, Ordering::Relaxed) != shown {
         let _ = win.emit_to(HUB_LABEL, "hub-visible", shown);
+        // The island stays open while the Ronron window is on screen (fold on leave).
+        let _ = win.emit_to(crate::island::WINDOW_LABEL, "hub-visible", shown);
     }
 }
 

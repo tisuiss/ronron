@@ -353,14 +353,16 @@ The pill refreshes every two minutes while it is turned on, and right after each
 
 **The overview:** with no pill open, the four pills sit side by side, one space each (name, state, what it is doing); a free slot leads to Settings.
 
+**Fold when the pointer leaves** (Settings → General, on by default): the open island folds a moment after the pointer leaves it — not while the Ronron window is on screen, a card waits for an answer (permission, question, reminder) or something is being typed. Off, it waits for the auto-close delay as before.
+
 **A pill open:** clicking a pill in the overview gives its card the whole island, taller (as tall as a space), with every pill stacked in a column on the right, the open one lit. Click it again, or the overview's tab, to go back.
 
 **In the header, a space each:** Settings → Integrations → Microsoft 365 → **In the header** puts Calendar, Mail and To Do as tabs after the overview's (they take no pill slot; the pills stay in the overview). Each tab opens a space of three tiles, with Ronron at the foot of the left one:
 
 | Space | Left | Middle | Right |
 |---|---|---|---|
-| **Calendar** | Today's date and how long until the next event | This week: pick a day, its events (Teams marked) | The next event, or the one you clicked: **Join the meeting**, **Open in Outlook** |
-| **Mail** | The unread count | Search (`from:`, `subject:`), All / Unread / Important / Today, the list. A click shows the message in its place: **Reply** (a draft, nothing is sent), **Open**, **Mark as read**, **Important**; **‹ Inbox** (or Esc) goes back | — |
+| **Calendar** | Today's date and how long until the next event | A week at a time (‹ › from four weeks back to nine weeks ahead, **Today** to come back): pick a day, its events (Teams marked) | The next event, or the one you clicked: **Join the meeting**, **Open in Outlook** |
+| **Mail** | The unread count | Search (`from:`, `subject:`), All / Unread / Important / Today, the list. A click shows the message in its place: **Reply** (a draft, nothing is sent), **Open**, **Mark as read**, **Important**, **Delete** (to Deleted Items, where it can be got back); **‹ Inbox** (or Esc) goes back | — |
 | **To Do** | A ring: tasks ticked off from Ronron today out of those due today; what is late | Today's tasks (late and due today), or a list's, picked on the right of the title (« Tâches - 4 »); tick off with Undo; add a task (to that list); ↗ opens To Do | — |
 
 ## Mail (classic Outlook, Windows)

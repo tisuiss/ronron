@@ -34,6 +34,11 @@ export class IslandStateMachine {
    * General → Open on hover, off by default), as IslandStateMachine.openOnHover.
    */
   openOnHover = false;
+  /**
+   * The open island folds shortly after the pointer leaves it (Settings → General →
+   * Fold when the pointer leaves, on by default), unless the Ronron window is on screen.
+   */
+  foldOnLeave = false;
   /** Grace period after the pointer leaves a hover-opened island, seconds. */
   hoverCloseDelay = 0.6;
   /** How long the pointer rests on the compact island before Open on hover opens it, seconds. */
@@ -173,7 +178,7 @@ export class IslandStateMachine {
   private scheduleHomeCollapse() {
     this.clear("homeCollapse");
     if (this.pinned) return;
-    const ms = (this.byHover ? this.hoverCloseDelay : this.homeDelay) * 1000;
+    const ms = (this.byHover || this.foldOnLeave ? Math.min(this.hoverCloseDelay, this.homeDelay) : this.homeDelay) * 1000;
     this.homeCollapseDueAt = performance.now() + ms;
     this.homeCollapse = window.setTimeout(() => {
       this.homeCollapse = null;

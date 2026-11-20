@@ -400,3 +400,29 @@ test("open on hover: an island opened by an alert keeps the normal delay", () =>
   seconds(2);
   assert.equal(fsm.state, "petit");
 });
+
+test("fold on leave: the open island folds 0.6 s after the pointer leaves, unless pinned", () => {
+  fsm.foldOnLeave = true;
+  fsm.forceHome();
+  fsm.mouseEntered();
+  fsm.mouseLeft();
+  seconds(0.5);
+  assert.equal(fsm.state, "home");
+  seconds(0.1);
+  assert.equal(fsm.state, "petit");
+
+  fsm.forceHome();
+  fsm.pinned = true;
+  fsm.mouseLeft();
+  seconds(30);
+  assert.equal(fsm.state, "home");
+
+  // Off (or the Ronron window on screen): the usual delay.
+  fsm.pinned = false;
+  fsm.foldOnLeave = false;
+  fsm.mouseLeft();
+  seconds(1);
+  assert.equal(fsm.state, "home");
+  seconds(14);
+  assert.equal(fsm.state, "petit");
+});

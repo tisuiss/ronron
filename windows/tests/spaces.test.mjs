@@ -81,6 +81,17 @@ test("Calendar: the week, today's events, and the next one to join", () => {
   view.el.querySelector(".sp-join").fire("click");
   assert.deepEqual(sent("open_url").at(-1), { url: "https://teams.microsoft.com/x" });
 
+  // Week by week, inside the weeks read; Today comes back.
+  const days = () => view.el.find(".sp-day").map((d) => d.getAttribute("data-day"));
+  const thisWeek = days();
+  const [prev, next] = view.el.find(".sp-icon");
+  assert.equal(prev.disabled, true); // read from yesterday only
+  next.fire("click");
+  assert.notDeepEqual(days(), thisWeek);
+  assert.doesNotMatch(text(view.el), /This week/);
+  view.el.find(".link-btn").find((b) => b.textContent === "Today").fire("click");
+  assert.deepEqual(days(), thisWeek);
+
   // Signed out: one line, no buttons.
   State.integrations.integration_calendar = { data: {}, error: null, loaded: true, configured: false };
   view.sync();
@@ -123,6 +134,12 @@ test("Mail: the unread count, the list, and a message's actions", async () => {
   view.el.querySelector(".sp-back").fire("click");
   assert.ok(!view.el.querySelector(".sp-mails").classList.contains("reading"));
   assert.equal(view.el.find(".sp-mail-row").length, 1);
+  // Delete: to Deleted Items, gone from the list, back on the inbox.
+  view.el.querySelector(".sp-mail-row").fire("click");
+  view.el.querySelector(".danger").fire("click");
+  assert.deepEqual(sent("mail_act").at(-1), { message: m, kind: "delete" });
+  assert.ok(!view.el.querySelector(".sp-mails").classList.contains("reading"));
+  assert.equal(view.el.find(".sp-mail-row").length, 0);
 });
 
 test("To Do: today's tasks, ticking one off, and the list picker", () => {
