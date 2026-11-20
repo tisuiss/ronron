@@ -2,6 +2,7 @@
 // IntegrationCardView and friends from IslandViewContent.swift.
 
 import { calendarDetail } from "./calendar";
+import { todoCard, todoDetail } from "./todo";
 import { h, svg, clear, dot } from "./dom";
 import { ICONS } from "./icons";
 import { State, type AgentTask } from "../core/state";
@@ -54,6 +55,7 @@ const OPEN_URLS: Record<string, string> = {
   integration_stripe: "https://dashboard.stripe.com/payments",
   integration_notion: "https://notion.so",
   integration_calcom: "https://app.cal.com/bookings",
+  integration_todo: "https://to-do.office.com/tasks/",
 };
 
 /** IntegrationCardView.statusLabel on macOS. */
@@ -73,6 +75,8 @@ export function idleStatus(
   if (def?.connect.kind === "hooks") return configured ? ok(t("Hooks installed")) : missing(t("Hooks not installed"));
   if (def?.connect.kind === "none") return ok(t("Ready · no setup needed"));
   if (def?.connect.kind === "server") return configured ? ok(t("Connected")) : missing(t("Not connected"));
+  // To Do has no key to paste: the user signs in with Microsoft in Settings.
+  if (id === "integration_todo" && !configured) return missing(t("Not signed in"));
   if (def?.category === "ai") {
     if (!configured) return missing(t("Key not configured"));
     return ok(id === "ai_anthropic" ? t("Key configured · {model}", { model: chatModel }) : t("Key configured"));
@@ -479,6 +483,8 @@ export function hasIntegrationData(id: string): boolean {
       return arr(id, "pages").length > 0;
     case "integration_calcom":
       return info.loaded;
+    case "integration_todo":
+      return info.loaded && Array.isArray(get(id).tasks);
     default:
       return false;
   }
@@ -533,6 +539,8 @@ export function renderIntegrationCard(task: AgentTask, hooks: IntegrationCardHoo
       return notionCard();
     case "integration_calcom":
       return hooks.detailOpen ? calendarDetail(get(task.id), hooks.closeDetail, () => void Bridge.openUrl(OPEN_URLS[task.id])) : calcomCard(hooks.openDetail);
+    case "integration_todo":
+      return hooks.detailOpen ? todoDetail(hooks.closeDetail) : todoCard(hooks.openDetail);
     default:
       return idleCard(task, hooks.openSettings);
   }

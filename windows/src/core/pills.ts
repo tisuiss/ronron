@@ -130,6 +130,10 @@ export const PILL_CATALOG: readonly PillDefinition[] = [
     subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("notion-api-key") },
   { id: "integration_calcom", name: "Cal.com", color: "#C9956A", category: "service",
     subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("calcom-api-key") },
+  // Microsoft To Do through Microsoft Graph (src-tauri/src/todo): signed in with the
+  // user's own Entra app in Settings; the first piece of the refresh token says "connected".
+  { id: "integration_todo", name: "To Do", color: "#2564CF", category: "service",
+    subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("todo-refresh-0") },
   { id: "integration_stripe", name: "Stripe", color: "#0570DE", category: "service",
     subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("stripe-api-key") },
   { id: "integration_music", name: "Apple Music", color: "#FA2D48", category: "service",

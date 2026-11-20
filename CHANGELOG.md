@@ -7,6 +7,7 @@
 - **« OK Ronron »** wakes the voice assistant (also heard as "ron ron" or "wrong wrong").
 - **New sounds**, synthesised by `windows/scripts/gen-sounds.py`: meows, purrs and chimes.
 - **App identifier** `ch.cloudguy.ronron`: Ronron keeps its own settings, keys and hooks, and can run next to Coucou.
+- **Microsoft To Do pill**: your To Do tasks through Microsoft Graph and your own Entra app (device code sign-in). The card shows what is due first, ticks tasks off with Undo, and adds tasks to your default list; the detail groups them by list.
 - Only the Windows and Linux app remain: the Mac, iPhone and Android apps, the website and the relay were removed.
 
 Coucou's history up to the fork is in [its changelog](https://github.com/Louis-CFM/coucou/blob/main/CHANGELOG.md).

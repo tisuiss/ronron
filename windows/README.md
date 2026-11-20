@@ -317,6 +317,28 @@ minute while a CI is running, and as soon as you open the card on data older
 than a minute; contributions every 30 minutes. Nothing is fetched while the pill
 is off or Ronron is paused.
 
+## Microsoft To Do (Windows and Linux)
+
+The **To Do** pill shows your Microsoft To Do tasks through Microsoft Graph, with your own Entra app: nothing goes through a Ronron server, and Ronron only ever talks to `login.microsoftonline.com` and `graph.microsoft.com`.
+
+**Set it up once (Microsoft Entra admin center → App registrations → New registration):**
+
+1. Name it (say "Ronron"). Supported account types: your organization only, or any organization and personal accounts if you want both.
+2. **Authentication** → *Allow public client flows* → **Yes**. No redirect URI is needed.
+3. **API permissions** → Microsoft Graph → Delegated → **Tasks.ReadWrite** (plus `offline_access`, `openid`, `profile`, granted by default). An admin can grant consent for the tenant, or each user consents at sign-in.
+4. Copy the **Application (client) ID**, and the **Directory (tenant) ID** if the app is single-tenant.
+
+**In Ronron:** Settings → Integrations → **To Do**: paste the client ID (and the tenant ID or domain; empty means `common`), turn the pill on, click **Sign in with Microsoft**. Ronron shows a code and copies it; enter it at microsoft.com/devicelogin. The refresh token goes to the Windows Credential Manager or the Secret Service, in up to four pieces (Windows holds 1280 characters per entry). **Sign out** removes it.
+
+| What you do | What happens |
+|---|---|
+| Look at the card | The three tasks due first: overdue ones in red on top, then by due day, then the important ones (!). The header counts what is late |
+| Click ○ | The task is completed in To Do. It stays struck through with **Undo** for six seconds |
+| Click + | A field to add a task to your default list (« Tasks »). Enter adds it, Esc closes it |
+| Details | Every open task, grouped by list. **Open To Do** opens To Do on the web |
+
+The pill refreshes every two minutes while it is turned on, and right after each change. Tasks in **Planner** are not shown yet.
+
 ## Mail (classic Outlook, Windows)
 
 Turn the **Mail** pill on in Notch → Active pills. Ronron reads the Outlook already open on
