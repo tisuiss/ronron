@@ -68,7 +68,7 @@ export interface HeaderPillsAccess {
 }
 
 const headerChoices = (): { id: string; name: string }[] => [
-  { id: "integration_calendar", name: "Calendar" },
+  { id: "integration_calendar", name: t("Calendar") },
   { id: "integration_mail", name: t("Mail") },
   { id: "integration_todo", name: "To Do" },
 ];

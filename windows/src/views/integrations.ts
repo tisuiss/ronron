@@ -551,7 +551,7 @@ export function renderIntegrationCard(task: AgentTask, hooks: IntegrationCardHoo
     case "integration_calendar":
       return hooks.detailOpen
         ? calendarDetail(get(task.id), hooks.closeDetail, () => void Bridge.openUrl(OPEN_URLS[task.id]), { name: "Outlook", color: "#0F78D4" })
-        : calcomCard(hooks.openDetail, task.id, "Calendar", "#0F78D4");
+        : calcomCard(hooks.openDetail, task.id, t("Calendar"), "#0F78D4");
     default:
       return idleCard(task, hooks.openSettings);
   }

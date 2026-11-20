@@ -26,7 +26,10 @@ export type IslandViewName =
   | "wardrobe"
   | "update"
   | "whatsNew"
-  | "launch";
+  | "launch"
+  | "agenda"
+  | "inbox"
+  | "tasks";
 
 export type BotStateName =
   | "idle"
@@ -71,6 +74,9 @@ export const EXPANDED_CORNER = 22;
 export const WAKE_STRIP_W = 240;
 export const WAKE_STRIP_H = 6;
 
+/** The Microsoft 365 spaces: as tall as the panel leaves room for. */
+export const SPACE_H = 300;
+
 export const VIEW_LAYOUTS: Record<IslandViewName, ViewLayout> = {
   overview: { height: 160, botX: 68, botY: null, botDiameter: 58, agentMode: "pills" },
   empty: { height: 160, botX: 70, botY: null, botDiameter: 62, agentMode: "none" },
@@ -103,6 +109,10 @@ export const VIEW_LAYOUTS: Record<IslandViewName, ViewLayout> = {
   whatsNew: { height: 248, botX: 62, botY: null, botDiameter: 58, agentMode: "none" },
   // A new Claude Code session: Ronron on the left, the project and the prompt (Mac: .launch).
   launch: { height: 160, botX: 58, botY: null, botDiameter: 52, agentMode: "none" },
+  // The Microsoft 365 spaces (views/spaces.ts): three tiles, Ronron at the foot of the left one.
+  agenda: { height: SPACE_H, botX: 80, botY: SPACE_H - 46, botDiameter: 46, agentMode: "none" },
+  inbox: { height: SPACE_H, botX: 80, botY: SPACE_H - 46, botDiameter: 46, agentMode: "none" },
+  tasks: { height: SPACE_H, botX: 80, botY: SPACE_H - 46, botDiameter: 46, agentMode: "none" },
 };
 
 // The upload views above are only the fallback geometry. Once a file is actually

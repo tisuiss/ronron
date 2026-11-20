@@ -347,6 +347,14 @@ One sign-in gives three pills their data through Microsoft Graph: **To Do** (you
 
 The pill refreshes every two minutes while it is turned on, and right after each change. Tasks in **Planner** are not shown yet.
 
+**In the header, a space each:** Settings → Integrations → Microsoft 365 → **In the header** puts Calendar, Mail and To Do as tabs after the overview's (they take no pill slot; the pills stay in the overview). Each tab opens a space of three tiles, with Ronron at the foot of the left one:
+
+| Space | Left | Middle | Right |
+|---|---|---|---|
+| **Calendar** | Today's date and how long until the next event | This week: pick a day, its events (Teams marked) | The next event, or the one you clicked: **Join the meeting**, **Open in Outlook** |
+| **Mail** | The unread count | Search (`from:`, `subject:`), All / Unread / Important / Today, the list | The message you clicked: **Reply** (a draft, nothing is sent), **Open**, **Mark as read**, **Important** |
+| **To Do** | A ring: tasks ticked off from Ronron today out of those due today; what is late | Today's tasks (late and due today), or a list's; tick off with Undo; add a task (to that list) | Your lists with their count, then what is coming |
+
 ## Mail (classic Outlook, Windows)
 
 Turn the **Mail** pill on in Notch → Active pills. Ronron reads the Outlook already open on

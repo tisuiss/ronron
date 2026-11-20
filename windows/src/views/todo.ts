@@ -109,8 +109,36 @@ function fail(error: unknown) {
   State.notify();
 }
 
+// Ticked off in Ronron today, for the To Do space's ring (this computer only).
+const DONE_KEY = "ronron.todo.doneToday";
+let doneToday: { day: string; count: number } | null = null;
+
+/** Tasks ticked off from Ronron today. */
+export function doneTodayCount(today = todayKey()): number {
+  if (!doneToday) {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(DONE_KEY) ?? "null");
+      if (saved && typeof saved.day === "string" && typeof saved.count === "number") doneToday = saved;
+    } catch {
+      // No storage here: counted for this run only.
+    }
+  }
+  return doneToday?.day === today ? doneToday.count : 0;
+}
+
+function countDone(by: number) {
+  const day = todayKey();
+  doneToday = { day, count: Math.max(0, doneTodayCount(day) + by) };
+  try {
+    window.localStorage.setItem(DONE_KEY, JSON.stringify(doneToday));
+  } catch {
+    // Kept in memory only.
+  }
+}
+
 async function complete(task: TodoTask) {
   lastError = null;
+  countDone(1);
   const timer = window.setTimeout(() => {
     justDone.delete(task.id);
     State.notify();
@@ -122,6 +150,7 @@ async function complete(task: TodoTask) {
   } catch (error) {
     window.clearTimeout(timer);
     justDone.delete(task.id);
+    countDone(-1);
     fail(error);
   }
 }
@@ -130,6 +159,7 @@ async function undo(task: TodoTask) {
   const entry = justDone.get(task.id);
   if (entry) window.clearTimeout(entry.timer);
   justDone.delete(task.id);
+  countDone(-1);
   State.notify();
   try {
     await Bridge.todoSetDone(task.listId, task.id, false);
@@ -138,22 +168,39 @@ async function undo(task: TodoTask) {
   }
 }
 
-async function add(title: string) {
-  if (!title.trim() || busy) return;
+async function add(title: string, listId: string | null = null): Promise<boolean> {
+  if (!title.trim() || busy) return false;
+  let ok = false;
   busy = true;
   lastError = null;
   State.notify();
   try {
-    await Bridge.todoAdd(title.trim());
+    await Bridge.todoAdd(title.trim(), listId);
     draft = "";
     adding = false;
+    ok = true;
   } catch (error) {
     lastError = error instanceof Error ? error.message : String(error);
   } finally {
     busy = false;
     State.notify();
   }
+  return ok;
 }
+
+// ── For the To Do space (spaces.ts) ──────────────────────────────────────────
+
+export const todoActions = {
+  complete: (task: TodoTask) => void complete(task),
+  undo: (task: TodoTask) => void undo(task),
+  add: (title: string, listId: string | null) => add(title, listId),
+  isDone: (id: string) => justDone.has(id),
+  justDone: (): TodoTask[] => [...justDone.values()].map((d) => d.task),
+  open: (): TodoTask[] => openTasks(),
+  busy: () => busy,
+  error: () => lastError,
+  webUrl: () => webUrl(),
+};
 
 // ── Rows ──────────────────────────────────────────────────────────────────────
 
@@ -291,6 +338,7 @@ export function resetTodoView() {
   draft = "";
   busy = false;
   lastError = null;
+  doneToday = null;
 }
 
 export { clear };

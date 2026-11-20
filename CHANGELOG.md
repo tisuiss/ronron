@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.0 — November 20, 2026
+
+- **A space for each Microsoft 365 tool**: the header's Calendar, Mail and To Do chips become tabs after the overview's. Each opens its own space of three tiles, without pills (the pills stay in the overview):
+  - **Calendar**: the date and how long until the next event; this week with each day's events; the next event (or the one clicked) with **Join the meeting** and **Open in Outlook**.
+  - **Mail**: the unread count; search, filters and the list; the message clicked, with **Reply** (a draft, nothing is sent), **Open**, **Mark as read** and **Important**.
+  - **To Do**: a ring with the tasks ticked off today; today's tasks (or a list's) with Undo and a field to add one; the lists and what is coming.
+- The island grows to 300 points for the spaces; Ronron sits at the foot of the left tile.
+
 ## 0.6.1 — November 20, 2026
 
 - **Microsoft 365 in the header**: Calendar, Mail and To Do can sit at the top of the island as chips instead of pills (Settings → Integrations → Microsoft 365 → In the header), and take no pill slot. The calendar chip shows the next event (or *Now*), the mail chip the unread count, the To Do chip the tasks left, in red when one is late. A click shows the card.

@@ -2,6 +2,116 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.7.0",
+      "items": [
+        {
+          "icon": "sparkles",
+          "title": {
+            "en": "A space for each Microsoft 365 tool",
+            "zh-Hans": "每个 Microsoft 365 工具一个空间",
+            "hi": "हर Microsoft 365 टूल का अपना स्पेस",
+            "es": "Un espacio por herramienta de Microsoft 365",
+            "ar": "مساحة لكل أداة من Microsoft 365",
+            "fr": "Un espace par outil Microsoft 365",
+            "bn": "প্রতিটি Microsoft 365 টুলের নিজস্ব জায়গা",
+            "pt-BR": "Um espaço para cada ferramenta do Microsoft 365",
+            "ru": "Пространство для каждого из Microsoft 365",
+            "id": "Ruang untuk tiap alat Microsoft 365",
+            "de": "Ein Bereich pro Microsoft-365-Werkzeug",
+            "tr": "Her Microsoft 365 aracına bir alan",
+            "ko": "Microsoft 365 도구마다 전용 공간",
+            "ja": "Microsoft 365 のツールごとのスペース"
+          },
+          "detail": {
+            "en": "Calendar, Mail and To Do are tabs in the header, each with its own tiles.",
+            "zh-Hans": "日历、邮件和 To Do 成为顶栏标签，各有自己的面板。",
+            "hi": "Calendar, Mail और To Do हेडर में टैब हैं, हर एक की अपनी टाइलें।",
+            "es": "Calendario, Correo y To Do son pestañas en la cabecera, cada una con sus paneles.",
+            "ar": "التقويم والبريد وTo Do علامات تبويب في الشريط العلوي، لكلٍّ منها لوحاته.",
+            "fr": "Agenda, Mail et To Do deviennent des onglets en haut, chacun avec ses tuiles.",
+            "bn": "ক্যালেন্ডার, মেইল ও To Do হেডারে ট্যাব, প্রতিটির নিজস্ব টাইল।",
+            "pt-BR": "Agenda, Mail e To Do viram abas no cabeçalho, cada uma com seus blocos.",
+            "ru": "Календарь, почта и To Do — вкладки в заголовке, у каждой свои плитки.",
+            "id": "Kalender, Mail, dan To Do jadi tab di header, masing-masing dengan ubinnya.",
+            "de": "Kalender, Mail und To Do sind Tabs oben, jeder mit eigenen Kacheln.",
+            "tr": "Takvim, Posta ve To Do üst çubukta sekme, her birinin kendi kutuları var.",
+            "ko": "캘린더, 메일, To Do가 헤더의 탭이 되고 각자 타일을 가집니다.",
+            "ja": "カレンダー、メール、To Do がヘッダーのタブになり、それぞれ専用のタイルに。"
+          }
+        },
+        {
+          "icon": "clock",
+          "title": {
+            "en": "Your day at a glance",
+            "zh-Hans": "一眼看清今天",
+            "hi": "एक नज़र में आपका दिन",
+            "es": "Tu día de un vistazo",
+            "ar": "يومك في لمحة",
+            "fr": "Votre journée d'un coup d'œil",
+            "bn": "এক নজরে আপনার দিন",
+            "pt-BR": "Seu dia num relance",
+            "ru": "Ваш день с первого взгляда",
+            "id": "Hari Anda sekilas",
+            "de": "Dein Tag auf einen Blick",
+            "tr": "Gününüz bir bakışta",
+            "ko": "오늘 하루를 한눈에",
+            "ja": "今日の予定をひと目で"
+          },
+          "detail": {
+            "en": "The week, the next meeting and Join, in the Calendar space.",
+            "zh-Hans": "日历空间里有本周、下一个会议和加入按钮。",
+            "hi": "Calendar स्पेस में सप्ताह, अगली मीटिंग और Join।",
+            "es": "La semana, la próxima reunión y Unirse, en el espacio Calendario.",
+            "ar": "الأسبوع والاجتماع التالي وزر الانضمام في مساحة التقويم.",
+            "fr": "La semaine, le prochain rendez-vous et Rejoindre, dans l'espace Agenda.",
+            "bn": "ক্যালেন্ডার স্পেসে সপ্তাহ, পরের মিটিং ও যোগ দিন।",
+            "pt-BR": "A semana, a próxima reunião e Entrar, no espaço Agenda.",
+            "ru": "Неделя, следующая встреча и «Присоединиться» в календаре.",
+            "id": "Minggu ini, rapat berikutnya, dan Gabung, di ruang Kalender.",
+            "de": "Die Woche, der nächste Termin und Teilnehmen im Kalender.",
+            "tr": "Takvim alanında hafta, sonraki toplantı ve Katıl.",
+            "ko": "캘린더 공간에서 이번 주, 다음 회의, 참가를 한 번에.",
+            "ja": "カレンダーに今週、次の会議、参加ボタン。"
+          }
+        },
+        {
+          "icon": "checklist",
+          "title": {
+            "en": "Tasks with a progress ring",
+            "zh-Hans": "带进度环的任务",
+            "hi": "प्रगति रिंग के साथ टास्क",
+            "es": "Tareas con anillo de progreso",
+            "ar": "مهام مع حلقة تقدّم",
+            "fr": "Des tâches avec un anneau de progression",
+            "bn": "অগ্রগতির রিংসহ কাজ",
+            "pt-BR": "Tarefas com anel de progresso",
+            "ru": "Задачи с кольцом прогресса",
+            "id": "Tugas dengan cincin progres",
+            "de": "Aufgaben mit Fortschrittsring",
+            "tr": "İlerleme halkalı görevler",
+            "ko": "진행률 링이 있는 할 일",
+            "ja": "進捗リング付きのタスク"
+          },
+          "detail": {
+            "en": "Today's tasks, your lists and what is coming, in the To Do space.",
+            "zh-Hans": "To Do 空间里有今天的任务、你的列表和即将到来的事项。",
+            "hi": "To Do स्पेस में आज के टास्क, आपकी सूचियाँ और आगे क्या है।",
+            "es": "Las tareas de hoy, tus listas y lo que viene, en el espacio To Do.",
+            "ar": "مهام اليوم وقوائمك وما هو قادم في مساحة To Do.",
+            "fr": "Les tâches du jour, vos listes et ce qui arrive, dans l'espace To Do.",
+            "bn": "To Do স্পেসে আজকের কাজ, তালিকা ও যা আসছে।",
+            "pt-BR": "As tarefas de hoje, suas listas e o que vem aí, no espaço To Do.",
+            "ru": "Задачи на сегодня, списки и предстоящее — в To Do.",
+            "id": "Tugas hari ini, daftar Anda, dan yang akan datang, di ruang To Do.",
+            "de": "Heutige Aufgaben, deine Listen und was ansteht, im To-Do-Bereich.",
+            "tr": "To Do alanında bugünün görevleri, listeleriniz ve yaklaşanlar.",
+            "ko": "To Do 공간에서 오늘 할 일, 목록, 다가오는 일을 확인하세요.",
+            "ja": "To Do スペースに今日のタスク、リスト、今後の予定。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.6.1",
       "items": [
         {
