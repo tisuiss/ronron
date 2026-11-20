@@ -14,6 +14,11 @@ on:
     tags:
       - 'linux-v*'
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish Ronron for Linux from main (creates the linux-v<version> tag)'
+        type: boolean
+        default: false
   # Build and test only. A pull request never uploads artifacts and never
   # reaches the publish job (see the two gates below), and a fork's token is
   # read-only anyway.
@@ -118,7 +123,7 @@ jobs:
 
       - name: Decide whether to publish
         id: gate
-        run: echo "publish=${{ github.event_name == 'push' && env.PUBLISH == 'true' && startsWith(github.ref, 'refs/tags/linux-v') }}" >> "$GITHUB_OUTPUT"
+        run: echo "publish=${{ env.PUBLISH == 'true' && ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/linux-v')) || (github.event_name == 'workflow_dispatch' && inputs.publish && github.ref == 'refs/heads/main')) }}" >> "$GITHUB_OUTPUT"
 
       # Upload only on a manual run or when publishing a release, as on Windows.
       # The repo is public, so artifacts are downloadable by any signed-in GitHub
@@ -136,7 +141,7 @@ jobs:
     needs: build
     # Checked again here, so a pull request can never get this far whatever
     # the build job reports.
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/linux-v') && needs.build.outputs.publish == 'true'
+    if: needs.build.outputs.publish == 'true' && ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/linux-v')) || (github.event_name == 'workflow_dispatch' && inputs.publish && github.ref == 'refs/heads/main'))
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -168,7 +173,11 @@ jobs:
           KDE Plasma, Hyprland, Sway…). On GNOME it opens as a regular window."
           # --latest=false: the macOS \`v*\` releases own the Latest slot, which
           # the site's Download for Mac button points at.
-          gh release create "$GITHUB_REF_NAME" \
+          # A tag push names the release; a manual run makes the tag from the version.
+          tag="$GITHUB_REF_NAME"
+          [ "$GITHUB_REF_TYPE" = tag ] || tag="linux-v$v"
+          gh release create "$tag" \
+            --target "$GITHUB_SHA" \
             "release/Ronron-Linux-$v-x86_64.AppImage" \
             "release/Ronron-Linux-$v-amd64.deb" \
             "release/Ronron-Linux-$v-x86_64.rpm" \
