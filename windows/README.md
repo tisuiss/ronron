@@ -319,16 +319,15 @@ is off or Ronron is paused.
 
 ## Microsoft To Do (Windows and Linux)
 
-The **To Do** pill shows your Microsoft To Do tasks through Microsoft Graph, with your own Entra app: nothing goes through a Ronron server, and Ronron only ever talks to `login.microsoftonline.com` and `graph.microsoft.com`.
+The **To Do** pill shows your Microsoft To Do tasks through Microsoft Graph: nothing goes through a Ronron server, and Ronron only ever talks to `login.microsoftonline.com` and `graph.microsoft.com`.
 
-**Set it up once (Microsoft Entra admin center → App registrations → New registration):**
+**Sign in:** Settings → Integrations → **To Do**, turn the pill on, click **Sign in with Microsoft**. Microsoft's page opens in your browser; once you have signed in and accepted, it comes back to Ronron by itself (authorization code with PKCE, to a one-shot server on `localhost`). **Use a code instead** shows a code to enter at microsoft.com/devicelogin, from any device. The refresh token goes to the Windows Credential Manager or the Secret Service, in up to four pieces (Windows holds 1280 characters per entry); **Sign out** removes it.
 
-1. Name it (say "Ronron"). Supported account types: your organization only, or any organization and personal accounts if you want both.
-2. **Authentication** → *Allow public client flows* → **Yes**. No redirect URI is needed.
-3. **API permissions** → Microsoft Graph → Delegated → **Tasks.ReadWrite** (plus `offline_access`, `openid`, `profile`, granted by default). An admin can grant consent for the tenant, or each user consents at sign-in.
-4. Copy the **Application (client) ID**, and the **Directory (tenant) ID** if the app is single-tenant.
+**Which Entra app:** builds made with the `RONRON_TODO_CLIENT_ID` repository variable carry their own app, so the click is all it takes. Otherwise, or to use your own, open **Use your own Entra app** and enter its client ID (and tenant ID or domain; empty means `common`). To create one (Microsoft Entra admin center → App registrations → New registration):
 
-**In Ronron:** Settings → Integrations → **To Do**: paste the client ID (and the tenant ID or domain; empty means `common`), turn the pill on, click **Sign in with Microsoft**. Ronron shows a code and copies it; enter it at microsoft.com/devicelogin. The refresh token goes to the Windows Credential Manager or the Secret Service, in up to four pieces (Windows holds 1280 characters per entry). **Sign out** removes it.
+1. Supported account types: your organization only, or any organization and personal accounts (needed for a build's shared app).
+2. **Authentication** → Add a platform → **Mobile and desktop applications** → redirect URI `http://localhost`. Then *Allow public client flows* → **Yes** (for the code).
+3. **API permissions** → Microsoft Graph → Delegated → **Tasks.ReadWrite**. An admin can grant consent for the tenant, or each user consents at sign-in (some tenants only allow admins to consent).
 
 | What you do | What happens |
 |---|---|

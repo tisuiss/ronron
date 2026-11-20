@@ -431,6 +431,10 @@ export const Bridge = {
   todoAccount: () => call<string | null>("todo_account"),
   /** Starts the device code sign-in; the outcome arrives as a `todo-auth` event. */
   todoSignIn: () => callOrThrow<{ userCode: string; verificationUri: string; expiresIn: number }>("todo_sign_in"),
+  /** The usual sign-in: Microsoft's page in the browser, back to Ronron by itself. */
+  todoSignInBrowser: () => call<void>("todo_sign_in_browser"),
+  /** Whether this build has its own Entra app (no client ID to enter). */
+  todoBuiltinApp: () => call<boolean>("todo_builtin_app"),
   todoSignInCancel: () => call<void>("todo_sign_in_cancel"),
   todoSignOut: () => call<void>("todo_sign_out"),
   /** Ticks a task off, or back on for Undo. */

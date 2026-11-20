@@ -910,6 +910,8 @@ pub fn run() {
             mail::mail_refresh,
             todo::todo_account,
             todo::todo_sign_in,
+            todo::todo_sign_in_browser,
+            todo::todo_builtin_app,
             todo::todo_sign_in_cancel,
             todo::todo_sign_out,
             todo::todo_set_done,

@@ -896,13 +896,8 @@ const INTEGRATIONS: IntegrationDef[] = [
     fields: [{ key: "notion-api-key", label: N_("Integration token"), placeholder: "ntn_…", secret: true }] },
   { id: "integration_calcom", name: "Cal.com", color: "#C9956A",
     fields: [{ key: "calcom-api-key", label: N_("API key"), placeholder: "cal_…", secret: true }] },
-  // Microsoft Graph with the user's own Entra app; the sign-in itself is below the fields (./todo.ts).
-  { id: "integration_todo", name: "To Do", color: "#2564CF",
-    fields: [
-      { key: "todo-client-id", label: N_("Client ID"), placeholder: "00000000-0000-0000-0000-000000000000", secret: false },
-      { key: "todo-tenant", label: N_("Tenant"), placeholder: "common", secret: false },
-    ],
-    hint: N_("Register an app in Microsoft Entra: public client flows allowed, delegated permission Tasks.ReadWrite. Paste its client ID; tenant ID or domain, or leave empty for any account.") },
+  // Microsoft Graph: one click to sign in; the user's own Entra app is optional (./todo.ts).
+  { id: "integration_todo", name: "To Do", color: "#2564CF", fields: [] },
   // Nothing to enter: Spotify is read from the OS (src-tauri/src/spotify.rs).
   { id: "integration_spotify", name: "Spotify", color: "#1DB954", fields: [] },
 ];

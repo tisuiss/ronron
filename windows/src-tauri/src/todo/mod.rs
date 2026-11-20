@@ -121,6 +121,29 @@ pub async fn todo_sign_in(app: AppHandle) -> Result<auth::DeviceCode, String> {
     Ok(code)
 }
 
+/// Signs in in the browser (the usual way). Returns at once; the outcome
+/// arrives as a `todo-auth` event.
+#[tauri::command]
+pub fn todo_sign_in_browser(app: AppHandle) {
+    tauri::async_runtime::spawn(async move {
+        let outcome = auth::browser().await;
+        let payload = match &outcome {
+            Ok(account) => json!({ "ok": true, "account": account }),
+            Err(error) => json!({ "ok": false, "error": error }),
+        };
+        let _ = app.emit("todo-auth", payload);
+        if outcome.is_ok() {
+            refresh(&app).await;
+        }
+    });
+}
+
+/// Whether this build carries its own Entra app, so no client ID is needed.
+#[tauri::command]
+pub fn todo_builtin_app() -> bool {
+    auth::has_builtin()
+}
+
 /// Stops waiting for a sign-in in progress.
 #[tauri::command]
 pub fn todo_sign_in_cancel() {

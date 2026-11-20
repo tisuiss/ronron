@@ -75,8 +75,18 @@ fn authority() -> String {
     format!("https://login.microsoftonline.com/{}/oauth2/v2.0", tenant())
 }
 
+/// The Entra app this build signs in with, set when it was compiled
+/// (`RONRON_TODO_CLIENT_ID`): a multi-tenant public client, so a click is enough.
+pub const BUILTIN_CLIENT_ID: Option<&str> = option_env!("RONRON_TODO_CLIENT_ID");
+
+pub fn has_builtin() -> bool {
+    BUILTIN_CLIENT_ID.is_some_and(|c| !c.trim().is_empty())
+}
+
+/// The user's own app if they entered one, else the build's.
 fn client_id() -> Result<String, String> {
     secrets::get(CLIENT_ID_KEY).map(|c| c.trim().to_string()).filter(|c| !c.is_empty())
+        .or_else(|| BUILTIN_CLIENT_ID.map(|c| c.trim().to_string()).filter(|c| !c.is_empty()))
         .ok_or_else(|| crate::i18n::t("Enter the application (client) ID first."))
 }
 
@@ -242,6 +252,151 @@ pub fn cancel() {
     GENERATION.fetch_add(1, Ordering::SeqCst);
 }
 
+// ── Sign-in in the browser (authorization code + PKCE, loopback redirect) ──────
+
+fn base64url_encode(bytes: &[u8]) -> String {
+    const A: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    let mut out = String::with_capacity(bytes.len() * 4 / 3 + 2);
+    for chunk in bytes.chunks(3) {
+        let n = chunk.iter().enumerate().fold(0u32, |acc, (i, b)| acc | (*b as u32) << (16 - 8 * i));
+        for i in 0..=chunk.len() {
+            out.push(A[((n >> (18 - 6 * i)) & 63) as usize] as char);
+        }
+    }
+    out
+}
+
+fn random(len: usize) -> Result<Vec<u8>, String> {
+    use ring::rand::{SecureRandom, SystemRandom};
+    let mut bytes = vec![0u8; len];
+    SystemRandom::new().fill(&mut bytes).map_err(|_| crate::i18n::t("Not available"))?;
+    Ok(bytes)
+}
+
+/// The PKCE pair: a random verifier, and its SHA-256 sent with the request.
+fn pkce() -> Result<(String, String), String> {
+    let verifier = base64url_encode(&random(32)?);
+    let challenge = base64url_encode(ring::digest::digest(&ring::digest::SHA256, verifier.as_bytes()).as_ref());
+    Ok((verifier, challenge))
+}
+
+fn authorize_url(client: &str, redirect: &str, state: &str, challenge: &str) -> Result<String, String> {
+    let mut url = reqwest::Url::parse(&format!("{}/authorize", authority())).map_err(|_| crate::i18n::t("Unexpected API response."))?;
+    url.query_pairs_mut()
+        .append_pair("client_id", client)
+        .append_pair("response_type", "code")
+        .append_pair("redirect_uri", redirect)
+        .append_pair("response_mode", "query")
+        .append_pair("scope", SCOPE)
+        .append_pair("state", state)
+        .append_pair("code_challenge", challenge)
+        .append_pair("code_challenge_method", "S256")
+        .append_pair("prompt", "select_account");
+    Ok(url.into())
+}
+
+/// What came back on the loopback: the code, or Entra's error.
+fn read_redirect(request_line: &str, state: &str) -> Option<Result<String, String>> {
+    let target = request_line.strip_prefix("GET ")?.split(' ').next()?;
+    let url = reqwest::Url::parse(&format!("http://localhost{target}")).ok()?;
+    if url.path() != "/" {
+        return None; // the favicon and the like
+    }
+    let get = |k: &str| url.query_pairs().find(|(key, _)| key == k).map(|(_, v)| v.into_owned());
+    if get("state").as_deref() != Some(state) {
+        return Some(Err(crate::i18n::t("Unexpected API response.")));
+    }
+    if let Some(error) = get("error") {
+        let description = get("error_description").unwrap_or_default();
+        return Some(Err(match token_error(&serde_json::json!({ "error": error, "error_description": description })) {
+            TokenError::Final(m) => m,
+            _ => crate::i18n::t("Unexpected API response."),
+        }));
+    }
+    get("code").map(Ok)
+}
+
+async fn answer(stream: &mut tokio::net::TcpStream, ok: bool) {
+    use tokio::io::AsyncWriteExt;
+    let text = if ok {
+        crate::i18n::t("Ronron is signed in to Microsoft. You can close this tab.")
+    } else {
+        crate::i18n::t("Sign-in failed. Close this tab and try again in Ronron.")
+    };
+    let text = text.replace('&', "&amp;").replace('<', "&lt;");
+    let body = format!("<!doctype html><meta charset=utf-8><title>Ronron</title><body style=\"font:16px system-ui;display:grid;place-items:center;height:90vh;background:#111;color:#eee\"><p>{text}</p>");
+    let response = format!("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len());
+    let _ = stream.write_all(response.as_bytes()).await;
+    let _ = stream.shutdown().await;
+}
+
+/// Opens Microsoft's sign-in page in the browser and waits for it to come back
+/// to a one-shot server on this computer. Returns the account's name.
+pub async fn browser() -> Result<String, String> {
+    use tokio::io::AsyncReadExt;
+    let client = client_id()?;
+    let generation = GENERATION.fetch_add(1, Ordering::SeqCst) + 1;
+    let (verifier, challenge) = pkce()?;
+    let state = base64url_encode(&random(16)?);
+    // Only this computer can reach it; the browser may try either loopback.
+    let v4 = tokio::net::TcpListener::bind("127.0.0.1:0").await.map_err(|_| crate::i18n::t("Not available"))?;
+    let port = v4.local_addr().map_err(|_| crate::i18n::t("Not available"))?.port();
+    let v6 = tokio::net::TcpListener::bind(("::1", port)).await.ok();
+    let redirect = format!("http://localhost:{port}");
+    crate::platform::open_url(&authorize_url(&client, &redirect, &state, &challenge)?);
+
+    let deadline = tokio::time::Instant::now() + Duration::from_secs(300);
+    let code = loop {
+        if GENERATION.load(Ordering::SeqCst) != generation {
+            return Err(crate::i18n::t("Sign-in canceled."));
+        }
+        let accept = async {
+            match &v6 {
+                Some(v6) => tokio::select! { r = v4.accept() => r, r = v6.accept() => r },
+                None => v4.accept().await,
+            }
+        };
+        let (mut stream, _) = match tokio::time::timeout(Duration::from_secs(1), accept).await {
+            Ok(Ok(s)) => s,
+            Ok(Err(_)) => continue,
+            Err(_) => {
+                if tokio::time::Instant::now() > deadline {
+                    return Err(crate::i18n::t("The code expired. Sign in again."));
+                }
+                continue;
+            }
+        };
+        let mut buf = vec![0u8; 8192];
+        let n = tokio::time::timeout(Duration::from_secs(5), stream.read(&mut buf)).await.ok().and_then(|r| r.ok()).unwrap_or(0);
+        let request = String::from_utf8_lossy(&buf[..n]);
+        match read_redirect(request.lines().next().unwrap_or(""), &state) {
+            None => {
+                let _ = tokio::io::AsyncWriteExt::write_all(&mut stream, b"HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\n").await;
+            }
+            Some(result) => {
+                answer(&mut stream, result.is_ok()).await;
+                break result?;
+            }
+        }
+    };
+
+    let (ok, body) = post_form(&format!("{}/token", authority()), &[
+        ("grant_type", "authorization_code"),
+        ("client_id", &client),
+        ("code", &code),
+        ("redirect_uri", &redirect),
+        ("code_verifier", &verifier),
+        ("scope", SCOPE),
+    ]).await?;
+    if !ok {
+        return Err(match token_error(&body) {
+            TokenError::Final(m) => m,
+            _ => crate::i18n::t("Unexpected API response."),
+        });
+    }
+    keep(&body)
+}
+
 /// Polls until the user has entered the code, then keeps the tokens. Returns
 /// the account's name.
 pub async fn wait(code: &DeviceCode) -> Result<String, String> {
@@ -362,6 +517,33 @@ mod tests {
         assert_eq!(account.name, "greg@contoso.ch");
         assert_eq!(account.tid, "t1");
         assert!(account_from_id_token("nope").is_none());
+    }
+
+    #[test]
+    fn pkce_and_base64url() {
+        assert_eq!(base64url_encode(b""), "");
+        assert_eq!(base64url_encode(b"f"), "Zg");
+        assert_eq!(base64url_encode(b"fo"), "Zm8");
+        assert_eq!(base64url_encode(b"foo"), "Zm9v");
+        assert_eq!(base64url_encode(&[0xfb, 0xff]), "-_8");
+        assert_eq!(base64url(&base64url_encode(b"round trip")).unwrap(), b"round trip");
+        // RFC 7636, appendix B.
+        let challenge = base64url_encode(ring::digest::digest(&ring::digest::SHA256, b"dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk").as_ref());
+        assert_eq!(challenge, "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM");
+        let (verifier, _) = pkce().unwrap();
+        assert_eq!(verifier.len(), 43);
+    }
+
+    #[test]
+    fn the_redirect_is_read_and_checked() {
+        assert_eq!(read_redirect("GET /?code=abc&state=s1 HTTP/1.1", "s1"), Some(Ok("abc".into())));
+        assert!(matches!(read_redirect("GET /?code=abc&state=other HTTP/1.1", "s1"), Some(Err(_))));
+        assert_eq!(read_redirect("GET /favicon.ico HTTP/1.1", "s1"), None);
+        assert_eq!(read_redirect("POST / HTTP/1.1", "s1"), None);
+        let Some(Err(m)) = read_redirect("GET /?error=access_denied&error_description=AADSTS65004%3A+declined&state=s1 HTTP/1.1", "s1") else { panic!() };
+        assert!(m.contains("AADSTS65004"), "{m}");
+        let url = authorize_url("cid", "http://localhost:5000", "st", "ch").unwrap();
+        assert!(url.contains("code_challenge_method=S256") && url.contains("redirect_uri=http%3A%2F%2Flocalhost%3A5000"), "{url}");
     }
 
     #[test]
