@@ -54,7 +54,7 @@ use super::LocalTime;
 use crate::session_window::{self, Proc};
 
 /// File name of the Claude Code relay.
-pub const HOOK_EXE: &str = "coucou-hook.exe";
+pub const HOOK_EXE: &str = "ronron-hook.exe";
 
 /// Environment variable holding the home directory.
 pub const HOME_VAR: &str = "USERPROFILE";
@@ -64,20 +64,20 @@ const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 
 // ── Files ─────────────────────────────────────────────────────────────────────
 
-/// %APPDATA%\Coucou — preferences.
+/// %APPDATA%\Ronron — preferences.
 pub fn config_dir() -> PathBuf {
     let base = std::env::var_os("APPDATA")
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from("."));
-    base.join("Coucou")
+    base.join("Ronron")
 }
 
-/// %LOCALAPPDATA%\Coucou — where coucou-hook.exe, the inbox and the log live.
+/// %LOCALAPPDATA%\Ronron — where ronron-hook.exe, the inbox and the log live.
 pub fn local_dir() -> PathBuf {
     let base = std::env::var_os("LOCALAPPDATA")
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from("."));
-    base.join("Coucou")
+    base.join("Ronron")
 }
 
 /// Where a saved image goes, best first: Pictures (also where OneDrive moves
@@ -236,8 +236,8 @@ pub fn cli_candidates(name: &str) -> Vec<PathBuf> {
 // ── Who we are ────────────────────────────────────────────────────────────────
 //
 // Named pipes share one machine-wide namespace, so the SID in the name is what
-// keeps two accounts on the same machine from ever meeting on `coucou-*`.
-// coucou-hook computes the same string (hook/src/win.rs) and additionally checks
+// keeps two accounts on the same machine from ever meeting on `ronron-*`.
+// ronron-hook computes the same string (hook/src/win.rs) and additionally checks
 // that the process serving the pipe really is us.
 
 /// The SID of the account this process runs as, as `S-1-5-21-…`.
@@ -278,7 +278,7 @@ unsafe fn process_user_sid(process: HANDLE) -> Option<String> {
     sid
 }
 
-// The display name only feeds Mochi's greeting (identity.rs). The calls are
+// The display name only feeds Ronron's greeting (identity.rs). The calls are
 // declared here by hand, with their documented C signatures, so they need no
 // extra `windows` crate features.
 #[link(name = "secur32")]
@@ -605,7 +605,7 @@ fn bring_forward(raw: isize) -> bool {
             let _ = ShowWindow(hwnd, SW_SHOW);
         }
 
-        // The island window has WS_EX_NOACTIVATE, so clicks on it do not make Coucou
+        // The island window has WS_EX_NOACTIVATE, so clicks on it do not make Ronron
         // the active foreground window. Windows blocks SetForegroundWindow unless the
         // calling thread is attached to the foreground thread or owns foreground rights.
         let fg_hwnd = GetForegroundWindow();
@@ -863,7 +863,7 @@ pub fn ctrl_alt_types(vk: u16, shift: bool) -> Option<String> {
     None
 }
 
-// ── Desktop Mochi window ──────────────────────────────────────────────────────
+// ── Desktop Ronron window ──────────────────────────────────────────────────────
 
 /// Windows places a window wherever it is asked, and the cursor poll is there.
 pub fn desktop_mode() -> super::DesktopMode {
@@ -887,7 +887,7 @@ pub fn set_layer_margins(_win: &WebviewWindow, _x: f64, _y: f64) {}
 pub fn set_layer_overlay(_win: &WebviewWindow, _on: bool) {}
 
 /// Layer-shell only (Linux): the logical size of the display the island is on.
-pub fn layer_display(_island: &WebviewWindow, _mochi: &WebviewWindow) -> Option<(f64, f64)> {
+pub fn layer_display(_island: &WebviewWindow, _cat: &WebviewWindow) -> Option<(f64, f64)> {
     None
 }
 
@@ -914,7 +914,7 @@ mod tests {
         use ::windows::Win32::Security::Authorization::GetNamedSecurityInfoW;
         use ::windows::Win32::Security::{GetSecurityDescriptorControl, SE_DACL_PROTECTED};
 
-        let dir = std::env::temp_dir().join(format!("coucou-acl-test-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("ronron-acl-test-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         ensure_private_dir(&dir).unwrap();
 
@@ -947,7 +947,7 @@ mod tests {
     async fn private_pipe_authenticates_same_user_client() {
         use std::os::windows::io::AsRawHandle;
 
-        let name = format!(r"\\.\pipe\coucou-sec-test-{}", std::process::id());
+        let name = format!(r"\\.\pipe\ronron-sec-test-{}", std::process::id());
         let server = create_private_pipe(&name, true).unwrap();
         let client = std::fs::OpenOptions::new().read(true).write(true).open(&name).unwrap();
         assert!(pipe_client_is_same_user(server.as_raw_handle()));

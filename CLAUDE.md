@@ -1,34 +1,31 @@
-# Coucou — guide for AI coding agents
+# Ronron — guide for AI coding agents
 
-Coucou is a native macOS app (`NotchBuddy/`); `windows/` is the Tauri version for Windows and Linux. Mochi, a small animated character living in the MacBook notch, shows AI coding agent sessions (Claude Code, Gemini CLI, Antigravity and more) and a few integrations, and lets the user approve, answer, chat and drop files from the notch.
+Ronron is a Windows and Linux app (Tauri 2) forked from Coucou. Ronron, a small animated ginger cat living in an island at the top of the screen, shows AI coding agent sessions (Claude Code, Codex, Gemini CLI and more) and a few integrations, and lets the user approve, answer, chat, dictate and drop files from the island.
 
 ## Where things are
-- `NotchBuddy/Sources/App/` — Mac-only Swift code. `NotchBuddy/Sources/CoucouKit/` — code shared with the iPhone app (Mochi's BotEngine and outfits, pills, diff, models). `NotchBuddy/Sources/Phone/` — iPhone app (`CoucouPhone` target), with its widgets in `Sources/Widgets/` and the expanded approval notification in `Sources/NotificationContent/`. `NotchBuddy/Resources/sounds/` — the 28 WAV sounds. `NotchBuddy/project.yml` — XcodeGen project (never edit the `.xcodeproj` by hand).
-- `NotchBuddy/Sources/CoucouKit/PillCatalog.swift` — single source of truth for all declared pills (workspace tools, agents, AI providers, services). Every pill ID, color, category and subtitle lives here.
-- `docs/SPEC.md`, `docs/INTEGRATIONS.md` — behaviour, views, states, integrations (in French).
-- `design/prototype/notch-buddy.html` — original prototype, the visual source of truth. `design/captures/` — target screenshots.
-- `windows/` — the Tauri app for Windows and Linux: Rust in `src-tauri/`, TypeScript in `src/`, the `coucou-hook` relay in `hook/`. `windows/README.md` lists what differs from the Mac.
-- `docs/*.html` — the GitHub Pages site (privacy, terms, support, legal notice).
-- `relay/` — the Coucou relay, a stateless Cloudflare Worker that forwards the iPhone Live Activity pushes (it holds the APNs key, which must never ship in an app). See `relay/README.md`.
+- `windows/` — the whole app: Rust in `src-tauri/`, TypeScript in `src/`, the `ronron-hook` relay in `hook/`. `windows/README.md` is the user guide.
+- `windows/src/cat/` — the character: `engine.ts` (states, tweens, eyes, particles), `parts.ts` (the cat's ears, tail, stripes, nose and whiskers), `outfits.ts`, `wardrobe.ts`, `greeting.ts`, `minibots.ts`.
+- `windows/src/i18n/strings.json` — generated from `windows/i18n-source/Localizable.xcstrings` by `node scripts/gen-strings.mjs`; never edit it by hand. Windows-only strings live in `windows/src/i18n/extra.json`, translated in all 14 languages.
+- `windows/sounds/` — the 29 WAVs, made by `windows/scripts/gen-sounds.py`. `windows/src-tauri/icons/` — made by `windows/scripts/gen-icons.py` from `dev/icon.html`.
+- `windows/dev/` — browser previews (`cat-preview.html`, `upload-preview.html`…) served by `npx vite --port 1420`.
+- `linux/` — Arch and Nix packaging. `.github/workflows/` — Windows and Linux CI and releases.
 
-## Build
+## Build and test
 ```
-cd NotchBuddy && xcodegen && xcodebuild -scheme NotchBuddy -configuration Debug build
+cd windows && npm install && npm run tauri dev
+npx tsc --noEmit && npm test
+cargo build --release -p ronron-hook && cargo test --workspace --locked
 ```
-To run it day to day on the Mac (signed, iPhone link, permissions kept across builds): `./scripts/dev-install.sh` — it installs the only Coucou in /Applications and removes the copies earlier builds left.
-Windows and Linux: `cd windows && npm install && npm run tauri dev`
 
 ## Rules
-- Swift 6, SwiftUI + AppKit. No third-party dependencies unless truly unavoidable. The character is drawn in code (`Canvas` + `TimelineView`), no Rive/Lottie/images.
-- Secrets live in the Keychain, never on disk or in git.
+- Secrets live in the Windows Credential Manager / Secret Service, never on disk or in git.
 - No telemetry. Network calls only to services the user configured.
 - Never block Claude Code: if the app doesn't answer, the hook exits immediately.
 - Never overwrite `~/.claude/settings.json`: dated backup, merge, show the diff, write only after the user confirms.
-- Never send an email or approve a Claude Code or Codex permission without an explicit click.
+- Never send an email or approve a permission without an explicit click.
 - Performance: 0 % CPU when the island is hidden.
-- Keep the bundle identifier `fr.louisraille.NotchBuddy` (Keychain items, preferences and permissions depend on it).
-- Never restyle what already ships (pills, cards, Settings, chat…): existing views stay exactly as they are in `main`, which is the App Store build. Change the look of an existing view only when explicitly asked.
-- Pill IDs are stable contract values (Keychain, UserDefaults, hook routing): never rename an existing pill ID.
-- New views follow the existing app style. `design/prototype/notch-buddy.html` and `design/captures/` are references for new work, not a reason to change existing views.
-- Every release adds its CHANGELOG.md section, a row in the README Versions table, and commits the regenerated Info.plist with the new version.
-- Every release also adds its What's new, shown once in the notch or the island after Coucou updates itself: an entry for the new version in `NotchBuddy/Resources/whats-new.json` (Mac, the 16 languages) or `windows/src/whats-new/whats-new.json` (Windows and Linux, the 14 languages). 1 to 4 items picked from the CHANGELOG section, each with an icon from `scripts/test-whats-new.py`, a short title and one line, translated in every language. `python3 scripts/test-whats-new.py` checks it; CI and `release.sh` fail without it.
+- Keep the app identifier `ch.cloudguy.ronron` (settings, keys and hooks depend on it).
+- Pill IDs are stable contract values (credential store, settings, hook routing): never rename an existing pill ID.
+- The character is drawn in code (Canvas 2D), no images. Never bring back Coucou's Mochi character, icon, sounds or media: they are not under the MIT License (see NOTICE.md).
+- New views follow the existing app style.
+- Every release adds its CHANGELOG.md section and its What's new entry in `windows/src/whats-new/whats-new.json` (1 to 4 items, in the 14 languages); `python3 scripts/test-whats-new.py windows` checks it.

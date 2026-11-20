@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Ronron icon</title>
+<style>html,body{margin:0;background:transparent}canvas{position:absolute;left:0;top:0}</style></head>
+<body><canvas id="c"></canvas><script type="module">
+// Dev only: draws the app icon (scripts/gen-icons.py screenshots it at each size).
+import { BotEngine } from "../src/cat/engine";
+const size = Number(new URLSearchParams(location.search).get("size") ?? 512);
+const c = document.getElementById("c");
+c.width = c.height = size;
+const e = new BotEngine();
+e.setState("idle", true);
+for (let i = 0; i < 30; i++) e.update(1 / 60);
+const x = c.getContext("2d");
+// The engine leaves room around him for particles: zoom in so he fills the square.
+const z = 1.16;
+x.translate(size / 2, size / 2);
+x.scale(z, z);
+x.translate(-size / 2, -size / 2 + size * 0.02);
+e.draw(x, size, size);
+document.title = "ready";
+</script></body></html>

@@ -10,8 +10,6 @@ labels: bug
 
 **How to reproduce**
 
-**macOS version**
+**Windows or Linux version** (and desktop, on Linux)
 
-**Mac model**
-
-**Coucou version**
+**Ronron version**
