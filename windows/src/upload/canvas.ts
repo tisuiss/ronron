@@ -1,11 +1,12 @@
 // The upload canvas — port of UploadCanvasView.swift.
 //
 // While the sequence engine is active this canvas draws the whole island body:
-// card, dashed drop frame, drop text, progress bar, the choose card, Mochi and
-// the file being sucked in. The island's own Mochi is hidden for the duration,
+// card, dashed drop frame, drop text, progress bar, the choose card, Ronron and
+// the file being sucked in. The island's own Ronron is hidden for the duration,
 // exactly as on macOS, because this canvas draws its own.
 
 import { State } from "../core/state";
+import { FUR_BOTTOM, FUR_TOP, drawEars, drawMuzzle, drawStripes, drawTail, furGradient } from "../cat/parts";
 import { SCRIPT_FONTS } from "../core/fonts";
 import { N_, isRtl, t } from "../i18n/i18n";
 import {
@@ -217,7 +218,7 @@ export class UploadCanvas {
     if (f.barAlpha > 0 || f.barReveal > 0) this.drawProgressBar(ctx, f);
     if (f.chooseAlpha > 0) this.drawChoose(ctx, f);
 
-    this.drawMochi(ctx, f);
+    this.drawCat(ctx, f);
     if (f.fileVisible) this.drawFile(ctx, f);
   }
 
@@ -360,9 +361,9 @@ export class UploadCanvas {
     ctx.restore();
   }
 
-  // ── Mochi ─────────────────────────────────────────────────────────────────
+  // ── Ronron ─────────────────────────────────────────────────────────────────
 
-  private drawMochi(ctx: CanvasRenderingContext2D, f: UploadFrame) {
+  private drawCat(ctx: CanvasRenderingContext2D, f: UploadFrame) {
     const R = f.d / 2 / 1.04;
     const mc = Math.max(0, Math.min(f.morph, 1));
 
@@ -371,12 +372,22 @@ export class UploadCanvas {
     ctx.rotate(f.tilt);
     ctx.scale(f.sx, f.sy);
 
+    // Ears and tail first, behind the body; they fold away as he becomes a box.
+    const catness = 1 - mc;
+    const t = performance.now() / 1000;
+    {
+      const rx0 = R * (1.04 - 0.04 * mc);
+      const ry0 = R * (0.97 - 0.03 * mc);
+      drawTail(ctx, rx0, ry0, R, FUR_BOTTOM, t, catness);
+      drawEars(ctx, rx0, ry0, furGradient(ctx, rx0, ry0), { presence: catness, time: t });
+    }
+
     const { rx, ry } = bodyPath(ctx, f.morph, R);
 
     // Body.
     const bg = ctx.createLinearGradient(rx * 0.7, -ry * 0.9, -rx * 0.8, ry * 0.9);
-    bg.addColorStop(0, "#EDEDEF");
-    bg.addColorStop(1, "#C4C5CA");
+    bg.addColorStop(0, FUR_TOP);
+    bg.addColorStop(1, FUR_BOTTOM);
     ctx.fillStyle = bg;
     ctx.fill();
 
@@ -393,7 +404,9 @@ export class UploadCanvas {
     bodyPath(ctx, f.morph, R);
     ctx.clip();
 
-    // Top rim, once Mochi is box-shaped enough to have one.
+    drawStripes(ctx, rx, ry, 0, catness);
+
+    // Top rim, once Ronron is box-shaped enough to have one.
     if (mc > 0.3) {
       const a = Math.max(0, Math.min(1, (mc - 0.3) / 0.7));
       ctx.beginPath();
@@ -444,6 +457,7 @@ export class UploadCanvas {
     }
 
     ctx.restore(); // body clip
+    drawMuzzle(ctx, rx, ry, R, "#1A1412", { noseY: 0.5, alpha: catness });
     ctx.restore(); // transform
   }
 

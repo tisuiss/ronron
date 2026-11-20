@@ -1,8 +1,8 @@
 // The 1080 × 1920 image of the week, drawn once into an offscreen canvas —
 // port of RecapShareImageView in WeeklyRecapView.swift. Same colours, sizes
-// and order; Mochi comes from the island's own engine.
+// and order; Ronron comes from the island's own engine.
 
-import { BotEngine } from "../mochi/engine";
+import { BotEngine } from "../cat/engine";
 import { formatCount, formatDuration, weekRangeLabel, type WeeklySummary } from "./summary";
 import { t } from "../i18n/i18n";
 import { SCRIPT_FONTS } from "../core/fonts";
@@ -30,7 +30,7 @@ const T = {
   get longestSession() { return t("Longest session"); },
   get approved() { return t("Approved"); },
   get denied() { return t("Denied"); },
-  footer: "Coucou · github.com/Louis-CFM/coucou",
+  footer: "Ronron · github.com/tisuiss/ronron",
 };
 
 /**
@@ -131,8 +131,8 @@ function badge(x: Ctx, left: number, top: number, w: number, label: string, valu
   x.fillText(ellipsize(x, value, w - 64 - labelW - 16), left + w - 32, mid);
 }
 
-/** A still Mochi, drawn by the same engine as the island's. */
-function drawMochi(x: Ctx, cx: number, top: number, size: number) {
+/** A still Ronron, drawn by the same engine as the island's. */
+function drawCat(x: Ctx, cx: number, top: number, size: number) {
   const engine = new BotEngine();
   engine.setState("idle", true);
   engine.update(1 / 60);
@@ -171,11 +171,11 @@ export function renderShareImage(s: WeeklySummary, hideProjects: boolean): HTMLC
   const hasLines = s.linesAdded + s.linesRemoved > 0;
 
   // Heights of each block, so the whole stack can be centred like the VStack.
-  // Mochi's body fills ~60 % of the square the engine draws into.
-  const MOCHI = 220;
-  const MOCHI_DRAW = 320;
+  // Ronron's body fills ~60 % of the square the engine draws into.
+  const CAT = 220;
+  const CAT_DRAW = 320;
   const blockH =
-    MOCHI + 20 + 62 + 6 + 36 + 14 + 29 + 80 + // Mochi, Coucou, title, range
+    CAT + 20 + 62 + 6 + 36 + 14 + 29 + 80 + // Ronron, Ronron, title, range
     110 + 6 + 26 + // time + caption
     56 + 94 + // stat row
     (hasLines ? 24 + 34 : 0) +
@@ -185,13 +185,13 @@ export function renderShareImage(s: WeeklySummary, hideProjects: boolean): HTMLC
 
   x.textBaseline = "top";
 
-  drawMochi(x, cx, y + MOCHI / 2 - MOCHI_DRAW / 2 - MOCHI_DRAW * 0.02, MOCHI_DRAW);
-  y += MOCHI + 20;
+  drawCat(x, cx, y + CAT / 2 - CAT_DRAW / 2 - CAT_DRAW * 0.02, CAT_DRAW);
+  y += CAT + 20;
 
   x.fillStyle = INK;
   x.textAlign = "center";
   font(x, 900, 52);
-  x.fillText("Coucou", cx, y);
+  x.fillText("Ronron", cx, y);
   y += 62 + 6;
 
   x.fillStyle = DIM;
