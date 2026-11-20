@@ -26,7 +26,7 @@ test("the pill is a service with a sign-in, on Windows and Linux", () => {
   const def = pillDefinition(TODO_ID);
   assert.equal(def.name, "To Do");
   assert.equal(def.category, "service");
-  assert.deepEqual(def.connect, { kind: "key", key: "todo-refresh-0" });
+  assert.deepEqual(def.connect, { kind: "key", key: "msgraph-refresh-0" });
   assert.ok(availablePills("windows").some((p) => p.id === TODO_ID));
   assert.ok(availablePills("linux").some((p) => p.id === TODO_ID));
   assert.equal(idleStatus(TODO_ID, { configured: false, error: null }, "").label, "Not signed in");

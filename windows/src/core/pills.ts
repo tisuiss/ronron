@@ -130,10 +130,12 @@ export const PILL_CATALOG: readonly PillDefinition[] = [
     subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("notion-api-key") },
   { id: "integration_calcom", name: "Cal.com", color: "#C9956A", category: "service",
     subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("calcom-api-key") },
-  // Microsoft To Do through Microsoft Graph (src-tauri/src/todo): signed in with the
-  // user's own Entra app in Settings; the first piece of the refresh token says "connected".
+  // Microsoft 365 through Graph (src-tauri/src/msgraph): one sign-in in Settings; the
+  // first piece of its refresh token says "connected".
   { id: "integration_todo", name: "To Do", color: "#2564CF", category: "service",
-    subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("todo-refresh-0") },
+    subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("msgraph-refresh-0") },
+  { id: "integration_calendar", name: "Calendar", color: "#0F78D4", category: "service",
+    subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("msgraph-refresh-0") },
   { id: "integration_stripe", name: "Stripe", color: "#0570DE", category: "service",
     subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("stripe-api-key") },
   { id: "integration_music", name: "Apple Music", color: "#FA2D48", category: "service",
@@ -142,10 +144,10 @@ export const PILL_CATALOG: readonly PillDefinition[] = [
   // (src-tauri/src/spotify.rs).
   { id: "integration_spotify", name: "Spotify", color: "#1DB954", category: "service",
     subtitle: N_("Integration"), source: "n8n", support: "yes", connect: none },
-  // Mail: classic Outlook on Windows, driven on this computer through its COM objects
-  // (src-tauri/src/mail). The new Outlook has none, and Linux has no Outlook.
+  // Mail: the mailbox through Microsoft Graph once signed in to Microsoft 365, on Windows
+  // and Linux; otherwise the classic Outlook on Windows, through its COM objects (src-tauri/src/mail).
   { id: "integration_mail", name: "Mail", color: "#2F8CFF", category: "service",
-    subtitle: N_("Integration"), source: "n8n", support: "windows", connect: none },
+    subtitle: N_("Integration"), source: "n8n", support: "yes", connect: none },
   // WhatsApp (experimental) through a gateway on this computer (src-tauri/src/whatsapp): set up,
   // linked and turned on in Settings → Integrations → WhatsApp, off until then.
   { id: "integration_whatsapp", name: "WhatsApp", color: "#25D366", category: "service",

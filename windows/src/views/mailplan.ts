@@ -100,7 +100,8 @@ function draw(el: HTMLElement, id: string, summary: string) {
       if (run.stepCount > 0) controls.append(button(t("Run ({0})", { 0: run.stepCount }), true, () => void MailBridge.planStart(id)));
       if (run.mails.length > 0 && run.myAddress) controls.append(button(t("Send me a test"), false, () => void MailBridge.planTest(id)));
       if (p.kind === "cancelled") controls.append(h("span", { class: "plan-status", text: t("Cancelled") }));
-      else if (run.testSentTo) controls.append(h("span", { class: "plan-status ok", text: t("Test sent to {0}", { 0: run.testSentTo }) }));
+      else if (run.testSentTo) controls.append(h("span", { class: "plan-status ok",
+        text: run.testDraft ? t("Test saved in Drafts") : t("Test sent to {0}", { 0: run.testSentTo }) }));
       break;
     case "countdown":
       controls.append(
@@ -117,6 +118,7 @@ function draw(el: HTMLElement, id: string, summary: string) {
     case "done":
       controls.append(h("span", { class: p.failed === 0 ? "plan-status ok" : "plan-status amber",
         text: (p.failed === 0 ? "✓ " : "⚠ ") + t("{0} done · {1} failed", { 0: p.ok, 1: p.failed }) }));
+      if (p.drafts) controls.append(h("span", { class: "plan-status amber", text: t("{0} saved in Drafts: send them from Outlook.", { 0: p.drafts }) }));
       break;
   }
   el.append(controls);

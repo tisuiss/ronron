@@ -13,14 +13,16 @@ use serde_json::Value;
 
 use crate::secrets;
 
-pub const CLIENT_ID_KEY: &str = "todo-client-id";
-pub const TENANT_KEY: &str = "todo-tenant";
-const ACCOUNT_KEY: &str = "todo-account";
+pub const CLIENT_ID_KEY: &str = "msgraph-client-id";
+pub const TENANT_KEY: &str = "msgraph-tenant";
+const ACCOUNT_KEY: &str = "msgraph-account";
 /// The refresh token's pieces, in order. Entry 0 doubles as "signed in" for the pill.
-pub const REFRESH_KEYS: [&str; 4] = ["todo-refresh-0", "todo-refresh-1", "todo-refresh-2", "todo-refresh-3"];
+pub const REFRESH_KEYS: [&str; 4] = ["msgraph-refresh-0", "msgraph-refresh-1", "msgraph-refresh-2", "msgraph-refresh-3"];
 const CHUNK: usize = 1200;
 
-const SCOPE: &str = "offline_access openid profile Tasks.ReadWrite";
+/// Everything the Microsoft 365 pills read: To Do (and ticking tasks off), the
+/// calendar (read only), the mailbox (read, flag, move; never send) and the profile.
+const SCOPE: &str = "offline_access openid profile User.Read Tasks.ReadWrite Calendars.Read Mail.ReadWrite";
 /// Personal Microsoft accounts all sign in through this tenant.
 const CONSUMER_TENANT: &str = "9188040d-6c67-4c5b-b112-36a304b66dad";
 
@@ -76,8 +78,8 @@ fn authority() -> String {
 }
 
 /// The Entra app this build signs in with, set when it was compiled
-/// (`RONRON_TODO_CLIENT_ID`): a multi-tenant public client, so a click is enough.
-pub const BUILTIN_CLIENT_ID: Option<&str> = option_env!("RONRON_TODO_CLIENT_ID");
+/// (`RONRON_MS_CLIENT_ID`): a multi-tenant public client, so a click is enough.
+pub const BUILTIN_CLIENT_ID: Option<&str> = option_env!("RONRON_MS_CLIENT_ID");
 
 pub fn has_builtin() -> bool {
     BUILTIN_CLIENT_ID.is_some_and(|c| !c.trim().is_empty())
@@ -153,6 +155,21 @@ fn base64url(s: &str) -> Option<Vec<u8>> {
         }
     }
     Some(out)
+}
+
+/// Standard base64 (Graph's attachments): padding and line breaks are ignored.
+pub fn base64_decode(s: &str) -> Option<Vec<u8>> {
+    let compact: String = s.chars().filter(|c| !c.is_whitespace()).collect();
+    base64url(&compact)
+}
+
+/// Standard base64 with padding, for attachments sent to Graph.
+pub fn base64_encode(bytes: &[u8]) -> String {
+    let mut out = base64url_encode(bytes).replace('-', "+").replace('_', "/");
+    while out.len() % 4 != 0 {
+        out.push('=');
+    }
+    out
 }
 
 // ── The refresh token ────────────────────────────────────────────────────────
@@ -527,6 +544,9 @@ mod tests {
         assert_eq!(base64url_encode(b"foo"), "Zm9v");
         assert_eq!(base64url_encode(&[0xfb, 0xff]), "-_8");
         assert_eq!(base64url(&base64url_encode(b"round trip")).unwrap(), b"round trip");
+        assert_eq!(base64_encode(&[0xfb, 0xff]), "+/8=");
+        assert_eq!(base64_encode(b"f"), "Zg==");
+        assert_eq!(base64_decode("Zm9v\r\nYmFy").unwrap(), b"foobar");
         // RFC 7636, appendix B.
         let challenge = base64url_encode(ring::digest::digest(&ring::digest::SHA256, b"dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk").as_ref());
         assert_eq!(challenge, "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM");

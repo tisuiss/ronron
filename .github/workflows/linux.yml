@@ -107,7 +107,7 @@ jobs:
         id: pack
         env:
           APPIMAGE_EXTRACT_AND_RUN: '1'
-          RONRON_TODO_CLIENT_ID: ${{ vars.RONRON_TODO_CLIENT_ID }}
+          RONRON_MS_CLIENT_ID: ${{ vars.RONRON_MS_CLIENT_ID }}
         run: |
           npm run pack
           echo "version=$(node -p "require('./src-tauri/tauri.conf.json').version")" >> "$GITHUB_OUTPUT"

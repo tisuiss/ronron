@@ -74,9 +74,9 @@ jobs:
         id: pack
         shell: pwsh
         env:
-          # The Entra app To Do signs in with (a repository variable, not a secret:
+          # The Entra app Microsoft 365 signs in with (a repository variable, not a secret:
           # a public client ID). Empty: users enter their own in Settings.
-          RONRON_TODO_CLIENT_ID: ${{ vars.RONRON_TODO_CLIENT_ID }}
+          RONRON_MS_CLIENT_ID: ${{ vars.RONRON_MS_CLIENT_ID }}
         run: |
           npm run pack
           $version = (Get-Content src-tauri/tauri.conf.json | ConvertFrom-Json).version

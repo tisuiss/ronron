@@ -243,7 +243,7 @@ export async function startHub(root: HTMLElement, opts: HubOptions) {
   };
   group("Flow", FLOW_PAGES);
   const notchGroup = group(t("Notch"), NOTCH_PAGES);
-  if (status.platform === "windows") group("Mail", MAIL_PAGES);
+  group("Mail", MAIL_PAGES);
 
   function renderSearchResults() {
     clear(resultsContainer);

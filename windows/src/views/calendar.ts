@@ -1,9 +1,11 @@
 import { readBookings, dayKey, monthDays, monthIndex, type Booking } from "../core/calendar";
 import { h, clear } from "./dom";
+import { Bridge } from "../core/bridge";
 import { language, t } from "../i18n/i18n";
 
 /** Month → day → booking, inside the existing integration detail card. */
-export function calendarDetail(data: Record<string, unknown>, close: () => void, open: () => void): HTMLElement {
+export function calendarDetail(data: Record<string, unknown>, close: () => void, open: () => void,
+  look: { name: string; color: string } = { name: "Cal.com", color: "#C9956A" }): HTMLElement {
   const root = h("div", { class: "int-card cal-card" });
   const bookings = readBookings(data.bookings);
   const from = new Date(Number(data.rangeStart)), until = new Date(Number(data.rangeEnd));
@@ -38,12 +40,16 @@ export function calendarDetail(data: Record<string, unknown>, close: () => void,
       for (const text of [booking.attendeeName, booking.attendeeEmail, booking.attendeeNotes]) {
         if (text) body.append(h("div", { class: "int-status", style: "white-space:pre-wrap;overflow-wrap:anywhere", text }));
       }
+      const links = h("div", { class: "int-actions", style: "gap:10px" });
+      if (booking.joinUrl) links.append(h("button", { class: "link-btn accent cal-join", text: t("Join the meeting"), onclick: () => void Bridge.openUrl(booking.joinUrl!) }));
+      if (booking.webUrl) links.append(h("button", { class: "link-btn", text: t("Open {name}", { name: "Outlook" }), onclick: () => void Bridge.openUrl(booking.webUrl!) }));
+      if (links.childNodes.length) body.append(links);
     } else if (selectedDay) {
       const dayBookings = onDay(selectedDay);
       if (!dayBookings.length) body.append(h("div", { class: "int-empty", text: t("No calls scheduled") }));
       for (const booking of dayBookings) body.append(h("button", { class: "int-row cal-booking", style: "width:100%;text-align:start",
         "data-booking": booking.id, onclick: () => { selectedBooking = booking; render(); } },
-        h("span", { class: "int-time", text: timeText(booking.start) }), h("span", { class: "int-name", text: booking.title || t("Meeting") })));
+        h("span", { class: "int-time", text: booking.allDay ? t("All day") : timeText(booking.start) }), h("span", { class: "int-name", text: booking.title || t("Meeting") })));
     } else {
       const previous = h("button", { class: "link-btn cal-previous", text: t("Previous"), onclick: () => { month = new Date(month.getFullYear(), month.getMonth() - 1, 1); render(); } });
       const next = h("button", { class: "link-btn cal-next", text: t("Next"), onclick: () => { month = new Date(month.getFullYear(), month.getMonth() + 1, 1); render(); } });
@@ -57,14 +63,14 @@ export function calendarDetail(data: Record<string, unknown>, close: () => void,
       for (const date of monthDays(month)) {
         const key = dayKey(date), count = onDay(date).length;
         const button = h("button", { class: "link-btn cal-day", "data-day": key, "aria-label": `${dateText(date)} · ${count}`,
-          style: count ? "background:#C9956A25;color:#C9956A" : undefined,
+          style: count ? `background:${look.color}25;color:${look.color}` : undefined,
           text: `${date.getDate()}${count ? " •" : ""}`, onclick: () => { selectedDay = date; render(); } });
         button.disabled = date.getMonth() !== month.getMonth() || key < firstDay || key > lastDay;
         grid.append(button);
       }
       body.append(grid);
     }
-    root.append(body, h("div", { class: "int-actions" }, h("button", { class: "link-btn", text: t("Open {name}", { name: "Cal.com" }), onclick: open })));
+    root.append(body, h("div", { class: "int-actions" }, h("button", { class: "link-btn", text: t("Open {name}", { name: look.name }), onclick: open })));
   }
   root.addEventListener("keydown", (event) => { if (event.key === "Escape") { event.stopPropagation(); back(); } });
   render();

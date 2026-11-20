@@ -38,8 +38,9 @@ window.addEventListener = () => {};
 
 const { h } = await import("../src/views/dom.ts");
 const { onLanguageChange, setLanguage, t } = await import("../src/i18n/i18n.ts");
-const { FLOW_PAGES, NOTCH_PAGES, startHub } = await import("../src/hub/shell.ts");
-const pages = [...FLOW_PAGES, ...NOTCH_PAGES];
+const { FLOW_PAGES, NOTCH_PAGES, MAIL_PAGES, startHub } = await import("../src/hub/shell.ts");
+// Mail is there on Linux too: Microsoft 365 reaches the mailbox through Graph.
+const pages = [...FLOW_PAGES, ...NOTCH_PAGES, ...MAIL_PAGES];
 const settle = () => new Promise((resolve) => setImmediate(resolve));
 
 beforeEach(() => {

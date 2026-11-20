@@ -317,17 +317,26 @@ minute while a CI is running, and as soon as you open the card on data older
 than a minute; contributions every 30 minutes. Nothing is fetched while the pill
 is off or Ronron is paused.
 
-## Microsoft To Do (Windows and Linux)
+## Microsoft 365: To Do, Calendar and Mail (Windows and Linux)
 
-The **To Do** pill shows your Microsoft To Do tasks through Microsoft Graph: nothing goes through a Ronron server, and Ronron only ever talks to `login.microsoftonline.com` and `graph.microsoft.com`.
+One sign-in gives three pills their data through Microsoft Graph: **To Do** (your tasks), **Calendar** (your Outlook calendar, read only) and **Mail** (your mailbox, instead of the classic Outlook). Nothing goes through a Ronron server: Ronron only ever talks to `login.microsoftonline.com` and `graph.microsoft.com`.
 
-**Sign in:** Settings → Integrations → **To Do**, turn the pill on, click **Sign in with Microsoft**. Microsoft's page opens in your browser; once you have signed in and accepted, it comes back to Ronron by itself (authorization code with PKCE, to a one-shot server on `localhost`). **Use a code instead** shows a code to enter at microsoft.com/devicelogin, from any device. The refresh token goes to the Windows Credential Manager or the Secret Service, in up to four pieces (Windows holds 1280 characters per entry); **Sign out** removes it.
+**Sign in:** Settings → Integrations → **Microsoft 365** → **Sign in with Microsoft**. Microsoft's page opens in your browser; once you have signed in and accepted, it comes back to Ronron by itself (authorization code with PKCE, to a one-shot server on `localhost`). **Use a code instead** shows a code to enter at microsoft.com/devicelogin, from any device. The refresh token goes to the Windows Credential Manager or the Secret Service, in up to four pieces (Windows holds 1280 characters per entry); **Sign out** removes it. Then turn on the pills you want.
 
-**Which Entra app:** builds made with the `RONRON_TODO_CLIENT_ID` repository variable carry their own app, so the click is all it takes. Otherwise, or to use your own, open **Use your own Entra app** and enter its client ID (and tenant ID or domain; empty means `common`). To create one (Microsoft Entra admin center → App registrations → New registration):
+**Permissions** (delegated, for the signed-in user only): `Tasks.ReadWrite` (tick tasks off, add some), `Calendars.Read`, `Mail.ReadWrite` (read, flag, move; Ronron never sends: there is no `Mail.Send`) and `User.Read`.
 
-1. Supported account types: your organization only, or any organization and personal accounts (needed for a build's shared app).
+**Which Entra app:** builds made with the `RONRON_MS_CLIENT_ID` repository variable carry their own app, so the click is all it takes. Otherwise, or to use your own, open **Use your own Entra app** and enter its client ID and tenant ID. To create one for your company only (Microsoft Entra admin center → App registrations → New registration):
+
+1. Supported account types: **Accounts in this organizational directory only** (single tenant).
 2. **Authentication** → Add a platform → **Mobile and desktop applications** → redirect URI `http://localhost`. Then *Allow public client flows* → **Yes** (for the code).
-3. **API permissions** → Microsoft Graph → Delegated → **Tasks.ReadWrite**. An admin can grant consent for the tenant, or each user consents at sign-in (some tenants only allow admins to consent).
+3. **API permissions** → Microsoft Graph → Delegated → `Tasks.ReadWrite`, `Calendars.Read`, `Mail.ReadWrite`, `User.Read` → **Grant admin consent**.
+4. Copy the **Application (client) ID** and the **Directory (tenant) ID** into Ronron.
+
+**Mail through Microsoft 365:** the Mail pill, its search, its sorting (rules, banned words, VIPs) and the chat's Mail switch read your mailbox through Graph once you are signed in, with or without Outlook, on Windows and Linux. **Open** and **Reply** open Outlook on the web (a reply is a draft there). A plan's mails go through the classic Outlook when it is open; otherwise they are saved in **Drafts** for you to send. Signed out, the Mail pill uses the classic Outlook as before.
+
+**Calendar:** the next three events (one under way says *Now*), and the month → day → event view of the Cal.com card, with **Join the meeting** for Teams and **Open Outlook**. From yesterday to 30 days ahead, refreshed every five minutes.
+
+**To Do:**
 
 | What you do | What happens |
 |---|---|

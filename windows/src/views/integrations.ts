@@ -56,6 +56,7 @@ const OPEN_URLS: Record<string, string> = {
   integration_notion: "https://notion.so",
   integration_calcom: "https://app.cal.com/bookings",
   integration_todo: "https://to-do.office.com/tasks/",
+  integration_calendar: "https://outlook.office.com/calendar/",
 };
 
 /** IntegrationCardView.statusLabel on macOS. */
@@ -76,7 +77,7 @@ export function idleStatus(
   if (def?.connect.kind === "none") return ok(t("Ready · no setup needed"));
   if (def?.connect.kind === "server") return configured ? ok(t("Connected")) : missing(t("Not connected"));
   // To Do has no key to paste: the user signs in with Microsoft in Settings.
-  if (id === "integration_todo" && !configured) return missing(t("Not signed in"));
+  if ((id === "integration_todo" || id === "integration_calendar") && !configured) return missing(t("Not signed in"));
   if (def?.category === "ai") {
     if (!configured) return missing(t("Key not configured"));
     return ok(id === "ai_anthropic" ? t("Key configured · {model}", { model: chatModel }) : t("Key configured"));
@@ -348,10 +349,13 @@ function notionCard(): HTMLElement {
   return h("div", { class: "int-card" }, header("#E8E8E8", "Notion", t("Recent")), rows);
 }
 
-// ── Cal.com ───────────────────────────────────────────────────────────────────
+// ── Cal.com and the Microsoft 365 calendar ────────────────────────────────────
 
-function calcomCard(openDetail: () => void): HTMLElement {
-  const bookings = arr("integration_calcom", "bookings")
+/** The next three events (one already under way stays until it ends). */
+function calcomCard(openDetail: () => void, id = "integration_calcom", name = "Cal.com", color = "#C9956A"): HTMLElement {
+  const now = Date.now();
+  const bookings = arr(id, "bookings")
+    .filter((b) => id === "integration_calcom" || new Date(String(b.end)).getTime() > now)
     .slice()
     .sort((a, b) => new Date(String(a.start)).getTime() - new Date(String(b.start)).getTime());
   const rows = h("div", { class: "int-rows tight" });
@@ -366,13 +370,14 @@ function calcomCard(openDetail: () => void): HTMLElement {
       h(
         "div",
         { class: "int-row" },
-        dot("#C9956A", 4),
-        h("span", { class: "int-time", text: `${day} ${time}` }),
+        dot(color, 4),
+        h("span", { class: "int-time", style: id === "integration_calcom" ? undefined : `color:${color}`,
+          text: when.getTime() <= now ? t("Now") : b.allDay === true ? `${day} · ${t("All day")}` : `${day} ${time}` }),
         h("span", { class: "int-name", text: String(b.title ?? t("Meeting")) }),
       ),
     );
   }
-  return h("div", { class: "int-card" }, header("#C9956A", "Cal.com", t("Schedule")), rows,
+  return h("div", { class: "int-card" }, header(color, name, t("Schedule")), rows,
     h("div", { class: "int-actions" }, h("button", { class: "link-btn", text: t("Details"), onclick: openDetail })));
 }
 
@@ -485,6 +490,8 @@ export function hasIntegrationData(id: string): boolean {
       return info.loaded;
     case "integration_todo":
       return info.loaded && Array.isArray(get(id).tasks);
+    case "integration_calendar":
+      return info.loaded && Array.isArray(get(id).bookings);
     default:
       return false;
   }
@@ -541,6 +548,10 @@ export function renderIntegrationCard(task: AgentTask, hooks: IntegrationCardHoo
       return hooks.detailOpen ? calendarDetail(get(task.id), hooks.closeDetail, () => void Bridge.openUrl(OPEN_URLS[task.id])) : calcomCard(hooks.openDetail);
     case "integration_todo":
       return hooks.detailOpen ? todoDetail(hooks.closeDetail) : todoCard(hooks.openDetail);
+    case "integration_calendar":
+      return hooks.detailOpen
+        ? calendarDetail(get(task.id), hooks.closeDetail, () => void Bridge.openUrl(OPEN_URLS[task.id]), { name: "Outlook", color: "#0F78D4" })
+        : calcomCard(hooks.openDetail, task.id, "Calendar", "#0F78D4");
     default:
       return idleCard(task, hooks.openSettings);
   }

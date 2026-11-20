@@ -13,7 +13,8 @@
 // OUTLOOK.EXE runs: Ronron never starts Outlook, and a closed Outlook costs nothing.
 // Ronron never deletes a message.
 
-pub mod outlook;
+pub mod graph;
+mod outlook;
 pub mod pdf;
 pub mod plan;
 pub mod store;
@@ -110,12 +111,32 @@ fn outlook_open() -> bool {
     cfg!(windows) && crate::platform::process_running(OUTLOOK_EXE)
 }
 
+/// Signed in to Microsoft 365: the mailbox is read through Graph (graph.rs), with or
+/// without Outlook. Otherwise the classic Outlook open on this PC (outlook.rs).
+fn via_graph() -> bool {
+    crate::msgraph::signed_in()
+}
+
+fn is_graph(m: &Message) -> bool {
+    m.store_id == graph::STORE
+}
+
+fn reachable() -> bool {
+    via_graph() || outlook_open()
+}
+
+fn start_of_today() -> i64 {
+    let t = crate::platform::local_time();
+    now_ms() - (t.hour * 3600 + t.minute * 60 + t.second) as i64 * 1000
+}
+
 fn emit_card(app: &AppHandle, running: bool) {
     let data = {
         let r = rt();
         json!({
             "running": running,
-            "windows": cfg!(windows),
+            "windows": cfg!(windows) || via_graph(),
+            "graph": via_graph(),
             "unread": r.last_unread,
             "messages": r.last,
             "shown": r.shown,
@@ -151,7 +172,7 @@ pub async fn poll(app: &AppHandle) {
     if !pill && !auto {
         return;
     }
-    if !outlook_open() {
+    if !reachable() {
         if pill {
             emit_card(app, false);
         }
@@ -162,7 +183,11 @@ pub async fn poll(app: &AppHandle) {
     }
     let _busy_guard = BusyGuard(&BUSY);
     let per_inbox = { rt().shown.max(if auto { 30 } else { 0 }) };
-    let result = outlook::run(outlook::list_script(per_inbox), TIMEOUT).await;
+    let result = if via_graph() {
+        graph::list(per_inbox.max(KEEP)).await.map_err(RunError::Failed)
+    } else {
+        outlook::run(outlook::list_script(per_inbox), TIMEOUT).await
+    };
     drop(_busy_guard);
     match result {
         Ok(v) => {
@@ -222,9 +247,13 @@ async fn triage(app: &AppHandle, list: &[Message]) {
 
 /// Applies `action` to a message in Outlook, writes it in the journal and updates the card.
 async fn perform(action: &Action, m: &Message, reason: Reason) -> Result<(), String> {
-    let v = outlook::run(outlook::apply_script(&m.entry_id, &m.store_id, action), TIMEOUT)
-        .await
-        .map_err(|e| e.to_string())?;
+    let v = if is_graph(m) {
+        graph::apply(&m.entry_id, action).await?
+    } else {
+        outlook::run(outlook::apply_script(&m.entry_id, &m.store_id, action), TIMEOUT)
+            .await
+            .map_err(|e| e.to_string())?
+    };
     let after = v.get("entryId").and_then(Value::as_str).unwrap_or(&m.entry_id).to_string();
     let mut r = rt();
     r.store.record(JournalEntry {
@@ -262,7 +291,11 @@ pub struct Detail {
 }
 
 async fn detail(m: &Message, limit: usize) -> Option<Detail> {
-    let v = outlook::run(outlook::detail_script(&m.entry_id, &m.store_id, limit), TIMEOUT).await.ok()?;
+    let v = if is_graph(m) {
+        graph::detail(&m.entry_id, limit).await.ok()?
+    } else {
+        outlook::run(outlook::detail_script(&m.entry_id, &m.store_id, limit), TIMEOUT).await.ok()?
+    };
     serde_json::from_value(v).ok()
 }
 
@@ -287,6 +320,15 @@ pub async fn mail_more(app: AppHandle) {
 /// Searches every inbox; nothing to search: the card's list.
 #[tauri::command]
 pub async fn mail_search(query: String, filter: Filter) -> Result<Vec<Message>, String> {
+    if via_graph() {
+        let q = Query::parse(&query);
+        if graph::kql(&q).is_none() && matches!(filter, Filter::All) {
+            return Ok(rt().last.clone());
+        }
+        let mut list = graph::search(&q, filter, MAX_SHOWN, start_of_today()).await?;
+        list.truncate(MAX_SHOWN);
+        return Ok(list);
+    }
     let Some(dasl) = outlook::dasl(&Query::parse(&query), filter) else { return Ok(rt().last.clone()) };
     let v = outlook::run(outlook::search_script(&dasl, MAX_SHOWN), TIMEOUT).await.map_err(|e| e.to_string())?;
     let mut list = serde_json::from_value::<outlook::Listing>(v).unwrap_or_default().messages;
@@ -305,6 +347,9 @@ pub async fn mail_detail(message: Message) -> Result<Detail, String> {
 #[tauri::command]
 pub async fn mail_open(message: Message, reply: bool) -> Result<(), String> {
     let body = reply.then_some("");
+    if is_graph(&message) {
+        return graph::open(&message.entry_id, body).await;
+    }
     outlook::run(outlook::open_script(&message.entry_id, &message.store_id, body), TIMEOUT)
         .await
         .map(|_| ())
@@ -318,9 +363,13 @@ pub async fn mail_act(app: AppHandle, message: Message, kind: String) -> Result<
         "read" => perform(&Action::MarkRead, &message, Reason::Manual).await?,
         "flag" => perform(&Action::Important, &message, Reason::Manual).await?,
         "unflag" => {
-            outlook::run(outlook::unflag_script(&message.entry_id, &message.store_id), TIMEOUT)
-                .await
-                .map_err(|e| e.to_string())?;
+            if is_graph(&message) {
+                graph::unflag(&message.entry_id).await?;
+            } else {
+                outlook::run(outlook::unflag_script(&message.entry_id, &message.store_id), TIMEOUT)
+                    .await
+                    .map_err(|e| e.to_string())?;
+            }
             rt().last.iter_mut().filter(|x| x.id() == message.id()).for_each(|x| x.flagged = false);
         }
         "junk" => perform(&Action::Junk, &message, Reason::Manual).await?,
@@ -351,6 +400,7 @@ pub struct TriageView {
     today: Value,
     windows: bool,
     outlook_open: bool,
+    graph: bool,
 }
 
 #[tauri::command]
@@ -371,8 +421,9 @@ pub fn mail_triage() -> TriageView {
             "junk": today.iter().filter(|e| e.action == Action::Junk).count(),
             "important": today.iter().filter(|e| e.action == Action::Important).count(),
         }),
-        windows: cfg!(windows),
-        outlook_open: outlook_open(),
+        windows: cfg!(windows) || via_graph(),
+        outlook_open: reachable(),
+        graph: via_graph(),
     }
 }
 
@@ -391,9 +442,13 @@ pub fn mail_journal_clear() {
 #[tauri::command]
 pub async fn mail_undo(app: AppHandle, id: String) -> Result<(), String> {
     let entry = rt().store.journal.iter().find(|e| e.id == id && !e.undone).cloned().ok_or("not found")?;
-    outlook::run(outlook::undo_script(&entry.entry_id, &entry.store_id, &entry.action), TIMEOUT)
-        .await
-        .map_err(|e| e.to_string())?;
+    if entry.store_id == graph::STORE {
+        graph::undo(&entry.entry_id, &entry.action).await?;
+    } else {
+        outlook::run(outlook::undo_script(&entry.entry_id, &entry.store_id, &entry.action), TIMEOUT)
+            .await
+            .map_err(|e| e.to_string())?;
+    }
     rt().store.mark_undone(&id);
     poll(&app).await;
     Ok(())
@@ -403,13 +458,18 @@ pub async fn mail_undo(app: AppHandle, id: String) -> Result<(), String> {
 
 /// The user's request with the latest messages under it, for the AI.
 pub async fn decorate(query: &str) -> String {
-    if !cfg!(windows) {
+    if !via_graph() && !cfg!(windows) {
         return format!("{query}\n\n<mail>Outlook is only reached on Windows: say so.</mail>");
     }
-    if !outlook_open() {
+    if !reachable() {
         return format!("{query}\n\n<mail>Outlook is closed: ask the user to open the classic Outlook, then to ask again.</mail>");
     }
-    if let Ok(v) = outlook::run(outlook::accounts_script(), TIMEOUT).await {
+    let accounts = if via_graph() {
+        graph::accounts().await.ok()
+    } else {
+        outlook::run(outlook::accounts_script(), TIMEOUT).await.ok()
+    };
+    if let Some(v) = accounts {
         let accounts: Vec<(String, String)> = v["accounts"]
             .as_array()
             .map(|a| {
@@ -420,7 +480,12 @@ pub async fn decorate(query: &str) -> String {
             .unwrap_or_default();
         rt().accounts = accounts;
     }
-    let mut list = match outlook::run(outlook::list_script(20), TIMEOUT).await {
+    let listing = if via_graph() {
+        graph::list(40).await.map_err(RunError::Failed)
+    } else {
+        outlook::run(outlook::list_script(20), TIMEOUT).await
+    };
+    let mut list = match listing {
         Ok(v) => serde_json::from_value::<outlook::Listing>(v).unwrap_or_default().messages,
         Err(e) => return format!("{query}\n\n<mail>Ronron could not read Outlook ({e}).</mail>"),
     };
@@ -476,7 +541,8 @@ pub enum Phase {
     Ready,
     Countdown { seconds: u32 },
     Running { done: usize, total: usize },
-    Done { ok: usize, failed: usize },
+    /// `drafts`: mails saved in Drafts instead of sent (Microsoft 365 without the classic Outlook).
+    Done { ok: usize, failed: usize, drafts: usize },
     Cancelled,
 }
 
@@ -506,6 +572,8 @@ pub struct PlanRun {
     mails: Vec<PreparedMail>,
     notes: Vec<PlanNote>,
     test_sent_to: Option<String>,
+    /// The test went to Drafts, not to the inbox (see `send`).
+    test_draft: bool,
     my_address: Option<String>,
     step_count: usize,
 }
@@ -521,6 +589,7 @@ impl PlanRun {
             mails: Vec::new(),
             notes: Vec::new(),
             test_sent_to: None,
+            test_draft: false,
             my_address: None,
             step_count: 0,
         }
@@ -578,7 +647,12 @@ pub async fn mail_plan_show(app: AppHandle, id: String, text: String) -> Result<
 async fn save_attachments(m: &Message, only: Option<&str>) -> Vec<String> {
     let dir = work_dir().join(new_id());
     let folder = dir.to_string_lossy().to_string();
-    match outlook::run(outlook::save_attachments_script(&m.entry_id, &m.store_id, &folder, only), TIMEOUT).await {
+    let saved = if is_graph(m) {
+        graph::save_attachments(&m.entry_id, &folder, only).await.map_err(RunError::Failed)
+    } else {
+        outlook::run(outlook::save_attachments_script(&m.entry_id, &m.store_id, &folder, only), TIMEOUT).await
+    };
+    match saved {
         Ok(v) => v["saved"]
             .as_array()
             .map(|a| a.iter().filter_map(Value::as_str).map(|n| dir.join(n).to_string_lossy().to_string()).collect())
@@ -734,10 +808,10 @@ pub async fn mail_plan_test(app: AppHandle, id: String) -> Result<(), String> {
         let first = run.mails.iter().find(|m| m.problem.is_none()).cloned().ok_or("no mail")?;
         (first, run.my_address.clone().ok_or("no address")?)
     };
-    let script = outlook::send_script(&[me.clone()], &[], &format!("[Test] {}", first.subject), &first.body, &first.attachments);
-    outlook::run(script, TIMEOUT).await.map_err(|e| e.to_string())?;
+    let drafted = send(&[me.clone()], &[], &format!("[Test] {}", first.subject), &first.body, &first.attachments).await?;
     if let Some(run) = rt().plans.get_mut(&id) {
         run.test_sent_to = Some(me);
+        run.test_draft = drafted;
     }
     emit_plan(&app, &id);
     Ok(())
@@ -784,9 +858,21 @@ pub fn mail_plan_cancel(app: AppHandle, id: String) {
     }
 }
 
+/// Sends a mail through the classic Outlook when it is open; signed in to Microsoft 365
+/// without it, saves the mail in Drafts (Ronron has no permission to send through
+/// Graph). Ok(true) means "saved as a draft".
+async fn send(to: &[String], cc: &[String], subject: &str, body: &str, attachments: &[String]) -> Result<bool, String> {
+    if via_graph() && !outlook_open() {
+        graph::draft(to, cc, subject, body, attachments).await?;
+        return Ok(true);
+    }
+    outlook::run(outlook::send_script(to, cc, subject, body, attachments), TIMEOUT).await.map_err(|e| e.to_string())?;
+    Ok(false)
+}
+
 async fn execute(app: &AppHandle, id: &str, run: PlanRun) {
     let total = run.count();
-    let (mut ok, mut failed) = (0, 0);
+    let (mut ok, mut failed, mut drafts) = (0, 0, 0);
     let step = |success: bool, ok: &mut usize, failed: &mut usize| {
         if success { *ok += 1 } else { *failed += 1 }
         set_phase(app, id, Phase::Running { done: *ok + *failed, total });
@@ -802,20 +888,31 @@ async fn execute(app: &AppHandle, id: &str, run: PlanRun) {
         }
     }
     for (m, body) in &run.replies {
-        let r = outlook::run(outlook::open_script(&m.entry_id, &m.store_id, Some(body)), TIMEOUT).await;
-        step(r.is_ok(), &mut ok, &mut failed);
+        let r = if is_graph(m) {
+            graph::open(&m.entry_id, Some(body)).await.is_ok()
+        } else {
+            outlook::run(outlook::open_script(&m.entry_id, &m.store_id, Some(body)), TIMEOUT).await.is_ok()
+        };
+        step(r, &mut ok, &mut failed);
     }
     for (m, folder) in &run.saves {
-        let r = outlook::run(outlook::save_attachments_script(&m.entry_id, &m.store_id, folder, None), TIMEOUT).await;
-        step(r.is_ok(), &mut ok, &mut failed);
+        let r = if is_graph(m) {
+            graph::save_attachments(&m.entry_id, folder, None).await.is_ok()
+        } else {
+            outlook::run(outlook::save_attachments_script(&m.entry_id, &m.store_id, folder, None), TIMEOUT).await.is_ok()
+        };
+        step(r, &mut ok, &mut failed);
     }
     let mails: Vec<&PreparedMail> = run.mails.iter().filter(|m| m.problem.is_none()).collect();
     for (i, mail) in mails.iter().enumerate() {
         if stopped() {
             break;
         }
-        let script = outlook::send_script(&mail.to, &mail.cc, &mail.subject, &mail.body, &mail.attachments);
-        let sent = outlook::run(script, TIMEOUT).await.is_ok();
+        let outcome = send(&mail.to, &mail.cc, &mail.subject, &mail.body, &mail.attachments).await;
+        let sent = matches!(outcome, Ok(false));
+        if outcome == Ok(true) {
+            drafts += 1;
+        }
         if sent {
             rt().store.record_sent(SentEntry {
                 id: new_id(),
@@ -829,13 +926,13 @@ async fn execute(app: &AppHandle, id: &str, run: PlanRun) {
                     .collect(),
             });
         }
-        step(sent, &mut ok, &mut failed);
+        step(outcome.is_ok(), &mut ok, &mut failed);
         // A pause between mails: the provider sees a person, not a burst.
         if i + 1 < mails.len() {
             tokio::time::sleep(Duration::from_millis(1200)).await;
         }
     }
-    set_phase(app, id, Phase::Done { ok, failed });
+    set_phase(app, id, Phase::Done { ok, failed, drafts });
     if pill_on(app) {
         emit_card(app, true);
     }

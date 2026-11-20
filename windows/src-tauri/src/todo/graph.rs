@@ -3,12 +3,10 @@
 use serde::Serialize;
 use serde_json::{json, Value};
 
-const GRAPH: &str = "https://graph.microsoft.com/v1.0/me/todo/lists";
 pub const MAX_LISTS: usize = 25;
 pub const MAX_TASKS: usize = 300;
 const PAGE: usize = 100;
 const MAX_PAGES: usize = 5;
-const MAX_BODY: usize = 4 * 1024 * 1024;
 
 pub struct List {
     pub id: String,
@@ -33,41 +31,15 @@ fn invalid() -> String {
     crate::i18n::t("Unexpected API response.")
 }
 
-/// `…/lists/{id}/tasks`, with the IDs escaped as path segments.
 fn url(segments: &[&str]) -> Result<reqwest::Url, String> {
-    let mut url = reqwest::Url::parse(GRAPH).map_err(|_| invalid())?;
-    url.path_segments_mut().map_err(|_| invalid())?.extend(segments);
-    Ok(url)
-}
-
-async fn read(request: reqwest::RequestBuilder) -> Result<Value, String> {
-    let mut response = request.send().await.map_err(|_| crate::i18n::t("Not available"))?;
-    let status = response.status().as_u16();
-    if status == 401 {
-        return Err(crate::i18n::t("Sign in to Microsoft again."));
-    }
-    if !(200..300).contains(&status) {
-        return Err(crate::i18n::tf("API error {code}", &[("code", &status.to_string())]));
-    }
-    if status == 204 {
-        return Ok(Value::Null);
-    }
-    let mut body = Vec::new();
-    while let Some(chunk) = response.chunk().await.map_err(|_| invalid())? {
-        if body.len() + chunk.len() > MAX_BODY {
-            return Err(crate::i18n::t("The server's answer is too large."));
-        }
-        body.extend_from_slice(&chunk);
-    }
-    if body.is_empty() {
-        return Ok(Value::Null);
-    }
-    serde_json::from_slice(&body).map_err(|_| invalid())
+    let mut all = vec!["todo", "lists"];
+    all.extend_from_slice(segments);
+    crate::msgraph::url(&all)
 }
 
 /// The user's lists, the default one ("Tasks") first.
-pub async fn lists(http: &reqwest::Client, token: &str) -> Result<Vec<List>, String> {
-    let value = read(http.get(url(&[])?).bearer_auth(token)).await?;
+pub async fn lists() -> Result<Vec<List>, String> {
+    let value = crate::msgraph::get(url(&[])?).await?;
     let mut lists = parse_lists(&value)?;
     lists.sort_by_key(|l| !l.default);
     Ok(lists)
@@ -85,19 +57,18 @@ fn parse_lists(value: &Value) -> Result<Vec<List>, String> {
 }
 
 /// The tasks of `list` that are not done yet, following Graph's pages.
-pub async fn open_tasks(http: &reqwest::Client, token: &str, list: &List) -> Result<Vec<Task>, String> {
+pub async fn open_tasks(list: &List) -> Result<Vec<Task>, String> {
     let mut next = url(&[&list.id, "tasks"])?;
     next.query_pairs_mut()
         .append_pair("$filter", "status ne 'completed'")
         .append_pair("$top", &PAGE.to_string());
     let mut tasks = Vec::new();
     for _ in 0..MAX_PAGES {
-        let value = read(http.get(next.clone()).bearer_auth(token)).await?;
+        let value = crate::msgraph::get(next.clone()).await?;
         tasks.extend(parse_tasks(&value, list)?);
-        // Only follow links that stay on Graph.
-        match value.get("@odata.nextLink").and_then(Value::as_str).and_then(|l| reqwest::Url::parse(l).ok()) {
-            Some(link) if link.host_str() == Some("graph.microsoft.com") && link.scheme() == "https" => next = link,
-            _ => break,
+        match crate::msgraph::next_link(&value) {
+            Some(link) => next = link,
+            None => break,
         }
     }
     Ok(tasks)
@@ -127,15 +98,17 @@ fn due_day(date_time: &str) -> Option<String> {
     ok.then(|| day.to_string())
 }
 
-pub async fn set_status(http: &reqwest::Client, token: &str, list_id: &str, task_id: &str, done: bool) -> Result<(), String> {
+pub async fn set_status(list_id: &str, task_id: &str, done: bool) -> Result<(), String> {
     let status = if done { "completed" } else { "notStarted" };
-    read(http.patch(url(&[list_id, "tasks", task_id])?).bearer_auth(token).json(&json!({ "status": status }))).await?;
+    let url = url(&[list_id, "tasks", task_id])?;
+    crate::msgraph::call(|h, t| h.patch(url).bearer_auth(t).json(&json!({ "status": status }))).await?;
     Ok(())
 }
 
-pub async fn add(http: &reqwest::Client, token: &str, list_id: &str, title: &str) -> Result<(), String> {
+pub async fn add(list_id: &str, title: &str) -> Result<(), String> {
     let title: String = title.chars().take(255).collect();
-    read(http.post(url(&[list_id, "tasks"])?).bearer_auth(token).json(&json!({ "title": title }))).await?;
+    let url = url(&[list_id, "tasks"])?;
+    crate::msgraph::call(|h, t| h.post(url).bearer_auth(t).json(&json!({ "title": title }))).await?;
     Ok(())
 }
 
@@ -146,7 +119,6 @@ mod tests {
     #[test]
     fn ids_are_path_segments() {
         let u = url(&["AAMk/=?#x", "tasks", "id 1"]).unwrap();
-        assert_eq!(u.host_str(), Some("graph.microsoft.com"));
         assert!(u.as_str().starts_with("https://graph.microsoft.com/v1.0/me/todo/lists/AAMk%2F=%3F%23x/tasks/id%201"), "{u}");
         assert!(u.query().is_none());
     }

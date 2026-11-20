@@ -1,0 +1,12 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Microsoft 365 preview</title></head>
+<body style="background:#16171a;padding:20px;width:640px">
+<script>window.__answers = { ms_account: null, ms_builtin_app: false, secret_present: false };</script>
+<script type="module">
+  import "./tauri-mock.ts";
+  import "../src/settings/settings.css";
+  const { setLanguage } = await import("../src/i18n/i18n.ts");
+  setLanguage("fr");
+  const { microsoftSection } = await import("../src/settings/microsoft.ts");
+  document.body.append(microsoftSection());
+  setTimeout(() => (document.title = "ready"), 300);
+</script></body></html>
