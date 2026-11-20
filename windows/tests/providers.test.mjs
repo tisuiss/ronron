@@ -12,7 +12,7 @@ const settings = (over = {}) => ({ ...DEFAULT_SETTINGS, ...over });
 
 test("the ids and key names match the Rust side and the Mac", () => {
   assert.deepEqual(PROVIDERS.map((p) => p.id), [
-    "anthropic", "google", "openai", "openrouter", "ollama", "lmstudio", "custom", "cursor", "copilot",
+    "anthropic", "google", "openai", "openrouter", "ollama", "lmstudio", "custom", "cursor", "copilot", "vscode",
   ]);
   // Cursor and Copilot answer only through the subscription: no key, no address.
   assert.equal(providerDef("cursor").key, null);

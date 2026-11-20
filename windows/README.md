@@ -367,6 +367,27 @@ The pill refreshes every two minutes while it is turned on, and right after each
 | **Mail** | The unread count | Search (`from:`, `subject:`), All / Unread / Important / Today, the list. A click shows the message in its place: **Reply** (a draft, nothing is sent), **Open**, **Mark as read**, **Important**, **Delete** (to Deleted Items, where it can be got back); **‹ Inbox** (or Esc) goes back | — |
 | **To Do** | A ring: tasks ticked off from Ronron today out of those due today; what is late | Today's tasks (late and due today), or a list's, picked on the right of the title (« Tâches - 4 »); tick off with Undo; add a task (to that list); ↗ opens To Do | — |
 
+## Claude Code in a remote VS Code workspace (Remote Tunnels, SSH, containers)
+
+When Claude Code runs in a remote workspace, its hooks run over there, out of
+Ronron's reach. **Ronron for VS Code** (two small extensions, in `vscode/` and attached
+to each Windows release as `.vsix` files) brings them back through VS Code's own
+connection: nothing listens on the network, nothing to host.
+
+- **Ronron for VS Code (local)** on your computer, **(remote)** in the remote
+  (VS Code → Extensions → ⋯ → *Install from VSIX…*; with a remote window open, the
+  remote one goes to the remote). The remote one offers to install the hooks in the
+  remote's `~/.claude/settings.json`: it shows the change, backs the file up, and
+  writes only on *Install*.
+- Then the remote's sessions (the Claude Code extension or the CLI in VS Code's
+  terminal) show in the island per project, and a permission can be approved there.
+- **Chat**: in the chat's model picker, **VS Code** lists the open remote folders;
+  Claude Code answers in the chosen one (`claude -p` there, your account there), and
+  the conversation carries on in the same session. It reads and answers; it does not
+  edit without the permission Claude Code would ask for.
+- Only while a VS Code desktop window is connected (not vscode.dev in a browser).
+  See [vscode/README.md](../vscode/README.md).
+
 ## Mail (classic Outlook, Windows)
 
 Turn the **Mail** pill on in Notch → Active pills. Ronron reads the Outlook already open on

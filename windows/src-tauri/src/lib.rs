@@ -49,6 +49,7 @@ mod spotify;
 mod tray;
 mod update;
 mod voice;
+mod vscode_bridge;
 #[cfg(windows)]
 mod webview_drop;
 mod webview_memory;
@@ -1049,6 +1050,7 @@ pub fn run() {
             spotify::spotify_open,
             spotify::spotify_installed,
             media::media_state,
+            vscode_bridge::vscode_available,
             calendar365::calendar_refresh,
             calendar365::calendar_sources,
             calendar365::ical_check,

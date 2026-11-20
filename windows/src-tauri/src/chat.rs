@@ -212,6 +212,9 @@ pub async fn send(
     let context = context.map(checked_context).transpose()?;
     let provider = settings.chat_provider.as_str();
     let model = model_for(settings, provider);
+    if provider == crate::vscode_bridge::PROVIDER {
+        return crate::vscode_bridge::send(chat, &model, query).await;
+    }
     if cli_relay::uses_subscription(settings, provider) {
         return cli_relay::send(chat, provider, &model, query, context).await;
     }
@@ -238,6 +241,9 @@ pub async fn send_for_phone(
     query: String,
     on_delta: impl FnMut(String),
 ) -> Result<ChatReply, String> {
+    if provider == crate::vscode_bridge::PROVIDER {
+        return crate::vscode_bridge::send(chat, model, query).await;
+    }
     if cli_relay::uses_subscription(settings, provider) {
         return cli_relay::send(chat, provider, model, query, None).await;
     }
@@ -258,6 +264,9 @@ pub async fn send_for_phone(
 /// address): nothing is sent anywhere before that.
 pub async fn models(settings: &Settings, provider: &str) -> Result<Vec<ModelInfo>, String> {
     let no_key = || crate::i18n::t("No API key — add it in Settings.");
+    if provider == crate::vscode_bridge::PROVIDER {
+        return crate::vscode_bridge::models().await;
+    }
     if cli_relay::uses_subscription(settings, provider) {
         return Ok(cli_relay::models(provider));
     }
