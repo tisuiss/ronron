@@ -3852,3 +3852,47 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
 .todo-row .int-name {
   flex: 1 1 auto;
 }
+
+/* ── Microsoft 365 chips in the header (views.ts headerChips) ───────────────── */
+.m365-strip {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
+}
+.m365-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  max-width: 190px;
+  height: 22px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 11px;
+  background: #ffffff0f;
+  color: var(--dim-2);
+  font: 500 11px var(--font);
+  cursor: pointer;
+}
+.m365-chip:hover {
+  background: #ffffff1a;
+  color: var(--ink);
+}
+.m365-chip.on {
+  background: #2564cf33;
+  color: var(--ink);
+}
+.m365-chip svg {
+  flex: none;
+}
+.m365-chip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.m365-chip span.alert {
+  color: #f4505e;
+}

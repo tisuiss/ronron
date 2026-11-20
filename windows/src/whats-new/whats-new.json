@@ -2,6 +2,46 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.6.1",
+      "items": [
+        {
+          "icon": "sparkles",
+          "title": {
+            "en": "Microsoft 365 in the header",
+            "zh-Hans": "Microsoft 365 显示在顶栏",
+            "hi": "हेडर में Microsoft 365",
+            "es": "Microsoft 365 en la cabecera",
+            "ar": "Microsoft 365 في الشريط العلوي",
+            "fr": "Microsoft 365 dans l'en-tête",
+            "bn": "হেডারে Microsoft 365",
+            "pt-BR": "Microsoft 365 no cabeçalho",
+            "ru": "Microsoft 365 в заголовке",
+            "id": "Microsoft 365 di header",
+            "de": "Microsoft 365 in der Kopfzeile",
+            "tr": "Üst çubukta Microsoft 365",
+            "ko": "헤더에 Microsoft 365",
+            "ja": "ヘッダーに Microsoft 365"
+          },
+          "detail": {
+            "en": "Calendar, Mail and To Do as chips up top, without taking a pill slot.",
+            "zh-Hans": "日历、邮件和 To Do 以标签显示在顶部，不占药丸位置。",
+            "hi": "Calendar, Mail और To Do ऊपर चिप के रूप में, पिल की जगह लिए बिना।",
+            "es": "Calendario, Correo y To Do arriba, sin ocupar huecos de píldora.",
+            "ar": "التقويم والبريد وTo Do في الأعلى دون شغل خانة حبة.",
+            "fr": "Agenda, Mail et To Do en haut, sans prendre de place de pastille.",
+            "bn": "ক্যালেন্ডার, মেইল ও To Do ওপরে, পিলের জায়গা না নিয়ে।",
+            "pt-BR": "Agenda, Mail e To Do no topo, sem ocupar espaço de pílula.",
+            "ru": "Календарь, почта и To Do наверху, не занимая места пилюль.",
+            "id": "Kalender, Email, dan To Do di atas, tanpa memakai slot pil.",
+            "de": "Kalender, Mail und To Do oben, ohne Pillen-Platz zu belegen.",
+            "tr": "Takvim, Posta ve To Do üstte, hap yeri kaplamadan.",
+            "ko": "캘린더, 메일, To Do를 위쪽에, 알약 자리 없이.",
+            "ja": "カレンダー、メール、To Do を上部に。ピルの枠は使いません。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.6.0",
       "items": [
         {

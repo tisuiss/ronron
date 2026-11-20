@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.1 — November 20, 2026
+
+- **Microsoft 365 in the header**: Calendar, Mail and To Do can sit at the top of the island as chips instead of pills (Settings → Integrations → Microsoft 365 → In the header), and take no pill slot. The calendar chip shows the next event (or *Now*), the mail chip the unread count, the To Do chip the tasks left, in red when one is late. A click shows the card.
+- The Calendar card says *No events* instead of Cal.com's *No calls scheduled*.
+
 ## 0.6.0 — November 20, 2026: Ronron
 
 - **Ronron is born**: a fork of [Coucou](https://github.com/Louis-CFM/coucou) 0.6.1 (Windows and Linux app 0.5.9), renamed Ronron, with its own character, icon and sounds.

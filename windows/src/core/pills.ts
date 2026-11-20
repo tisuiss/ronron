@@ -263,3 +263,11 @@ export function orderPills<T extends { id: string }>(tasks: T[], mainPill: strin
     .sort((a, b) => rank(a.t) - rank(b.t) || a.i - b.i)
     .map(({ t }) => t);
 }
+
+/** The pills that may sit in the island's header instead of with the others, in header order. */
+export const HEADER_PILLS = ["integration_calendar", "integration_mail", "integration_todo"] as const;
+
+/** The header pills a settings list asks for, in header order, unknown ones left out. */
+export function headerPillIds(list: readonly string[] | undefined): string[] {
+  return HEADER_PILLS.filter((id) => (list ?? []).includes(id));
+}

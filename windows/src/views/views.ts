@@ -11,6 +11,7 @@ import { createMiniBot, pruneMiniBots } from "../cat/minibots";
 import { buildPrompt } from "./chat";
 import { buildChoose, buildUpload, buildUploading } from "./upload";
 import { renderIntegrationCard, type IntegrationCardHooks } from "./integrations";
+import { overdueCount, readTasks } from "./todo";
 import { highlightRow, listRows, openRow } from "./github";
 import { pillDefinition, sessionSubtitle } from "../core/pills";
 import {
@@ -146,10 +147,16 @@ export function buildHeader(actions: ViewActions): ViewHost {
     actions.setView(v);
   }
 
+  // Microsoft 365 in the header (Settings → Integrations → Microsoft 365): a chip
+  // per pill with what matters now; a click shows its card in the overview.
+  const m365 = h("div", { class: "m365-strip" });
+  let m365Key = "";
+
   const el = h(
     "div",
     { id: "header" },
     h("div", { class: "tabs" }, tabHome, tabChat, tabDrop, tabLaunch),
+    m365,
     h("div", { class: "header-actions" }, planPills, gearBtn, soundBtn, closeBtn),
   );
   const headerActions = el.lastElementChild as HTMLElement;
@@ -169,9 +176,31 @@ export function buildHeader(actions: ViewActions): ViewHost {
       soundBtn.append(svg(State.settings.soundEnabled ? ICONS.speakerLine : ICONS.speakerSlashLine, 18, { stroke: 1.6 }));
       closeBtn.style.display = State.pendingApproval ? "none" : "";
       syncPlanPills();
+      syncM365();
       el.style.opacity = v === "confused" ? "0" : "1";
     },
   };
+
+  function syncM365() {
+    const chips = headerChips(Date.now());
+    const focus = State.view === "overview" ? State.focusTask?.id ?? "" : "";
+    const key = JSON.stringify([chips, focus, language()]);
+    if (key === m365Key) return;
+    m365Key = key;
+    clear(m365);
+    for (const chip of chips) {
+      const b = h("button", {
+        class: chip.id === focus ? "m365-chip on" : "m365-chip",
+        title: chip.title,
+        onclick: () => {
+          actions.blip();
+          State.setFocus(chip.id);
+          actions.setView("overview");
+        },
+      }, svg(chip.icon, 13, { stroke: 1.7 }), h("span", { class: chip.alert ? "alert" : "", text: chip.text }));
+      m365.append(b);
+    }
+  }
 
   function syncPlanPills() {
     const claudeOn = claudePillVisible();
@@ -887,4 +916,50 @@ export function buildViews(
   map.set("searching", buildPlaceholder(tl("Claude is searching…"), ""));
   map.set("result", buildPlaceholder(tl("Result"), ""));
   return map;
+}
+
+// ── Microsoft 365 chips in the header ──────────────────────────────────────────
+
+export interface HeaderChip {
+  id: string;
+  icon: string;
+  text: string;
+  title: string;
+  /** Red: something is late. */
+  alert: boolean;
+}
+
+/** One chip per header pill: the next event, the unread mail, the tasks left. */
+export function headerChips(now: number): HeaderChip[] {
+  const out: HeaderChip[] = [];
+  for (const id of State.headerIds) {
+    const info = State.integrations[id];
+    const data = (info?.data ?? {}) as Record<string, unknown>;
+    const connected = info?.configured ?? false;
+    if (id === "integration_calendar") {
+      const next = (Array.isArray(data.bookings) ? data.bookings : [])
+        .map((b) => b as Record<string, unknown>)
+        .filter((b) => Date.parse(String(b.end)) > now)
+        .sort((a, b) => Date.parse(String(a.start)) - Date.parse(String(b.start)))[0];
+      let text = connected ? t("No events") : "–";
+      if (next) {
+        const start = new Date(String(next.start));
+        const today = start.toDateString() === new Date(now).toDateString();
+        const when = start.getTime() <= now ? t("Now")
+          : next.allDay === true ? (today ? t("Today") : start.toLocaleDateString(language(), { weekday: "short" }))
+          : today ? start.toLocaleTimeString(language(), { hour: "2-digit", minute: "2-digit" })
+          : start.toLocaleDateString(language(), { weekday: "short" }) + " " + start.toLocaleTimeString(language(), { hour: "2-digit", minute: "2-digit" });
+        text = `${when} · ${String(next.title || t("Meeting"))}`;
+      }
+      out.push({ id, icon: ICONS.calendar, text, title: "Calendar", alert: false });
+    } else if (id === "integration_mail") {
+      const unread = typeof data.unread === "number" ? data.unread : null;
+      out.push({ id, icon: ICONS.envelope, text: unread === null ? "–" : String(unread), title: t("Mail"), alert: false });
+    } else if (id === "integration_todo") {
+      const tasks = readTasks(data);
+      const late = overdueCount(tasks);
+      out.push({ id, icon: ICONS.checkCircle, text: tasks.length || connected ? String(tasks.length) : "–", title: "To Do", alert: late > 0 });
+    }
+  }
+  return out;
 }

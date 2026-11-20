@@ -83,7 +83,7 @@ pub(crate) fn enabled(app: &AppHandle, id: &str) -> bool {
     app.try_state::<crate::Shared>()
         .map(|shared| {
             let settings = shared.settings.lock().unwrap();
-            settings.active_integrations.iter().any(|x| x == id)
+            settings.active_integrations.iter().chain(&settings.header_pills).any(|x| x == id)
         })
         .unwrap_or(false)
 }

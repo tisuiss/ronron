@@ -360,7 +360,7 @@ function calcomCard(openDetail: () => void, id = "integration_calcom", name = "C
     .sort((a, b) => new Date(String(a.start)).getTime() - new Date(String(b.start)).getTime());
   const rows = h("div", { class: "int-rows tight" });
   if (bookings.length === 0) {
-    rows.append(h("div", { class: "int-empty", text: t("No calls scheduled") }));
+    rows.append(h("div", { class: "int-empty", text: id === "integration_calcom" ? t("No calls scheduled") : t("No events") }));
   }
   for (const b of bookings.slice(0, 3)) {
     const when = new Date(String(b.start));

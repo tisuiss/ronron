@@ -61,7 +61,36 @@ function ownApp(builtin: boolean): HTMLElement {
   return details;
 }
 
-export function microsoftSection(): HTMLElement {
+export interface HeaderPillsAccess {
+  get(): string[];
+  /** Saves the list; the same pills leave the declared ones (they take no slot). */
+  set(ids: string[]): void;
+}
+
+const headerChoices = (): { id: string; name: string }[] => [
+  { id: "integration_calendar", name: "Calendar" },
+  { id: "integration_mail", name: t("Mail") },
+  { id: "integration_todo", name: "To Do" },
+];
+
+/** "In the header": each Microsoft 365 pill as a chip at the top of the island. */
+function headerSwitches(access: HeaderPillsAccess): HTMLElement {
+  const row = h("div", { class: "row", style: "flex-wrap:wrap;gap:14px;margin-top:4px" },
+    h("label", { style: "min-width:104px", text: t("In the header") }));
+  for (const choice of headerChoices()) {
+    const sw = h("button", { class: access.get().includes(choice.id) ? "switch on" : "switch" });
+    sw.addEventListener("click", () => {
+      const on = access.get().includes(choice.id);
+      access.set(on ? access.get().filter((x) => x !== choice.id) : [...access.get(), choice.id]);
+      sw.classList.toggle("on", !on);
+    });
+    row.append(h("span", { style: "display:inline-flex;align-items:center;gap:6px;font-size:12.5px" }, sw, choice.name));
+  }
+  return h("div", {}, row,
+    h("div", { class: "hint", text: t("Shown at the top of the island, next to the tabs, without taking a pill slot.") }));
+}
+
+export function microsoftSection(header?: HeaderPillsAccess): HTMLElement {
   listen();
   const root = h("div", { class: "todo-signin", style: "display:flex;flex-direction:column;gap:6px;padding-top:2px" });
   const status = h("div", { style: "display:flex;flex-direction:column;gap:6px" });
@@ -131,6 +160,7 @@ export function microsoftSection(): HTMLElement {
     h("h2", {}, h("span", { text: "Microsoft 365" })),
     h("div", { class: "hint", text: t("One sign-in for the To Do, Calendar and Mail pills, through Microsoft Graph.") }),
     root);
+  if (header) section.append(headerSwitches(header));
   void Promise.all([Bridge.msBuiltinApp(), Bridge.msAccount()]).then(([hasApp, account]) => {
     builtin = hasApp === true;
     if (account !== null) signedIn(account);

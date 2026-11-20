@@ -8088,6 +8088,51 @@
       "tr": "{0} tanesi Taslaklar'a kaydedildi: Outlook'tan gönderin.",
       "ko": "{0}개를 임시 보관함에 저장했어요. Outlook에서 보내세요.",
       "ja": "{0} 件を下書きに保存しました。Outlook から送信してください。"
+    },
+    "No events": {
+      "zh-Hans": "没有活动",
+      "hi": "कोई इवेंट नहीं",
+      "es": "Sin eventos",
+      "ar": "لا أحداث",
+      "fr": "Aucun événement",
+      "bn": "কোনো ইভেন্ট নেই",
+      "pt-BR": "Nenhum evento",
+      "ru": "Нет событий",
+      "id": "Tidak ada acara",
+      "de": "Keine Termine",
+      "tr": "Etkinlik yok",
+      "ko": "일정 없음",
+      "ja": "予定なし"
+    },
+    "In the header": {
+      "zh-Hans": "在顶栏中",
+      "hi": "हेडर में",
+      "es": "En la cabecera",
+      "ar": "في الشريط العلوي",
+      "fr": "Dans l'en-tête",
+      "bn": "হেডারে",
+      "pt-BR": "No cabeçalho",
+      "ru": "В заголовке",
+      "id": "Di header",
+      "de": "In der Kopfzeile",
+      "tr": "Üst çubukta",
+      "ko": "헤더에",
+      "ja": "ヘッダーに"
+    },
+    "Shown at the top of the island, next to the tabs, without taking a pill slot.": {
+      "zh-Hans": "显示在岛的顶部、标签旁边，不占用药丸位置。",
+      "hi": "आइलैंड के ऊपर, टैब के पास दिखता है, पिल की जगह नहीं लेता।",
+      "es": "Se muestran arriba de la isla, junto a las pestañas, sin ocupar un hueco de píldora.",
+      "ar": "تظهر أعلى الجزيرة بجوار علامات التبويب دون أن تشغل خانة حبة.",
+      "fr": "Affichées en haut de l'île, à côté des onglets, sans prendre de place de pastille.",
+      "bn": "আইল্যান্ডের ওপরে ট্যাবের পাশে দেখায়, পিলের জায়গা নেয় না।",
+      "pt-BR": "Aparecem no topo da ilha, ao lado das abas, sem ocupar espaço de pílula.",
+      "ru": "Показываются вверху острова рядом с вкладками и не занимают место пилюли.",
+      "id": "Tampil di atas pulau, di samping tab, tanpa memakai slot pil.",
+      "de": "Oben in der Insel neben den Tabs, ohne einen Pillen-Platz zu belegen.",
+      "tr": "Adanın üstünde sekmelerin yanında görünür, hap yeri kaplamaz.",
+      "ko": "아일랜드 위쪽 탭 옆에 표시되고 알약 자리를 차지하지 않아요.",
+      "ja": "アイランド上部のタブの横に表示され、ピルの枠を使いません。"
     }
   }
 }
