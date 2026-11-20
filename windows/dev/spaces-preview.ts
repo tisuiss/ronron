@@ -64,6 +64,7 @@ for (const [name, build] of spaces) {
   document.body.append(island);
   header.sync();
   view.sync();
+  if (name === "inbox") (view.el.querySelector(".sp-mail-row") as HTMLElement).click();
 }
 // The overview with a pill open: the card takes the island, the pills in a column.
 State.settings.mainPill = "integration_claude";

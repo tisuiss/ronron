@@ -2,6 +2,46 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.7.2",
+      "items": [
+        {
+          "icon": "eye",
+          "title": {
+            "en": "A wider inbox",
+            "zh-Hans": "更宽的收件箱",
+            "hi": "चौड़ा इनबॉक्स",
+            "es": "Una bandeja más ancha",
+            "ar": "صندوق وارد أعرض",
+            "fr": "Une boîte de réception plus large",
+            "bn": "আরও চওড়া ইনবক্স",
+            "pt-BR": "Uma caixa de entrada mais larga",
+            "ru": "Входящие шире",
+            "id": "Kotak masuk lebih lebar",
+            "de": "Ein breiterer Posteingang",
+            "tr": "Daha geniş gelen kutusu",
+            "ko": "더 넓은 받은편지함",
+            "ja": "広くなった受信トレイ"
+          },
+          "detail": {
+            "en": "A message opens in the inbox's place, with a button to go back.",
+            "zh-Hans": "邮件在收件箱位置打开，并有返回按钮。",
+            "hi": "संदेश इनबॉक्स की जगह खुलता है, वापस जाने के बटन के साथ।",
+            "es": "El mensaje se abre en lugar de la bandeja, con un botón para volver.",
+            "ar": "تُفتح الرسالة مكان صندوق الوارد مع زر للرجوع.",
+            "fr": "Un mail s'ouvre à la place de la liste, avec un bouton pour revenir.",
+            "bn": "বার্তা ইনবক্সের জায়গায় খোলে, ফেরার বোতামসহ।",
+            "pt-BR": "A mensagem abre no lugar da lista, com um botão para voltar.",
+            "ru": "Письмо открывается вместо списка, с кнопкой «назад».",
+            "id": "Pesan terbuka di tempat kotak masuk, dengan tombol kembali.",
+            "de": "Eine Nachricht öffnet sich anstelle der Liste, mit Zurück-Knopf.",
+            "tr": "İleti gelen kutusunun yerinde açılır, geri dönme düğmesiyle.",
+            "ko": "메시지가 받은편지함 자리에 열리고 돌아가기 버튼이 있습니다.",
+            "ja": "メッセージは一覧の代わりに開き、戻るボタン付き。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.7.1",
       "items": [
         {

@@ -354,7 +354,7 @@ The pill refreshes every two minutes while it is turned on, and right after each
 | Space | Left | Middle | Right |
 |---|---|---|---|
 | **Calendar** | Today's date and how long until the next event | This week: pick a day, its events (Teams marked) | The next event, or the one you clicked: **Join the meeting**, **Open in Outlook** |
-| **Mail** | The unread count | Search (`from:`, `subject:`), All / Unread / Important / Today, the list | The message you clicked: **Reply** (a draft, nothing is sent), **Open**, **Mark as read**, **Important** |
+| **Mail** | The unread count | Search (`from:`, `subject:`), All / Unread / Important / Today, the list. A click shows the message in its place: **Reply** (a draft, nothing is sent), **Open**, **Mark as read**, **Important**; **‹ Inbox** (or Esc) goes back | — |
 | **To Do** | A ring: tasks ticked off from Ronron today out of those due today; what is late | Today's tasks (late and due today), or a list's, picked on the right of the title (« Tâches - 4 »); tick off with Undo; add a task (to that list); ↗ opens To Do | — |
 
 ## Mail (classic Outlook, Windows)

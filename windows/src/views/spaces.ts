@@ -254,11 +254,13 @@ export function buildMailSpace(actions: ViewActions): ViewHost {
   const field = h("input", { class: "sp-search", type: "text", spellcheck: "false", placeholder: t("from:anne invoice") }) as HTMLInputElement;
   const filters = h("div", { class: "sp-filters" });
   const rows = h("div", { class: "sp-list" });
-  const middle = tile("sp-mails",
+  // The inbox, or the message clicked in its place (with a way back).
+  const listPane = h("div", { class: "sp-pane" },
     h("label", { class: "sp-search-box" }, svg(ICONS.magnifier, 12), field),
     filters, rows);
-  const right = tile("sp-preview");
-  const el = spaceView("inbox", left, middle, right);
+  const readPane = h("div", { class: "sp-pane sp-read" });
+  const middle = tile("sp-mails", listPane, readPane);
+  const el = spaceView("inbox", left, middle, null);
 
   let filter: MailFilter = "all";
   let results: MailMessage[] | null = null;
@@ -405,22 +407,23 @@ export function buildMailSpace(actions: ViewActions): ViewHost {
       }
     }
 
-    clear(right);
+    clear(readPane);
     const m = selected;
-    if (!m) {
-      right.append(h("div", { class: "sp-empty", text: t("Select a message") }));
-      return;
-    }
+    middle.classList.toggle("reading", m !== null);
+    if (!m) return;
     const preview = previews.get(messageId(m));
-    right.append(
+    const back = h("button", { class: "sp-back", title: t("Inbox"), onclick: () => backToInbox() },
+      svg(ICONS.chevronLeft, 10, { stroke: 2.4 }), h("span", { text: t("Inbox") }));
+    readPane.append(
       h("div", { class: "sp-mail-head" },
+        back,
         h("b", { class: "sp-from", text: senderName(m), title: m.address }),
         h("span", { class: "sp-ago", text: timeAgo(m.date) })),
       h("div", { class: "sp-mail-subject", text: m.subject || " " }),
       h("div", { class: "sp-mail-text", text: preview == null ? t("Loading…") : preview.text.trim() || " " }),
     );
     // Reply opens Outlook's own window (or the draft on the web): nothing is sent from Ronron.
-    const buttons = h("div", { class: "sp-buttons grid" },
+    const buttons = h("div", { class: "sp-buttons row" },
       h("button", { class: "sp-btn primary", text: t("Reply"), onclick: () => void MailBridge.open(m, true) }),
       h("button", { class: "sp-btn", text: t("Open"), onclick: () => void MailBridge.open(m, false) }),
     );
@@ -430,13 +433,36 @@ export function buildMailSpace(actions: ViewActions): ViewHost {
       text: m.flagged ? t("Not important") : t("Important"),
       onclick: () => void act(m, m.flagged ? "unflag" : "flag"),
     }));
-    right.append(buttons);
+    readPane.append(buttons);
   }
+
+  function backToInbox() {
+    actions.blip();
+    selected = null;
+    listKey = "";
+    draw();
+  }
+
+  // Escape goes back to the inbox before it closes the island.
+  window.addEventListener?.("keydown", (e) => {
+    if (e.key !== "Escape" || selected === null || State.view !== "inbox" || State.mode !== "expanded") return;
+    if (document.activeElement === field) return;
+    e.stopImmediatePropagation();
+    backToInbox();
+  }, true);
 
   return {
     el,
     sync() {
-      if (State.view !== "inbox" || leftHeader("inbox", MAIL_ID, actions)) return;
+      if (State.view !== "inbox") {
+        // The space opens on the inbox again.
+        if (selected) {
+          selected = null;
+          listKey = "";
+        }
+        return;
+      }
+      if (leftHeader("inbox", MAIL_ID, actions)) return;
       draw();
       // Opening the space reads the mailbox again (at most every 15 s).
       if (State.mode === "expanded" && Date.now() - refreshed > 15_000) {
