@@ -41,7 +41,7 @@ function tile(cls: string, ...children: (Node | null)[]): HTMLElement {
   return h("section", { class: `sp-tile ${cls}` }, ...children);
 }
 
-function spaceView(cls: string, left: HTMLElement, middle: HTMLElement, right: HTMLElement): HTMLElement {
+function spaceView(cls: string, left: HTMLElement, middle: HTMLElement, right: HTMLElement | null): HTMLElement {
   return h("div", { class: "view" }, h("div", { class: `space ${cls}` }, left, middle, right));
 }
 
@@ -449,17 +449,6 @@ export function buildMailSpace(actions: ViewActions): ViewHost {
 
 // ── To Do ─────────────────────────────────────────────────────────────────────
 
-/** "Tomorrow", a weekday within the week, else "28 Nov". */
-function soonLabel(due: string, today: string): string {
-  const [y, m, d] = due.split("-").map(Number);
-  const date = new Date(y, m - 1, d);
-  const [ty, tm, td] = today.split("-").map(Number);
-  const days = Math.round((date.getTime() - new Date(ty, tm - 1, td).getTime()) / 86_400_000);
-  if (days === 1) return t("Tomorrow");
-  if (days < 7) return date.toLocaleDateString(language(), { weekday: "short" });
-  return date.toLocaleDateString(language(), { day: "numeric", month: "short" });
-}
-
 const RING_R = 34;
 const RING_C = 2 * Math.PI * RING_R;
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -489,13 +478,13 @@ export function buildTodoSpace(actions: ViewActions): ViewHost {
   const input = h("input", { class: "sp-add-input", type: "text", maxlength: "255", spellcheck: "true", placeholder: t("Add a task") }) as HTMLInputElement;
   const addBtn = h("button", { class: "sp-add-go", title: t("Add a task"), "aria-label": t("Add a task") }, svg(ICONS.plus, 12, { stroke: 2.2 }));
   const error = h("div", { class: "sp-error" });
-  const middle = tile("sp-tasks", head, rows, error, h("label", { class: "sp-add" }, input, addBtn));
-  const listsTile = tile("sp-lists");
-  const soonTile = tile("sp-soon");
-  const right = h("div", { class: "sp-stack" }, listsTile, soonTile);
-  const el = spaceView("tasks", left, middle, right);
+  const menu = h("div", { class: "sp-menu", role: "listbox" });
+  const middle = tile("sp-tasks", head, menu, rows, error, h("label", { class: "sp-add" }, input, addBtn));
+  const el = spaceView("tasks", left, middle, null);
   /** The list shown in the middle; null = today's (late and due today). */
   let listFilter: string | null = null;
+  /** The list picker under the title is open. */
+  let picking = false;
   let key = "";
 
   async function submit() {
@@ -565,7 +554,7 @@ export function buildTodoSpace(actions: ViewActions): ViewHost {
     const done = todoActions.justDone();
     const lists = listsOf();
     if (listFilter && !lists.some((l) => l.id === listFilter)) listFilter = null;
-    const k = JSON.stringify([language(), today, listFilter, signedOut(TODO_ID), todoActions.error(), todoActions.busy(),
+    const k = JSON.stringify([language(), today, listFilter, picking, signedOut(TODO_ID), todoActions.error(), todoActions.busy(),
       doneTodayCount(today), lists, open.map((x) => [x.id, x.title, x.due, x.importance, x.list]), done.map((x) => x.id)]);
     if (k === key) return;
     key = k;
@@ -581,12 +570,51 @@ export function buildTodoSpace(actions: ViewActions): ViewHost {
     ring.append(h("div", { class: "sp-ring-text" }, h("b", { text: `${doneCount}/${total}` }), h("small", { text: t("Today") })));
     left.append(ring, h("span", { class: late ? "sp-late" : "sp-dim", text: late ? t("Overdue: {n}", { n: late }) : t("Tasks") + ` · ${open.length}` }));
 
-    // Middle: today's tasks, or a list's.
-    clear(head);
+    // Middle: today's tasks, or a list's. On the right of the title, the list shown and its
+    // count: a click opens the other lists (Today first).
+    const counts = new Map<string, number>();
+    for (const x of open) counts.set(x.listId, (counts.get(x.listId) ?? 0) + 1);
     const current = lists.find((l) => l.id === listFilter);
-    head.append(h("b", { text: current ? current.name || t("Tasks") : t("Today") }),
-      listFilter ? h("button", { class: "link-btn", text: t("All lists"), onclick: () => { actions.blip(); listFilter = null; draw(); } })
-        : h("span", { text: t("All lists") }));
+    const label = (name: string, n: number) => `${name} - ${n}`;
+    const choices: { id: string | null; text: string }[] = [
+      { id: null, text: label(t("Today"), dueNow.length) },
+      ...lists.map((l) => ({ id: l.id, text: label(l.name || t("Tasks"), counts.get(l.id) ?? 0) })),
+    ];
+    const shownChoice = choices.find((c) => c.id === (current ? current.id : null)) ?? choices[0];
+    clear(head);
+    const picker = h("button", {
+      class: picking ? "sp-picker on" : "sp-picker",
+      "aria-haspopup": "listbox",
+      "aria-expanded": picking ? "true" : "false",
+      onclick: () => {
+        actions.blip();
+        picking = !picking;
+        key = "";
+        draw();
+      },
+    }, h("span", { text: shownChoice.text }), svg(ICONS.chevronDown, 9, { stroke: 2.2 }));
+    head.append(h("b", { text: t("Tasks") }), h("span", { class: "sp-spacer" }), picker,
+      h("button", { class: "sp-icon", title: t("Open {name}", { name: "To Do" }), onclick: () => void Bridge.openUrl(todoActions.webUrl()) },
+        svg(ICONS.arrowUpRight, 11)));
+    menu.style.display = picking ? "" : "none";
+    clear(menu);
+    if (picking) {
+      for (const c of choices) {
+        menu.append(h("button", {
+          class: c.id === (current ? current.id : null) ? "sp-menu-row on" : "sp-menu-row",
+          role: "option",
+          "data-list": c.id ?? "",
+          text: c.text,
+          onclick: () => {
+            actions.blip();
+            listFilter = c.id;
+            picking = false;
+            key = "";
+            draw();
+          },
+        }));
+      }
+    }
     clear(rows);
     if (signedOut(TODO_ID)) {
       rows.append(h("div", { class: "sp-empty", text: t("Sign in to Microsoft 365 in Settings.") }));
@@ -600,41 +628,19 @@ export function buildTodoSpace(actions: ViewActions): ViewHost {
     error.textContent = todoActions.error() ?? "";
     input.disabled = todoActions.busy() || signedOut(TODO_ID);
 
-    // Right: the lists with their count, then what comes after today.
-    clear(listsTile);
-    listsTile.append(h("b", { class: "sp-tile-title", text: t("Lists") }));
-    const counts = new Map<string, number>();
-    for (const x of open) counts.set(x.listId, (counts.get(x.listId) ?? 0) + 1);
-    const listRows = h("div", { class: "sp-list" });
-    for (const l of lists) {
-      listRows.append(h("button", {
-        class: l.id === listFilter ? "sp-list-row on" : "sp-list-row",
-        "data-list": l.id,
-        onclick: () => {
-          actions.blip();
-          listFilter = listFilter === l.id ? null : l.id;
-          draw();
-        },
-      }, h("span", { class: "sp-name", text: l.name || t("Tasks") }), h("span", { class: "sp-due", text: String(counts.get(l.id) ?? 0) })));
-    }
-    listsTile.append(listRows);
-
-    clear(soonTile);
-    soonTile.append(h("b", { class: "sp-tile-title", text: t("Upcoming") }));
-    const soon = open.filter((x) => x.due !== null && x.due > today).slice(0, 4);
-    if (soon.length === 0) soonTile.append(h("div", { class: "sp-empty small", text: t("No tasks left") }));
-    for (const x of soon) {
-      soonTile.append(h("div", { class: "sp-soon-row" },
-        h("span", { class: "sp-due", text: soonLabel(x.due!, today) }),
-        h("span", { class: "sp-name", text: x.title })));
-    }
-    soonTile.append(h("button", { class: "link-btn sp-open", text: t("Open {name}", { name: "To Do" }) + " ↗", onclick: () => void Bridge.openUrl(todoActions.webUrl()) }));
   }
 
   return {
     el,
     sync() {
-      if (State.view !== "tasks" || leftHeader("tasks", TODO_ID, actions)) return;
+      if (State.view !== "tasks") {
+        if (picking) {
+          picking = false;
+          key = "";
+        }
+        return;
+      }
+      if (leftHeader("tasks", TODO_ID, actions)) return;
       draw();
     },
   };

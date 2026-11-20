@@ -41,6 +41,12 @@ test("the spaces are tall, without pills, Ronron in the left tile", () => {
   }
 });
 
+test("an open pill makes the overview as tall as a space", () => {
+  assert.equal(islandSize("expanded", "overview").h, VIEW_LAYOUTS.overview.height);
+  assert.equal(islandSize("expanded", "overview", 0, true).h, VIEW_LAYOUTS.agenda.height);
+  assert.equal(islandSize("expanded", "launch", 0, true).h, VIEW_LAYOUTS.launch.height);
+});
+
 test("how long until the next event", () => {
   assert.equal(untilLabel(25 * 60_000), "In 25 min");
   assert.equal(untilLabel(130 * 60_000), "In 2 h 10");
@@ -113,7 +119,7 @@ test("Mail: the unread count, the list, and a message's actions", async () => {
   assert.deepEqual(sent("mail_open").at(-1), { message: m, reply: true });
 });
 
-test("To Do: today's tasks, ticking one off, the lists and what is coming", () => {
+test("To Do: today's tasks, ticking one off, and the list picker", () => {
   State.view = "tasks";
   const today = todayKey();
   const later = todayKey(new Date(Date.now() + 3 * 86_400_000));
@@ -135,14 +141,19 @@ test("To Do: today's tasks, ticking one off, the lists and what is coming", () =
   assert.deepEqual(rows(), ["late", "now"]);
   assert.match(text(view.el), /Overdue: 1/);
   assert.match(view.el.querySelector(".sp-ring-text").textContent, /0\/2/);
-  assert.match(view.el.querySelector(".sp-soon").textContent, /Chlore piscine/);
+  assert.equal(view.el.querySelector(".sp-picker").textContent, "Today - 2");
+  assert.equal(view.el.querySelector(".sp-soon"), null);
 
   view.el.find(".sp-check")[1].fire("click");
   assert.deepEqual(sent("todo_set_done").at(-1), { listId: "L1", taskId: "now", done: true });
   view.sync();
   assert.match(view.el.querySelector(".sp-ring-text").textContent, /1\/2/);
 
-  // A list from the right tile: its tasks in the middle.
-  view.el.find(".sp-list-row").find((r) => r.getAttribute("data-list") === "L2").fire("click");
+  // The picker under the title: Today, then each list with its count.
+  view.el.querySelector(".sp-picker").fire("click");
+  assert.deepEqual(view.el.find(".sp-menu-row").map((r) => r.textContent), ["Today - 1", "Tâches - 1", "Maison - 1"]);
+  view.el.find(".sp-menu-row").find((r) => r.getAttribute("data-list") === "L2").fire("click");
   assert.deepEqual(rows(), ["soon"]);
+  assert.equal(view.el.querySelector(".sp-picker").textContent, "Maison - 1");
+  assert.equal(view.el.find(".sp-menu-row").length, 0);
 });

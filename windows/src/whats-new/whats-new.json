@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.7.1",
+      "items": [
+        {
+          "icon": "eye",
+          "title": {
+            "en": "A pill open takes the island",
+            "zh-Hans": "打开的药丸占满整个岛",
+            "hi": "खुली पिल पूरे आइलैंड में",
+            "es": "La píldora abierta ocupa la isla",
+            "ar": "الحبة المفتوحة تملأ الجزيرة",
+            "fr": "La pastille ouverte prend toute l'île",
+            "bn": "খোলা পিল পুরো আইল্যান্ড জুড়ে",
+            "pt-BR": "A pílula aberta ocupa a ilha",
+            "ru": "Открытая пилюля занимает весь остров",
+            "id": "Pil yang dibuka memenuhi pulau",
+            "de": "Die offene Pille füllt die Insel",
+            "tr": "Açık hap adanın tamamını kaplar",
+            "ko": "열린 필이 아일랜드를 가득 채움",
+            "ja": "開いたピルがアイランド全体に"
+          },
+          "detail": {
+            "en": "Its card gets the full width and height, the pills stack on the side.",
+            "zh-Hans": "它的卡片占满宽高，药丸叠在一侧。",
+            "hi": "उसका कार्ड पूरी चौड़ाई-ऊँचाई लेता है, पिल्स किनारे पर।",
+            "es": "Su tarjeta ocupa todo, las píldoras se apilan al lado.",
+            "ar": "تأخذ بطاقتها العرض والارتفاع كاملين، والحبوب مكدسة جانبًا.",
+            "fr": "Sa carte prend toute la place, les pastilles s'empilent sur le côté.",
+            "bn": "এর কার্ড পুরো জায়গা নেয়, পিলগুলো পাশে সাজানো।",
+            "pt-BR": "O cartão ocupa tudo, as pílulas ficam empilhadas ao lado.",
+            "ru": "Её карточка занимает всё место, пилюли — столбиком сбоку.",
+            "id": "Kartunya memenuhi ruang, pil bertumpuk di samping.",
+            "de": "Ihre Karte nutzt den ganzen Platz, die Pillen stapeln sich seitlich.",
+            "tr": "Kartı tüm alanı alır, haplar yanda üst üste dizilir.",
+            "ko": "카드가 전체를 차지하고 필은 옆에 쌓입니다.",
+            "ja": "カードが全体を使い、ピルは横に縦並び。"
+          }
+        },
+        {
+          "icon": "checklist",
+          "title": {
+            "en": "Pick a list in To Do",
+            "zh-Hans": "在 To Do 中选择列表",
+            "hi": "To Do में सूची चुनें",
+            "es": "Elige una lista en To Do",
+            "ar": "اختر قائمة في To Do",
+            "fr": "Choisir une liste dans To Do",
+            "bn": "To Do-তে তালিকা বাছুন",
+            "pt-BR": "Escolha uma lista no To Do",
+            "ru": "Выбор списка в To Do",
+            "id": "Pilih daftar di To Do",
+            "de": "Liste in To Do wählen",
+            "tr": "To Do'da liste seçin",
+            "ko": "To Do에서 목록 선택",
+            "ja": "To Do でリストを選択"
+          },
+          "detail": {
+            "en": "The list shown sits by the title, a click switches it.",
+            "zh-Hans": "当前列表显示在标题旁，点击即可切换。",
+            "hi": "दिखाई गई सूची शीर्षक के पास है, क्लिक से बदलें।",
+            "es": "La lista mostrada está junto al título; un clic la cambia.",
+            "ar": "القائمة المعروضة بجانب العنوان، ونقرة تبدّلها.",
+            "fr": "La liste affichée est à côté du titre, un clic en change.",
+            "bn": "দেখানো তালিকা শিরোনামের পাশে, ক্লিকে বদলান।",
+            "pt-BR": "A lista exibida fica ao lado do título; um clique troca.",
+            "ru": "Текущий список рядом с заголовком, щелчок меняет его.",
+            "id": "Daftar yang tampil ada di samping judul, klik untuk ganti.",
+            "de": "Die gezeigte Liste steht beim Titel, ein Klick wechselt sie.",
+            "tr": "Gösterilen liste başlığın yanında, tıklayınca değişir.",
+            "ko": "표시된 목록은 제목 옆에 있고 클릭하면 바뀝니다.",
+            "ja": "表示中のリストはタイトル横、クリックで切り替え。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.7.0",
       "items": [
         {

@@ -223,6 +223,8 @@ class AppState {
 
   tasks: AgentTask[] = [];
   focusId: string | null = null;
+  /** A pill was clicked in the overview: its card takes the island, taller, the pills in a column. */
+  pillOpen = false;
 
   stateOverride: BotStateName | null = null;
 
