@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1 — November 20, 2026
+
+- **A pill open takes the island**: clicking a pill in the overview gives its card the whole width and makes the island as tall as a space; the pills stack in a column on the right, the open one lit. Clicking it again, or the overview's tab, goes back.
+- **To Do space**: *Upcoming* and the *Lists* tile are gone. The list shown sits on the right of the title (« Tâches - 4 »): a click picks another list, or Today. ↗ opens To Do.
+
 ## 0.7.0 — November 20, 2026
 
 - **A space for each Microsoft 365 tool**: the header's Calendar, Mail and To Do chips become tabs after the overview's. Each opens its own space of three tiles, without pills (the pills stay in the overview):

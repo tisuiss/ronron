@@ -217,6 +217,9 @@ export function buildHeader(actions: ViewActions): ViewHost {
 
 // ── Overview ──────────────────────────────────────────────────────────────────
 
+/** The column of pills beside an open pill: as many as the taller island holds. */
+const TALL_PILLS = 7;
+
 function buildOverview(actions: ViewActions): ViewHost {
   /** The diff open in the left card (a FileDiff id), as activeDiffId on macOS. */
   let activeDiffId: number | null = null;
@@ -463,8 +466,15 @@ function buildOverview(actions: ViewActions): ViewHost {
       highlightRow(rows, State.cardSelection, State.cardSelection !== shownSelection);
       shownSelection = State.cardSelection;
 
-      const others = State.otherTasks.slice(0, 4);
-      const pillKey = others.map((t) => `${t.id}:${t.color}:${t.pillBadge ?? ""}`).join("|");
+      // A pill open: its card takes the island, every pill in a column on the side, the open one lit.
+      const tall = State.pillOpen;
+      el.classList.toggle("tall", tall);
+      const header = State.headerIds;
+      const others = tall
+        ? State.tasks.filter((t) => !header.includes(t.id)).slice(0, TALL_PILLS)
+        : State.otherTasks.slice(0, 4);
+      const focusId = task?.id ?? "";
+      const pillKey = [tall, focusId, ...others.map((t) => `${t.id}:${t.color}:${t.pillBadge ?? ""}`)].join("|");
       if (pillKey !== pillIds) {
         pillIds = pillKey;
         clear(pills);
@@ -474,7 +484,9 @@ function buildOverview(actions: ViewActions): ViewHost {
             spotifyPill = buildSpotifyPill(t, () => actions.setFocus(t.id));
             pills.append(spotifyPill.el);
           } else {
-            pills.append(buildPill(t, actions));
+            const pill = buildPill(t, actions);
+            if (tall && t.id === focusId) pill.classList.add("on");
+            pills.append(pill);
           }
         }
         pruneMiniBots();

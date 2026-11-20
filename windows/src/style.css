@@ -509,6 +509,28 @@ body {
   flex: 1 1 auto;
 }
 
+/* A pill open (State.pillOpen): its card takes the room, the pills stack on the side. */
+.overview.tall > .left {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+.overview.tall > .right {
+  flex: 0 0 128px;
+}
+.overview.tall .pills {
+  grid-template-columns: 1fr;
+  align-content: start;
+  padding: 8px;
+}
+.pill.on {
+  border-color: rgba(240, 145, 60, 0.6) !important;
+  background: #3a2a1c;
+}
+.pill.on .lbl {
+  color: #ffc58f;
+}
+
 .card-body {
   position: relative;
   z-index: 1;
@@ -3908,16 +3930,6 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
   gap: 8px;
   overflow: hidden;
 }
-.sp-stack {
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.sp-stack .sp-tile {
-  flex: 1 1 0;
-  gap: 5px;
-}
 /* The left tile: Ronron sits at its foot (layout.ts: botY). */
 .sp-date,
 .sp-count,
@@ -4268,7 +4280,97 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
   overflow-wrap: anywhere;
 }
 
-/* To Do */
+/* To Do: two tiles, the list picker under the title */
+.space.tasks {
+  grid-template-columns: 140px minmax(0, 1fr);
+}
+.sp-tasks {
+  position: relative;
+}
+.sp-tasks .sp-title {
+  align-items: center;
+  gap: 6px;
+}
+.sp-spacer {
+  flex: 1 1 auto;
+}
+.sp-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 60%;
+  height: 24px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 12px;
+  background: #ffffff0d;
+  color: var(--ink);
+  font: 500 12px var(--font);
+  cursor: default;
+}
+.sp-picker span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sp-picker:hover,
+.sp-picker.on {
+  background: #3a2a1c;
+  color: #ffc58f;
+}
+.sp-icon {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--dim-2);
+  display: grid;
+  place-items: center;
+  cursor: default;
+}
+.sp-icon:hover {
+  background: #ffffff0d;
+  color: var(--ink);
+}
+.sp-menu {
+  position: absolute;
+  z-index: 5;
+  top: 42px;
+  right: 44px;
+  min-width: 170px;
+  max-height: 170px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 4px;
+  border-radius: 12px;
+  background: #24262a;
+  border: 1px solid #ffffff14;
+  box-shadow: 0 8px 24px #0009;
+  display: flex;
+  flex-direction: column;
+}
+.sp-menu-row {
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  font: 12px var(--font);
+  text-align: start;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+.sp-menu-row:hover {
+  background: #ffffff10;
+}
+.sp-menu-row.on {
+  color: #ffc58f;
+}
 .sp-ring {
   position: relative;
   width: 84px;
@@ -4362,42 +4464,4 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
   display: grid;
   place-items: center;
   cursor: default;
-}
-.sp-list-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 3px 6px;
-  margin: 0 -6px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--ink);
-  font: 12px var(--font);
-  text-align: start;
-  cursor: default;
-}
-.sp-list-row:hover {
-  background: #ffffff0d;
-}
-.sp-list-row.on {
-  background: #3a2a1c;
-  color: #ffc58f;
-}
-.sp-soon-row {
-  display: flex;
-  gap: 8px;
-  font: 12px var(--font);
-  color: var(--ink);
-  min-width: 0;
-}
-.sp-soon-row .sp-due {
-  width: 40px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.sp-open {
-  margin-top: auto;
-  align-self: flex-start;
 }

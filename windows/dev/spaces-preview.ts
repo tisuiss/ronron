@@ -4,7 +4,7 @@ import "../src/style.css";
 import { State } from "../src/core/state";
 import { setLanguage } from "../src/i18n/i18n";
 import { VIEW_LAYOUTS, type IslandViewName } from "../src/core/layout";
-import { buildHeader, type ViewActions } from "../src/views/views";
+import { buildHeader, buildViews, type ViewActions } from "../src/views/views";
 import { buildAgendaSpace, buildMailSpace, buildTodoSpace } from "../src/views/spaces";
 
 setLanguage("fr");
@@ -60,6 +60,34 @@ for (const [name, build] of spaces) {
   cat.className = "cat";
   cat.style.left = `${VIEW_LAYOUTS[name].botX}px`;
   cat.style.top = `${VIEW_LAYOUTS[name].botY}px`;
+  island.append(content, cat);
+  document.body.append(island);
+  header.sync();
+  view.sync();
+}
+// The overview with a pill open: the card takes the island, the pills in a column.
+State.settings.mainPill = "integration_claude";
+State.settings.activeIntegrations = ["integration_github", "integration_spotify", "integration_vercel", "integration_n8n"];
+State.loadIntegrationTasks();
+State.setFocus("integration_github");
+State.pillOpen = true;
+State.view = "overview";
+{
+  const island = document.createElement("div");
+  island.className = "island";
+  const content = document.createElement("div");
+  content.id = "content";
+  const header = buildHeader(actions);
+  const views = document.createElement("div");
+  views.id = "views";
+  const view = buildViews(actions, noop).get("overview")!;
+  view.el.classList.add("on");
+  views.append(view.el);
+  content.append(header.el, views);
+  const cat = document.createElement("div");
+  cat.className = "cat";
+  cat.style.left = `${VIEW_LAYOUTS.overview.botX}px`;
+  cat.style.top = "171px";
   island.append(content, cat);
   document.body.append(island);
   header.sync();

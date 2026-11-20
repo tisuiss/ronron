@@ -8,7 +8,7 @@ import {
 } from "../core/closed";
 import {
   EXPANDED_CORNER, EXPANDED_W, NOTCH_W, PANEL_H, PANEL_W,
-  ROUNDED_CORNER, VIEW_LAYOUTS, botGlowColor, botGlowOpacity, botPosition, chatPromptHeight,
+  ROUNDED_CORNER, botGlowColor, botGlowOpacity, botPosition, chatPromptHeight,
   islandSize,
   QUESTION_PICKER_H,
   type BotEmoteName, type IslandMode, type IslandViewName,
@@ -45,6 +45,9 @@ const CLAUDE_DESKTOP_ID = "agent_claude-desktop";
 const BOT_SIDE = 24;
 /** Same margin as the Rust hit test (src-tauri/src/island.rs). */
 const HIT_MARGIN = 14;
+
+/** Ronron beside an open pill's card: level with its first lines. */
+const OPEN_PILL_BOT_Y = 84;
 
 /** The views with a text field: the island takes the keyboard while one is on. */
 const TYPING_VIEWS: ReadonlySet<IslandViewName> = new Set(["prompt", "launch"]);
@@ -208,8 +211,15 @@ export class Island {
       collapse: () => this.collapse(),
       foldApproval: () => this.foldApproval(),
       setFocus: (id) => {
+        // A click on the open pill folds its card back; any other opens it, island taller.
+        const open = !(State.pillOpen && State.focusTask?.id === id);
         State.setFocus(id);
         Sound.play("blip");
+        if (open !== State.pillOpen) {
+          State.pillOpen = open;
+          this.animateGeometry(!open);
+          State.notify();
+        }
         // A pill with a waiting request opens on its card: going back to it
         // after looking at another pill brings the card up again.
         const req = State.pendingApproval;
@@ -510,6 +520,8 @@ export class Island {
   }
 
   setView(view: IslandViewName) {
+    // A tab (the overview's included) starts from the usual overview.
+    State.pillOpen = false;
     this.stopSequenceIfLeaving(view);
     if (view !== "overview") closePlanCard();
     if (State.mode !== "expanded") {
@@ -519,7 +531,7 @@ export class Island {
       State.notify();
       return;
     }
-    const grew = VIEW_LAYOUTS[view].height >= VIEW_LAYOUTS[State.view].height;
+    const grew = islandSize("expanded", view, State.chatHistory.length).h >= this.height.value;
     State.view = view;
     State.lastActivity = performance.now();
     this.animateGeometry(!grew);
@@ -859,7 +871,7 @@ export class Island {
     if (State.mode === "hidden" && this.closedShows) {
       return { w: this.closedW, h: CLOSED_H, r: 10 };
     }
-    let { w, h } = islandSize(State.mode, State.view, State.chatHistory.length);
+    let { w, h } = islandSize(State.mode, State.view, State.chatHistory.length, State.pillOpen);
     if (State.mode === "expanded" && State.view === "question" && State.pendingApproval?.questions) {
       h = QUESTION_PICKER_H;
     }
@@ -1330,6 +1342,10 @@ export class Island {
 
   private updateBotTargets() {
     let p = botPosition(State.mode, State.view, this.height.value, State.uploadProgress);
+    // A pill open: the card's text starts at the top, so does Ronron (the usual overview card's spot).
+    if (State.mode === "expanded" && State.view === "overview" && State.pillOpen) {
+      p = { ...p, cy: OPEN_PILL_BOT_Y };
+    }
     // The closed island with Ronron in it, as on a Mac without a notch.
     if (State.mode === "hidden" && closedIsland(State.settings.closedIsland) === "cat") {
       p = { cx: this.width.value / 2, cy: this.height.value / 2, diameter: CLOSED_BOT_D, opacity: 1 };
@@ -1488,6 +1504,8 @@ export class Island {
     // A wardrobe try-on never outlives the wardrobe.
     if (State.wardrobePreview && !(expanded && State.view === "wardrobe")) State.wardrobePreview = null;
 
+    // Folding the island closes the open pill: it opens again on the usual overview.
+    if (State.pillOpen && (!expanded || State.view !== "overview")) State.pillOpen = false;
     this.header.sync();
     for (const [name, view] of this.views) {
       const on = name === State.view;

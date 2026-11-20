@@ -8239,36 +8239,6 @@
       "ko": "설정에서 Microsoft 365에 로그인하세요.",
       "ja": "設定で Microsoft 365 にサインインしてください。"
     },
-    "Upcoming": {
-      "zh-Hans": "即将到来",
-      "hi": "आगामी",
-      "es": "Próximamente",
-      "ar": "قريبًا",
-      "fr": "Bientôt",
-      "bn": "আসন্ন",
-      "pt-BR": "Em breve",
-      "ru": "Скоро",
-      "id": "Mendatang",
-      "de": "Demnächst",
-      "tr": "Yaklaşan",
-      "ko": "예정",
-      "ja": "今後"
-    },
-    "All lists": {
-      "zh-Hans": "所有列表",
-      "hi": "सभी सूचियाँ",
-      "es": "Todas las listas",
-      "ar": "كل القوائم",
-      "fr": "Toutes les listes",
-      "bn": "সব তালিকা",
-      "pt-BR": "Todas as listas",
-      "ru": "Все списки",
-      "id": "Semua daftar",
-      "de": "Alle Listen",
-      "tr": "Tüm listeler",
-      "ko": "모든 목록",
-      "ja": "すべてのリスト"
-    },
     "Select a message": {
       "zh-Hans": "选择一封邮件",
       "hi": "एक संदेश चुनें",

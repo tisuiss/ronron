@@ -3995,7 +3995,7 @@ dependencies = [
 
 [[package]]
 name = "ronron"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "arboard",
  "cpal",
@@ -4032,7 +4032,7 @@ dependencies = [
 
 [[package]]
 name = "ronron-hook"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "libc",
  "serde_json",
