@@ -25,6 +25,7 @@ import { claudeModelControl } from "./claude-models";
 import { agentsSection } from "./agents";
 import { phoneSection } from "./phone";
 import { whatsappSection } from "./whatsapp";
+import { todoSignIn } from "./todo";
 import { WHATSAPP_ID } from "../core/whatsapp";
 import { updateRows, updatesListener } from "./updates";
 import { colorDot } from "./colors";
@@ -895,6 +896,13 @@ const INTEGRATIONS: IntegrationDef[] = [
     fields: [{ key: "notion-api-key", label: N_("Integration token"), placeholder: "ntn_…", secret: true }] },
   { id: "integration_calcom", name: "Cal.com", color: "#C9956A",
     fields: [{ key: "calcom-api-key", label: N_("API key"), placeholder: "cal_…", secret: true }] },
+  // Microsoft Graph with the user's own Entra app; the sign-in itself is below the fields (./todo.ts).
+  { id: "integration_todo", name: "To Do", color: "#2564CF",
+    fields: [
+      { key: "todo-client-id", label: N_("Client ID"), placeholder: "00000000-0000-0000-0000-000000000000", secret: false },
+      { key: "todo-tenant", label: N_("Tenant"), placeholder: "common", secret: false },
+    ],
+    hint: N_("Register an app in Microsoft Entra: public client flows allowed, delegated permission Tasks.ReadWrite. Paste its client ID; tenant ID or domain, or leave empty for any account.") },
   // Nothing to enter: Spotify is read from the OS (src-tauri/src/spotify.rs).
   { id: "integration_spotify", name: "Spotify", color: "#1DB954", fields: [] },
 ];
@@ -967,6 +975,7 @@ function integrationsSection(present: Record<string, boolean>): HTMLElement {
     }
 
     if (def.hint) rows.append(h("div", { class: "hint", text: t(def.hint) }));
+    if (def.id === "integration_todo") rows.append(todoSignIn());
     if (def.id === "integration_spotify") {
       // As on the Mac's row: said only when there is no Spotify to launch.
       const hint = h("div", { class: "hint", style: "padding-top:5px" });
@@ -1516,6 +1525,7 @@ async function render() {
   const keys = [
     "stripe-api-key", "github-token", "gitlab-url", "gitlab-token", "gitea-url", "gitea-token", "vercel-token",
     "n8n-url", "n8n-api-key", "resend-api-key", "notion-api-key", "calcom-api-key",
+    "todo-client-id", "todo-tenant", "todo-refresh-0",
   ];
   const present: Record<string, boolean> = {};
   for (const k of keys) present[k] = (await Bridge.secretPresent(k)) ?? false;

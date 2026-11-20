@@ -426,6 +426,19 @@ export const Bridge = {
   /** Opens the configured n8n instance in the browser. */
   openN8n: () => call<void>("open_n8n"),
 
+  // ── Microsoft To Do (Graph) ───────────────────────────────────────────────
+  /** Who is signed in to To Do, if anyone. */
+  todoAccount: () => call<string | null>("todo_account"),
+  /** Starts the device code sign-in; the outcome arrives as a `todo-auth` event. */
+  todoSignIn: () => callOrThrow<{ userCode: string; verificationUri: string; expiresIn: number }>("todo_sign_in"),
+  todoSignInCancel: () => call<void>("todo_sign_in_cancel"),
+  todoSignOut: () => call<void>("todo_sign_out"),
+  /** Ticks a task off, or back on for Undo. */
+  todoSetDone: (listId: string, taskId: string, done: boolean) =>
+    callOrThrow<void>("todo_set_done", { listId, taskId, done }),
+  /** Adds a task to a list, or to the default list. */
+  todoAdd: (title: string, listId: string | null = null) => callOrThrow<void>("todo_add", { title, listId }),
+
   /** Tray → Pause. Stops the integration pollers, not just the island. */
   setPaused: (paused: boolean) => call<void>("set_paused", { paused }),
 
