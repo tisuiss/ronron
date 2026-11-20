@@ -1,0 +1,22 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Header preview</title>
+<style>body{background:#1b1b1f;margin:0;padding:20px}#wrap{width:640px;background:#000;border-radius:20px;padding:6px 10px}</style></head>
+<body><div id="wrap"></div>
+<script type="module">
+import "./tauri-mock.ts";
+import "../src/style.css";
+const { setLanguage } = await import("../src/i18n/i18n.ts");
+setLanguage("fr");
+const { State } = await import("../src/core/state.ts");
+const { buildHeader } = await import("../src/views/views.ts");
+const now = Date.now();
+State.settings.headerPills = ["integration_calendar", "integration_mail", "integration_todo"];
+State.integrations.integration_calendar = { data: { bookings: [{ id: "1", title: "Point client Metral", start: new Date(now + 3600e3).toISOString(), end: new Date(now + 5400e3).toISOString() }] }, error: null, loaded: true, configured: true };
+State.integrations.integration_mail = { data: { unread: 7 }, error: null, loaded: true, configured: true };
+State.integrations.integration_todo = { data: { tasks: [{ id: "a", listId: "L", list: "T", title: "x", importance: "normal", due: "2000-01-01" }, { id: "b", listId: "L", title: "y" }] }, error: null, loaded: true, configured: true };
+State.loadIntegrationTasks();
+State.view = "overview";
+const host = buildHeader({ blip() {}, setView() {}, toggleSound() {}, collapse() {} });
+document.getElementById("wrap").append(host.el);
+host.sync();
+document.title = "ready";
+</script></body></html>

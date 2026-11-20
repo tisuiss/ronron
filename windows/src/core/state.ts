@@ -3,7 +3,7 @@
 import type { BotEmoteName, BotStateName, IslandMode, IslandViewName } from "./layout";
 import type { EyeShape } from "../cat/engine";
 import {
-  DEFAULT_MAIN_PILL, HOST_OS, availablePills, orderPills, pillDefinition, sanitizeDeclared,
+  DEFAULT_MAIN_PILL, HOST_OS, availablePills, headerPillIds, orderPills, pillDefinition, sanitizeDeclared,
   toggleDeclared, type HostOs, type PillDefinition,
 } from "./pills";
 import type { CodexPlanUsage, PlanUsage } from "./plan";
@@ -112,6 +112,8 @@ export interface Settings {
   absenceInterval: number;
   /** Declared pills next to the main one (at most 4), in the order they were added. */
   activeIntegrations: string[];
+  /** Microsoft 365 pills shown in the header instead (Calendar, Mail, To Do): no pill slot taken. */
+  headerPills: string[];
   /** The always-on workspace pill: VS Code, Cursor, Codex or Antigravity. */
   mainPill: string;
   /** "primary", "cursor", or `at:<x>,<y>` for one display (logical origin). */
@@ -186,6 +188,7 @@ export const DEFAULT_SETTINGS: Settings = {
   activeIntegrations: [
     "integration_resend", "integration_n8n", "integration_vercel", "integration_github",
   ],
+  headerPills: [],
   mainPill: DEFAULT_MAIN_PILL,
   screen: "primary",
   autostart: false,
@@ -308,8 +311,15 @@ class AppState {
     return musicPlaying(Spotify.state, sanitizeDeclared(this.settings, this.os).activeIntegrations);
   }
 
+  /** The header's Microsoft 365 pills that this build offers. */
+  get headerIds(): string[] {
+    return headerPillIds(this.settings.headerPills);
+  }
+
+  /** The pills beside the focused one; header pills live in the header, not here. */
   get otherTasks(): AgentTask[] {
-    return this.tasks.filter((t) => t.id !== this.focusId);
+    const header = this.headerIds;
+    return this.tasks.filter((t) => t.id !== this.focusId && !header.includes(t.id));
   }
 
   setFocus(id: string) {
@@ -425,7 +435,7 @@ class AppState {
    */
   isKept(id: string): boolean {
     const d = sanitizeDeclared(this.settings, this.os);
-    return id === d.mainPill || d.activeIntegrations.includes(id);
+    return id === d.mainPill || d.activeIntegrations.includes(id) || this.headerIds.includes(id);
   }
 
   /**
@@ -438,7 +448,7 @@ class AppState {
     this.settings.mainPill = d.mainPill;
     this.settings.activeIntegrations = d.activeIntegrations;
     for (const def of availablePills(this.os)) {
-      const shouldLoad = def.id === d.mainPill || d.activeIntegrations.includes(def.id);
+      const shouldLoad = def.id === d.mainPill || d.activeIntegrations.includes(def.id) || this.headerIds.includes(def.id);
       const idx = this.tasks.findIndex((t) => t.id === def.id);
       if (shouldLoad && idx < 0) this.tasks.push(taskFor(def, this.settings.pillColors));
       const busy = idx >= 0 && (this.tasks[idx].state !== "idle" || this.tasks[idx].steps.length > 0);

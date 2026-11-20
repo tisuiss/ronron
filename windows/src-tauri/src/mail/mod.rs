@@ -103,7 +103,10 @@ fn sender_of(m: &Message) -> String {
 
 fn pill_on(app: &AppHandle) -> bool {
     app.try_state::<crate::Shared>()
-        .map(|shared| shared.settings.lock().unwrap().active_integrations.iter().any(|x| x == PILL))
+        .map(|shared| {
+            let s = shared.settings.lock().unwrap();
+            s.active_integrations.iter().chain(&s.header_pills).any(|x| x == PILL)
+        })
         .unwrap_or(false)
 }
 

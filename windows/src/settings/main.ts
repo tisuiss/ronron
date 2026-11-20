@@ -560,6 +560,8 @@ function activePillsSection(connected: Record<string, boolean>): HTMLElement {
       const next = toggleDeclared(settings, def.id);
       if (!next) return;
       settings.activeIntegrations = next;
+      // A pill turned on here leaves the header.
+      if (next.includes(def.id)) settings.headerPills = (settings.headerPills ?? []).filter((x) => x !== def.id);
       declaredChanged();
     });
     el.append(sw);
@@ -934,6 +936,7 @@ function integrationsSection(present: Record<string, boolean>): HTMLElement {
       } else {
         if (settings.activeIntegrations.length >= MAX_ACTIVE) return;
         settings.activeIntegrations = [...settings.activeIntegrations, def.id];
+        settings.headerPills = (settings.headerPills ?? []).filter((x) => x !== def.id);
       }
       sw.classList.toggle("on", !on);
       declaredChanged();
@@ -1557,7 +1560,18 @@ async function render() {
     pills: () => [activePillsSection(connected)],
     agents: () => [claudeSection(status), agentsSection(agents), planSection(status)],
     chat: () => [subscriptionsSection(), apiSection(hasKey, claudeRelay), chatProvidersSection(chatKeys, keyChanged), localSection(customKey)],
-    integrations: () => [microsoftSection(), integrationsSection(present), ...whatsappSections()],
+    integrations: () => [
+      microsoftSection({
+        get: () => settings.headerPills ?? [],
+        set: (ids) => {
+          settings.headerPills = ids;
+          settings.activeIntegrations = settings.activeIntegrations.filter((x) => !ids.includes(x));
+          declaredChanged();
+        },
+      }),
+      integrationsSection(present),
+      ...whatsappSections(),
+    ],
     phone: () => [phoneSection(settings.phoneLink ?? false, toggle, settings)],
     shortcuts: () => [shortcutsSection(shortcutReport)],
   };

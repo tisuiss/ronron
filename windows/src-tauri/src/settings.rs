@@ -22,6 +22,9 @@ pub struct Settings {
     pub alerts_from_all_pills: bool,
     pub absence_interval: f64,
     pub active_integrations: Vec<String>,
+    /// Microsoft 365 pills shown in the island's header instead of with the
+    /// other pills (Calendar, Mail, To Do): they run, but take no pill slot.
+    pub header_pills: Vec<String>,
     /// The always-on workspace pill (src/core/pills.ts checks it is one).
     pub main_pill: String,
     /// "primary" = the main display, "cursor" = whichever display the mouse is on.
@@ -152,6 +155,7 @@ impl Default for Settings {
             open_on_hover: false,
             alerts_from_all_pills: false,
             absence_interval: 180.0,
+            header_pills: Vec::new(),
             active_integrations: vec![
                 "integration_resend".into(),
                 "integration_n8n".into(),
@@ -461,6 +465,7 @@ mod tests {
   "alertsFromAllPills": true,
   "absenceInterval": 60.0,
   "activeIntegrations": ["integration_notion"],
+  "headerPills": ["integration_todo"],
   "mainPill": "agent_cursor",
   "screen": "cursor",
   "autostart": true,
@@ -984,6 +989,7 @@ mod tests {
                 "alertsFromAllPills",
                 "absenceInterval",
                 "activeIntegrations",
+                "headerPills",
                 "mainPill",
                 "screen",
                 "autostart",
