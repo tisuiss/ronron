@@ -426,6 +426,23 @@ export const Bridge = {
   /** Opens the configured n8n instance in the browser. */
   openN8n: () => call<void>("open_n8n"),
 
+  // ── Microsoft 365 (Graph): one sign-in for To Do, Calendar and Mail ───────
+  /** Who is signed in to Microsoft 365 ("" when unknown), or null. */
+  msAccount: () => call<string | null>("ms_account"),
+  /** Whether this build has its own Entra app (no client ID to enter). */
+  msBuiltinApp: () => call<boolean>("ms_builtin_app"),
+  /** The usual sign-in: Microsoft's page in the browser; the outcome arrives as an `ms-auth` event. */
+  msSignInBrowser: () => call<void>("ms_sign_in_browser"),
+  /** The device code sign-in: a code to enter at microsoft.com/devicelogin. */
+  msSignInCode: () => callOrThrow<{ userCode: string; verificationUri: string; expiresIn: number }>("ms_sign_in_code"),
+  msSignInCancel: () => call<void>("ms_sign_in_cancel"),
+  msSignOut: () => call<void>("ms_sign_out"),
+  /** Ticks a task off, or back on for Undo. */
+  todoSetDone: (listId: string, taskId: string, done: boolean) =>
+    callOrThrow<void>("todo_set_done", { listId, taskId, done }),
+  /** Adds a task to a list, or to the default list. */
+  todoAdd: (title: string, listId: string | null = null) => callOrThrow<void>("todo_add", { title, listId }),
+
   /** Tray → Pause. Stops the integration pollers, not just the island. */
   setPaused: (paused: boolean) => call<void>("set_paused", { paused }),
 

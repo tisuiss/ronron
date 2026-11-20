@@ -73,6 +73,10 @@ jobs:
       - name: Build and pack the installer
         id: pack
         shell: pwsh
+        env:
+          # The Entra app Microsoft 365 signs in with (a repository variable, not a secret:
+          # a public client ID). Empty: users enter their own in Settings.
+          RONRON_MS_CLIENT_ID: ${{ vars.RONRON_MS_CLIENT_ID }}
         run: |
           npm run pack
           $version = (Get-Content src-tauri/tauri.conf.json | ConvertFrom-Json).version

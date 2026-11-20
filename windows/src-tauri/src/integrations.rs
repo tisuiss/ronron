@@ -73,6 +73,8 @@ pub fn start(app: AppHandle) {
     spawn(app.clone(), "integration_gitea", 7, 300, poll_gitea);
     spawn_github_loops(app.clone());
     spawn(app.clone(), "integration_calcom", 8, 300, crate::calcom::poll);
+    spawn(app.clone(), "integration_todo", 9, 120, crate::todo::poll);
+    spawn(app.clone(), "integration_calendar", 10, 300, crate::calendar365::poll);
     spawn(app, "integration_notion", 9, 300, poll_notion);
 }
 
@@ -124,6 +126,8 @@ pub async fn poll_once(app: AppHandle, id: &str) {
         "integration_resend" => poll_resend(app).await,
         "integration_notion" => poll_notion(app).await,
         "integration_calcom" => crate::calcom::poll(app).await,
+        "integration_todo" => crate::todo::poll(app).await,
+        "integration_calendar" => crate::calendar365::poll(app).await,
         _ => {}
     }
 }

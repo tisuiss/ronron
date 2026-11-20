@@ -20,6 +20,9 @@ mod i18n;
 mod identity;
 mod integrations;
 mod calcom;
+mod calendar365;
+mod msgraph;
+mod todo;
 mod island;
 mod launch;
 mod local_chat;
@@ -907,6 +910,14 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             boot,
             mail::mail_refresh,
+            msgraph::ms_account,
+            msgraph::ms_builtin_app,
+            msgraph::ms_sign_in_browser,
+            msgraph::ms_sign_in_code,
+            msgraph::ms_sign_in_cancel,
+            msgraph::ms_sign_out,
+            todo::todo_set_done,
+            todo::todo_add,
             mail::mail_more,
             mail::mail_search,
             mail::mail_detail,

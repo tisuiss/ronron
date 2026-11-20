@@ -7,6 +7,7 @@
 - **« OK Ronron »** wakes the voice assistant (also heard as "ron ron" or "wrong wrong").
 - **New sounds**, synthesised by `windows/scripts/gen-sounds.py`: meows, purrs and chimes.
 - **App identifier** `ch.cloudguy.ronron`: Ronron keeps its own settings, keys and hooks, and can run next to Coucou.
+- **Microsoft 365**: one sign-in in the browser (or with a code) for three pills through Microsoft Graph. **To Do**: what is due first, tick off with Undo, add to your default list. **Calendar** (new): the next events and a month view, with Join for Teams. **Mail**: reads your mailbox through Graph instead of the classic Outlook, on Windows and Linux; never sends (plan mails go to Drafts without Outlook).
 - Only the Windows and Linux app remain: the Mac, iPhone and Android apps, the website and the relay were removed.
 
 Coucou's history up to the fork is in [its changelog](https://github.com/Louis-CFM/coucou/blob/main/CHANGELOG.md).

@@ -1,6 +1,8 @@
 export interface Booking {
   id: string; title: string; start: Date; end: Date;
   attendeeName: string; attendeeEmail: string; attendeeNotes: string;
+  /** Microsoft 365: the Teams link, the event in Outlook on the web, and all-day events. */
+  joinUrl?: string; webUrl?: string; allDay?: boolean;
 }
 
 /** Invalid data must not appear as an empty, successfully loaded calendar. */
@@ -12,8 +14,13 @@ export function readBookings(value: unknown): Booking[] | null {
     const start = new Date(raw.start), end = new Date(raw.end);
     if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end < start) return null;
     const text = (key: string) => typeof raw[key] === "string" ? raw[key] : "";
-    out.push({ id: raw.id, title: text("title"), start, end, attendeeName: text("attendeeName"),
-      attendeeEmail: text("attendeeEmail"), attendeeNotes: text("attendeeNotes") });
+    const https = (key: string) => (text(key).startsWith("https://") ? text(key) : undefined);
+    const booking: Booking = { id: raw.id, title: text("title"), start, end, attendeeName: text("attendeeName"),
+      attendeeEmail: text("attendeeEmail"), attendeeNotes: text("attendeeNotes") };
+    if (https("joinUrl")) booking.joinUrl = https("joinUrl");
+    if (https("webUrl")) booking.webUrl = https("webUrl");
+    if (raw.allDay === true) booking.allDay = true;
+    out.push(booking);
   }
   return out.sort((a, b) => a.start.getTime() - b.start.getTime());
 }

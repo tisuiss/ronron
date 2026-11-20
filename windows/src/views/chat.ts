@@ -18,7 +18,6 @@ import { chipLabel, loadSubscriptions, subscribedProviders, subscription } from 
 import { State, type ChatMessage } from "../core/state";
 import type { ViewHost } from "./views";
 import { N_, t, tl } from "../i18n/i18n";
-import { HOST_OS } from "../core/pills";
 import { MailChat, splitPlan } from "../core/mail";
 import { mailPlanCard } from "./mailplan";
 
@@ -249,7 +248,8 @@ export function buildPrompt(onHeightChange: () => void): ViewHost {
     mailBtn.classList.toggle("on", MailChat.on);
   });
   const modelRow = h("div", { class: "model-row" }, modelBtn);
-  if (HOST_OS === "windows") modelRow.prepend(mailBtn);
+  // Mail reaches Outlook on Windows, and Microsoft 365 (Graph) on either.
+  modelRow.prepend(mailBtn);
 
   const body = h("div", { class: "chat-body" });
   const picker = buildPicker(() => {
@@ -311,7 +311,7 @@ export function buildPrompt(onHeightChange: () => void): ViewHost {
       State.chatHistory.length === 1 && file ? { kind: "file", name: file.name, path: file.path } : null;
 
     try {
-      const reply = await Bridge.chatSend(query, context, MailChat.on && HOST_OS === "windows");
+      const reply = await Bridge.chatSend(query, context, MailChat.on);
       State.chatHistory.push({ id: nextId++, role: "assistant", content: reply.text });
       State.stateOverride = null;
       Sound.play("finish");

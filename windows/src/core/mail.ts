@@ -85,6 +85,8 @@ export interface TriageView {
   today: { sorted: number; junk: number; important: number };
   windows: boolean;
   outlookOpen: boolean;
+  /** Signed in to Microsoft 365: the mailbox is read through Graph. */
+  graph: boolean;
 }
 
 export interface PreparedMail {
@@ -101,7 +103,7 @@ export type PlanPhase =
   | { kind: "ready" }
   | { kind: "countdown"; seconds: number }
   | { kind: "running"; done: number; total: number }
-  | { kind: "done"; ok: number; failed: number }
+  | { kind: "done"; ok: number; failed: number; drafts?: number }
   | { kind: "cancelled" };
 
 export interface PlanRun {
@@ -113,6 +115,8 @@ export interface PlanRun {
   mails: PreparedMail[];
   notes: { kind: "missing" | "noPdf" | "fileMissing"; value: string }[];
   testSentTo: string | null;
+  /** Microsoft 365 without the classic Outlook: the test was saved in Drafts. */
+  testDraft?: boolean;
   myAddress: string | null;
   stepCount: number;
 }
