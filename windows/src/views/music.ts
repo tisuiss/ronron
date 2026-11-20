@@ -28,8 +28,13 @@ export function buildMusicSpace(actions: ViewActions): ViewHost {
   const play = h("button", { class: "mu-btn play" });
   const next = h("button", { class: "mu-btn", title: t("Next track"), "aria-label": t("Next track") }, svg(ICONS.forward, 18));
   const controls = h("div", { class: "mu-controls" }, prev, play, next);
+  // The computer's volume: the speaker mutes, the slider sets the level.
+  const muteBtn = h("button", { class: "mu-mute", title: t("Mute"), "aria-label": t("Mute") });
+  const slider = h("input", { class: "mu-volume", type: "range", min: "0", max: "100", step: "1", "aria-label": t("Volume") }) as HTMLInputElement;
+  const level = h("span", { class: "mu-level" });
+  const volumeRow = h("div", { class: "mu-volume-row" }, muteBtn, slider, level);
   const empty = h("div", { class: "sp-empty mu-empty", text: t("Nothing is playing. Start Spotify, YouTube Music or Amazon Music on this computer.") });
-  const main = h("section", { class: "sp-tile sp-music" }, sources, info, progress, times, controls, empty);
+  const main = h("section", { class: "sp-tile sp-music" }, sources, info, progress, times, controls, empty, volumeRow);
   const el = h("div", { class: "view" }, h("div", { class: "space music" }, left, main));
 
   let state: MediaState | null = null;
@@ -78,11 +83,55 @@ export function buildMusicSpace(actions: ViewActions): ViewHost {
     window.setTimeout(() => void refresh(), 350);
   }
 
+  /** The slider is being moved: what the computer says waits until it is let go. */
+  let dragging = false;
+  let sendTimer: number | null = null;
+  slider.addEventListener("pointerdown", () => (dragging = true));
+  slider.addEventListener("pointerup", () => (dragging = false));
+  slider.addEventListener("input", () => {
+    const v = Number(slider.value) / 100;
+    level.textContent = `${slider.value}%`;
+    if (state?.volume) state.volume = { level: v, muted: false };
+    drawVolume();
+    if (sendTimer != null) return;
+    sendTimer = window.setTimeout(() => {
+      sendTimer = null;
+      void MediaBridge.setVolume(Number(slider.value) / 100);
+    }, 80);
+  });
+  slider.addEventListener("change", () => {
+    dragging = false;
+    void MediaBridge.setVolume(Number(slider.value) / 100);
+  });
+  muteBtn.addEventListener("click", () => {
+    const v = state?.volume;
+    if (!v) return;
+    actions.blip();
+    v.muted = !v.muted;
+    drawVolume();
+    void MediaBridge.setMute(v.muted);
+  });
+
+  function drawVolume() {
+    const v = state?.volume ?? null;
+    volumeRow.style.display = v ? "" : "none";
+    if (!v) return;
+    const pct = Math.round(v.level * 100);
+    if (!dragging && document.activeElement !== slider) slider.value = String(pct);
+    level.textContent = v.muted ? t("Muted") : `${dragging ? slider.value : pct}%`;
+    clear(muteBtn);
+    muteBtn.append(svg(v.muted || pct === 0 ? ICONS.speakerSlashLine : ICONS.speakerLine, 16, { stroke: 1.6 }));
+    muteBtn.classList.toggle("on", v.muted);
+    muteBtn.setAttribute("title", v.muted ? t("Unmute") : t("Mute"));
+    slider.style.setProperty("--fill", `${v.muted ? 0 : pct}%`);
+  }
+
   prev.addEventListener("click", () => void control("previous"));
   play.addEventListener("click", () => void control("playPause"));
   next.addEventListener("click", () => void control("next"));
 
   function draw() {
+    drawVolume();
     const now = state?.now ?? null;
     const list = state?.sources ?? [];
     const k = JSON.stringify([language(), wanted, list, now && { ...now, position: Math.floor(now.position) }]);

@@ -29,7 +29,7 @@ test("the pill is a service with a sign-in, on Windows and Linux", () => {
   assert.deepEqual(def.connect, { kind: "key", key: "msgraph-refresh-0" });
   assert.ok(availablePills("windows").some((p) => p.id === TODO_ID));
   assert.ok(availablePills("linux").some((p) => p.id === TODO_ID));
-  assert.equal(idleStatus(TODO_ID, { configured: false, error: null }, "").label, "Not signed in");
+  assert.equal(idleStatus(TODO_ID, { configured: false, error: null }, "").label, "On this computer");
   assert.equal(idleStatus(TODO_ID, { configured: true, error: null, loaded: true }, "").label, "Connected");
 });
 
@@ -119,4 +119,28 @@ test("the detail groups tasks by list, the default list first", () => {
   const detail = todoDetail(() => {});
   const names = detail.find(".todo-list-name").map((el) => el.textContent);
   assert.deepEqual(names, ["Tâches · 2", "Courses · 1"]);
+});
+
+test("without an account, tasks are kept on this computer: added and ticked off there", async () => {
+  const { buildTodoSpace } = await import("../src/views/spaces.ts");
+  State.settings.headerPills = ["integration_todo"];
+  State.view = "tasks";
+  State.integrations[TODO_ID] = {
+    data: { local: true, lists: [{ id: "local", name: "On this computer", default: true }],
+      tasks: [task("l1", { listId: "local", list: "On this computer", title: "Acheter du pain" })] },
+    error: null, loaded: true, configured: false,
+  };
+  const view = buildTodoSpace({ blip() {}, setView() {}, keyboard() {}, holdOpen() {} });
+  view.sync();
+  assert.doesNotMatch(view.el.textContent, /Sign in/);
+  assert.match(view.el.textContent, /Acheter du pain/);
+  view.el.querySelector(".sp-check").fire("click");
+  assert.deepEqual(sent("todo_set_done").at(-1), { listId: "local", taskId: "l1", done: true });
+  const input = view.el.querySelector(".sp-add-input");
+  input.value = "Appeler le garage";
+  input.fire("keydown");
+  view.el.querySelector(".sp-add-go").fire("click");
+  await new Promise((r) => setTimeout(r, 0));
+  assert.deepEqual(sent("todo_add").at(-1), { title: "Appeler le garage", listId: "local" });
+  State.settings.headerPills = [];
 });

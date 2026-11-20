@@ -8628,6 +8628,66 @@
       "tr": "Açık ada, işaretçi ayrıldıktan kısa süre sonra katlanır; bu pencere açıkken, bir kart yanıt beklerken veya yazı yazılırken katlanmaz.",
       "ko": "포인터가 벗어나면 잠시 후 열린 아일랜드가 접힙니다. 이 창이 열려 있거나, 카드가 답을 기다리거나, 입력 중일 때는 예외입니다.",
       "ja": "ポインターが離れると少しして開いたアイランドが閉じます。このウィンドウが開いているとき、カードが返答待ちのとき、入力中は除きます。"
+    },
+    "On this computer": {
+      "zh-Hans": "在这台电脑上",
+      "hi": "इस कंप्यूटर पर",
+      "es": "En este ordenador",
+      "ar": "على هذا الكمبيوتر",
+      "fr": "Sur cet ordinateur",
+      "bn": "এই কম্পিউটারে",
+      "pt-BR": "Neste computador",
+      "ru": "На этом компьютере",
+      "id": "Di komputer ini",
+      "de": "Auf diesem Computer",
+      "tr": "Bu bilgisayarda",
+      "ko": "이 컴퓨터에",
+      "ja": "このパソコン"
+    },
+    "Too many tasks on this computer.": {
+      "zh-Hans": "这台电脑上的任务太多。",
+      "hi": "इस कंप्यूटर पर बहुत सारे टास्क हैं।",
+      "es": "Demasiadas tareas en este ordenador.",
+      "ar": "مهام كثيرة جدًا على هذا الكمبيوتر.",
+      "fr": "Trop de tâches sur cet ordinateur.",
+      "bn": "এই কম্পিউটারে অনেক বেশি কাজ।",
+      "pt-BR": "Tarefas demais neste computador.",
+      "ru": "Слишком много задач на этом компьютере.",
+      "id": "Terlalu banyak tugas di komputer ini.",
+      "de": "Zu viele Aufgaben auf diesem Computer.",
+      "tr": "Bu bilgisayarda çok fazla görev var.",
+      "ko": "이 컴퓨터에 할 일이 너무 많습니다.",
+      "ja": "このパソコンのタスクが多すぎます。"
+    },
+    "Unmute": {
+      "zh-Hans": "取消静音",
+      "hi": "अनम्यूट करें",
+      "es": "Activar sonido",
+      "ar": "إلغاء الكتم",
+      "fr": "Réactiver le son",
+      "bn": "আনমিউট",
+      "pt-BR": "Ativar som",
+      "ru": "Включить звук",
+      "id": "Bunyikan",
+      "de": "Ton an",
+      "tr": "Sesi aç",
+      "ko": "음소거 해제",
+      "ja": "ミュート解除"
+    },
+    "Muted": {
+      "zh-Hans": "已静音",
+      "hi": "म्यूट",
+      "es": "Silenciado",
+      "ar": "مكتوم",
+      "fr": "Son coupé",
+      "bn": "মিউট",
+      "pt-BR": "Sem som",
+      "ru": "Без звука",
+      "id": "Dibisukan",
+      "de": "Stumm",
+      "tr": "Sessiz",
+      "ko": "음소거됨",
+      "ja": "ミュート中"
     }
   }
 }

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.2 — November 20, 2026
+
+- **To Do without an account**: not signed in to Microsoft 365, the tasks are kept on this computer (add, tick off, Undo) in a list *On this computer*, which stays beside the account's lists once signed in while it holds tasks.
+- **The computer's volume in the Music tab**: a slider and mute for the default output (Windows Core Audio; PipeWire's `wpctl` or PulseAudio's `pactl` on Linux).
+
 ## 0.8.1 — November 20, 2026
 
 - **Delete a mail** from the Mail space or the Mail card: it goes to Deleted Items (Microsoft 365 or the classic Outlook), where it can be got back.
