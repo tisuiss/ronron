@@ -1,6 +1,7 @@
 // The island: DOM shell, sizing animation, Ronron placement, mouse handling.
 // Mirrors IslandRootView.swift + IslandWindowController.swift.
 
+import { Reminders } from "./reminders";
 import { Tracked, Spring, clamp } from "../core/anim";
 import { Bridge, IS_TAURI, onDragDrop, type DragDropPayload } from "../core/bridge";
 import {
@@ -48,6 +49,9 @@ const HIT_MARGIN = 14;
 
 /** Ronron beside an open pill's card: level with its first lines. */
 const OPEN_PILL_BOT_Y = 84;
+/** Ronron beside the overview's four slots. */
+const SLOTS_BOT_X = 42;
+const SLOTS_BOT_D = 50;
 
 /** The views with a text field: the island takes the keyboard while one is on. */
 const TYPING_VIEWS: ReadonlySet<IslandViewName> = new Set(["prompt", "launch"]);
@@ -98,6 +102,8 @@ export class Island {
 
   private header!: ViewHost;
   private views!: Map<IslandViewName, ViewHost>;
+  /** Calendar reminders (./reminders.ts). */
+  private reminders: Reminders | null = null;
   private uploadCanvas!: UploadCanvas;
   /** The sessions listed on the drop card while a file is over it. */
   private sessionDrop!: SessionDropList;
@@ -317,6 +323,15 @@ export class Island {
         if (on) void Bridge.focusWindow(true);
         else if (!TYPING_VIEWS.has(State.view) && State.mode === "expanded") void Bridge.focusWindow(false);
       },
+      dismissReminder: () => this.reminders?.dismissed(),
+      openPill: () => {
+        window.setTimeout(() => {
+          if (State.pillOpen || State.view !== "overview" || State.mode !== "expanded") return;
+          State.pillOpen = true;
+          this.animateGeometry(false);
+          State.notify();
+        }, 0);
+      },
       launched: () => {
         Sound.play("send");
         this.engine.triggerEmote("happy");
@@ -367,6 +382,14 @@ export class Island {
 
     this.header = buildHeader(actions);
     this.views = buildViews(actions, () => this.animateGeometry(false));
+    this.reminders = new Reminders({
+      alert: (view) => this.alert(view),
+      emote: (name) => this.emote(name),
+      setPinned: (on) => this.setPinned(on),
+      closeReminder: () => {
+        if (State.mode === "expanded" && State.view === "reminder") this.collapse();
+      },
+    });
     this.viewsEl = h("div", { id: "views" });
     for (const v of this.views.values()) this.viewsEl.append(v.el);
     this.contentEl = h("div", { id: "content" }, this.header.el, this.viewsEl);
@@ -1343,8 +1366,9 @@ export class Island {
   private updateBotTargets() {
     let p = botPosition(State.mode, State.view, this.height.value, State.uploadProgress);
     // A pill open: the card's text starts at the top, so does Ronron (the usual overview card's spot).
-    if (State.mode === "expanded" && State.view === "overview" && State.pillOpen) {
-      p = { ...p, cy: OPEN_PILL_BOT_Y };
+    // No pill open: he sits on the left of the four slots.
+    if (State.mode === "expanded" && State.view === "overview") {
+      p = State.pillOpen ? { ...p, cy: OPEN_PILL_BOT_Y } : { ...p, cx: SLOTS_BOT_X, diameter: SLOTS_BOT_D };
     }
     // The closed island with Ronron in it, as on a Mac without a notch.
     if (State.mode === "hidden" && closedIsland(State.settings.closedIsland) === "cat") {

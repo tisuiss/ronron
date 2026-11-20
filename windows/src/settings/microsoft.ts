@@ -7,6 +7,7 @@
 // made with RONRON_TODO_CLIENT_ID carry their own Entra app; anyone can still
 // use their own under "Use your own Entra app".
 
+import { MUSIC_ID } from "../core/media";
 import { Bridge, onEvent } from "../core/bridge";
 import { h, clear } from "../views/dom";
 import { statusDot } from "./parts";
@@ -168,4 +169,18 @@ export function microsoftSection(header?: HeaderPillsAccess): HTMLElement {
     root.append(ownApp(builtin));
   });
   return section;
+}
+
+/** Music: a tab in the island's header for what plays on this computer (src/views/music.ts). */
+export function musicSection(header: HeaderPillsAccess): HTMLElement {
+  const sw = h("button", { class: header.get().includes(MUSIC_ID) ? "switch on" : "switch" });
+  sw.addEventListener("click", () => {
+    const on = header.get().includes(MUSIC_ID);
+    header.set(on ? header.get().filter((x) => x !== MUSIC_ID) : [...header.get(), MUSIC_ID]);
+    sw.classList.toggle("on", !on);
+  });
+  return h("section", {},
+    h("h2", {}, h("span", { text: t("Music") })),
+    h("div", { class: "hint", text: t("Play, pause and skip what plays on this computer — Spotify, YouTube Music, Amazon Music — through the system's media controls. No account to connect.") }),
+    h("div", { class: "row", style: "gap:10px;margin-top:4px" }, sw, h("span", { style: "font-size:12.5px", text: t("Music tab in the header") })));
 }

@@ -509,6 +509,99 @@ body {
   flex: 1 1 auto;
 }
 
+/* No pill open: four slots side by side, Ronron on their left (island.ts SLOTS_BOT_X). */
+.overview:not(.tall) > .left,
+.overview:not(.tall) > .right,
+.overview.tall > .slots {
+  display: none;
+}
+.slots {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: 74px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.slot {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 10px 11px;
+  border-radius: 18px;
+  background: var(--card);
+  border: 1px solid color-mix(in srgb, var(--pill, #fff) 16%, transparent);
+  color: var(--ink);
+  font: 12px var(--font);
+  text-align: start;
+  cursor: default;
+  transition: transform 0.2s cubic-bezier(0.3, 1.2, 0.4, 1), border-color 0.18s, background 0.18s;
+}
+.slot:hover {
+  transform: scale(1.03);
+  border-color: color-mix(in srgb, var(--pill, #fff) 55%, transparent);
+  background: color-mix(in srgb, var(--pill, #fff) 8%, var(--card));
+}
+.slot-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+.slot-head b {
+  font: 600 12px var(--font);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.slot-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  font: 10.5px var(--font);
+  color: var(--dim);
+}
+.slot-status span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.slot-line {
+  max-width: 100%;
+  font: 11px/1.35 var(--font);
+  color: var(--dim-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.slot-badge {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.slot.free {
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1.5px dashed #ffffff1c;
+  color: var(--dim-3);
+  font-size: 11px;
+}
+.slot.free:hover {
+  border-color: #ffffff38;
+  color: var(--dim-2);
+  background: transparent;
+}
+
 /* A pill open (State.pillOpen): its card takes the room, the pills stack on the side. */
 .overview.tall > .left {
   flex: 1 1 auto;
@@ -4505,4 +4598,173 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
   display: grid;
   place-items: center;
   cursor: default;
+}
+
+/* ── Music space (views/music.ts) ───────────────────────────────────────────── */
+.space.music {
+  grid-template-columns: 140px minmax(0, 1fr);
+}
+.sp-music-art {
+  align-items: center;
+  padding: 12px;
+}
+.mu-cover {
+  width: 114px;
+  height: 114px;
+  flex: none;
+  border-radius: 14px;
+  background: #ffffff0a;
+  display: grid;
+  place-items: center;
+  color: var(--dim-4);
+  overflow: hidden;
+}
+.mu-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sp-music {
+  gap: 10px;
+}
+.mu-sources .sp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.mu-live {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+}
+.mu-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  margin-top: 4px;
+}
+.mu-title {
+  font: 700 18px/1.25 var(--font);
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mu-artist {
+  font: 13px var(--font);
+  color: var(--dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mu-bar {
+  margin-top: auto;
+  height: 4px;
+  border-radius: 2px;
+  background: #ffffff14;
+  overflow: hidden;
+}
+.mu-bar i {
+  display: block;
+  height: 100%;
+  background: #f0913c;
+  border-radius: 2px;
+  transition: width 0.4s linear;
+}
+.mu-times {
+  display: flex;
+  justify-content: space-between;
+  font: 500 10.5px var(--font);
+  color: var(--dim-3);
+  margin-top: -4px;
+}
+.mu-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+}
+.mu-btn {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: default;
+}
+.mu-btn:hover {
+  background: #ffffff10;
+}
+.mu-btn:disabled {
+  opacity: 0.3;
+}
+.mu-btn.play {
+  width: 46px;
+  height: 46px;
+  border-radius: 23px;
+  background: #f0913c;
+  color: #1a1208;
+}
+.mu-btn.play:hover {
+  background: #f5a35a;
+}
+.mu-empty {
+  display: none;
+  margin: auto 0;
+}
+.sp-music.idle > :not(.mu-sources):not(.mu-empty) {
+  display: none;
+}
+.sp-music.idle > .mu-empty {
+  display: block;
+}
+
+/* ── Calendar reminder (views/reminder.ts) ──────────────────────────────────── */
+.rm-card {
+  display: flex;
+  align-items: center;
+}
+.rm-body {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  flex: 1 1 auto;
+  padding: 0 16px 0 116px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rm-title {
+  font: 600 15px/1.3 var(--font);
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rm-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 12px var(--font);
+  color: var(--dim);
+  min-width: 0;
+}
+.rm-line span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rm-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+.rm-buttons .sp-btn {
+  padding: 0 14px;
 }

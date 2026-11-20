@@ -71,9 +71,9 @@ State.settings.mainPill = "integration_claude";
 State.settings.activeIntegrations = ["integration_github", "integration_spotify", "integration_vercel", "integration_n8n"];
 State.loadIntegrationTasks();
 State.setFocus("integration_github");
-State.pillOpen = true;
 State.view = "overview";
-{
+for (const open of [false, true]) {
+  State.pillOpen = open;
   const island = document.createElement("div");
   island.className = "island";
   const content = document.createElement("div");
@@ -87,11 +87,52 @@ State.view = "overview";
   content.append(header.el, views);
   const cat = document.createElement("div");
   cat.className = "cat";
-  cat.style.left = `${VIEW_LAYOUTS.overview.botX}px`;
-  cat.style.top = "171px";
+  cat.style.left = open ? `${VIEW_LAYOUTS.overview.botX}px` : "42px";
+  cat.style.top = open ? "84px" : "101px";
+  if (!open) island.style.height = "160px";
   island.append(content, cat);
   document.body.append(island);
   header.sync();
   view.sync();
+}
+// The Music space and a reminder, with sample data.
+(window as unknown as { __TAURI_INTERNALS__?: unknown });
+State.settings.headerPills = [...State.settings.headerPills, "music"];
+State.reminder = { booking: { id: "r", title: "Point client Metral", start: new Date(Date.now() + 10 * 60_000), end: new Date(Date.now() + 40 * 60_000),
+  attendeeName: "Anne", attendeeEmail: "", attendeeNotes: "Teams", joinUrl: "https://teams.microsoft.com/x", webUrl: "https://outlook.office.com/" },
+  calendar: { id: "A", name: "Travail", color: "#0F78D4", kind: "microsoft", shown: true, remind: 10 } };
+for (const name of ["music", "reminder"] as IslandViewName[]) {
+  State.view = name;
+  const island = document.createElement("div");
+  island.className = "island";
+  island.style.height = `${VIEW_LAYOUTS[name].height}px`;
+  const content = document.createElement("div");
+  content.id = "content";
+  const header = buildHeader(actions);
+  const views = document.createElement("div");
+  views.id = "views";
+  const view = buildViews(actions, noop).get(name)!;
+  view.el.classList.add("on");
+  views.append(view.el);
+  content.append(header.el, views);
+  const cat = document.createElement("div");
+  cat.className = "cat";
+  cat.style.left = `${VIEW_LAYOUTS[name].botX}px`;
+  cat.style.top = `${VIEW_LAYOUTS[name].botY ?? 101}px`;
+  island.append(content, cat);
+  document.body.append(island);
+  header.sync();
+  view.sync();
+  if (name === "music") {
+    // No player in a browser: the state a playing Spotify gives.
+    const main = view.el.querySelector(".sp-music") as HTMLElement;
+    main.classList.remove("idle");
+    (view.el.querySelector(".mu-info") as HTMLElement).innerHTML = '<span class="sp-kicker">Spotify</span><b class="mu-title">Bohemian Rhapsody</b><span class="mu-artist">Queen · A Night at the Opera</span>';
+    (view.el.querySelector(".mu-sources") as HTMLElement).innerHTML = '<button class="sp-chip on"><i class="mu-live"></i><span>Spotify</span></button><button class="sp-chip"><span>YouTube Music</span></button>';
+    (view.el.querySelector(".mu-bar i") as HTMLElement).style.width = "28%";
+    const times = view.el.querySelectorAll(".mu-times span");
+    times[0].textContent = "1:39"; times[1].textContent = "5:54";
+    (view.el.querySelector(".play") as HTMLElement).innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M6 4.5h4v15H6zM14 4.5h4v15h-4z"/></svg>';
+  }
 }
 document.title = "ready";

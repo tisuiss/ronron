@@ -8,6 +8,24 @@ use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use std::sync::{Mutex, MutexGuard, PoisonError};
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[serde(rename_all = "camelCase", default)]
+pub struct CalendarPref {
+    pub id: String,
+    pub shown: bool,
+    /// Minutes before an event to remind it; 0 = no reminder.
+    pub remind: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[serde(rename_all = "camelCase", default)]
+pub struct IcalCalendar {
+    /// 0 to 7: its address is the secret `ical-url-<slot>`.
+    pub slot: u8,
+    pub name: String,
+    pub color: String,
+}
+
 /// A field the file lacks takes its value from `Default`, so a settings.json
 /// written by an older build still loads, whatever has been added since.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -25,6 +43,11 @@ pub struct Settings {
     /// Microsoft 365 pills shown in the island's header instead of with the
     /// other pills (Calendar, Mail, To Do): they run, but take no pill slot.
     pub header_pills: Vec<String>,
+    /// Each calendar's choices (Microsoft 365 calendars by their Graph id, iCal ones as "ical-N"):
+    /// shown in Ronron or not, and the reminder before its events.
+    pub calendar_prefs: Vec<CalendarPref>,
+    /// The iCal calendars; their address is a secret, in the credential store (ical.rs).
+    pub ical_calendars: Vec<IcalCalendar>,
     /// The always-on workspace pill (src/core/pills.ts checks it is one).
     pub main_pill: String,
     /// "primary" = the main display, "cursor" = whichever display the mouse is on.
@@ -156,6 +179,8 @@ impl Default for Settings {
             alerts_from_all_pills: false,
             absence_interval: 180.0,
             header_pills: Vec::new(),
+            calendar_prefs: Vec::new(),
+            ical_calendars: Vec::new(),
             active_integrations: vec![
                 "integration_resend".into(),
                 "integration_n8n".into(),
@@ -466,6 +491,8 @@ mod tests {
   "absenceInterval": 60.0,
   "activeIntegrations": ["integration_notion"],
   "headerPills": ["integration_todo"],
+  "calendarPrefs": [{"id": "AAMk", "shown": true, "remind": 10}],
+  "icalCalendars": [{"slot": 0, "name": "Famille", "color": "#E879A9"}],
   "mainPill": "agent_cursor",
   "screen": "cursor",
   "autostart": true,
@@ -990,6 +1017,8 @@ mod tests {
                 "absenceInterval",
                 "activeIntegrations",
                 "headerPills",
+                "calendarPrefs",
+                "icalCalendars",
                 "mainPill",
                 "screen",
                 "autostart",

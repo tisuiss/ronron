@@ -3,6 +3,31 @@ export interface Booking {
   attendeeName: string; attendeeEmail: string; attendeeNotes: string;
   /** Microsoft 365: the Teams link, the event in Outlook on the web, and all-day events. */
   joinUrl?: string; webUrl?: string; allDay?: boolean;
+  /** Which calendar it comes from (calendar365.rs: a Graph id or "ical-N"). */
+  calendarId?: string;
+}
+
+/** A calendar as calendar365.rs lists it in the data. */
+export interface CalendarInfo {
+  id: string;
+  name: string;
+  color: string;
+  kind: "microsoft" | "ical";
+  shown: boolean;
+  /** Minutes before an event; 0 = no reminder. */
+  remind: number;
+}
+
+export function readCalendars(value: unknown): CalendarInfo[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((c) => c && typeof c.id === "string").map((c) => ({
+    id: c.id,
+    name: typeof c.name === "string" ? c.name : "",
+    color: typeof c.color === "string" && /^#[0-9a-fA-F]{6}$/.test(c.color) ? c.color : "#0F78D4",
+    kind: c.kind === "ical" ? "ical" : "microsoft",
+    shown: c.shown !== false,
+    remind: typeof c.remind === "number" && c.remind > 0 ? c.remind : 0,
+  }));
 }
 
 /** Invalid data must not appear as an empty, successfully loaded calendar. */
@@ -20,6 +45,7 @@ export function readBookings(value: unknown): Booking[] | null {
     if (https("joinUrl")) booking.joinUrl = https("joinUrl");
     if (https("webUrl")) booking.webUrl = https("webUrl");
     if (raw.allDay === true) booking.allDay = true;
+    if (typeof raw.calendarId === "string") booking.calendarId = raw.calendarId;
     out.push(booking);
   }
   return out.sort((a, b) => a.start.getTime() - b.start.getTime());

@@ -265,7 +265,8 @@ export function orderPills<T extends { id: string }>(tasks: T[], mainPill: strin
 }
 
 /** The pills that may sit in the island's header instead of with the others, in header order. */
-export const HEADER_PILLS = ["integration_calendar", "integration_mail", "integration_todo"] as const;
+/** The header's tabs, in order: the Microsoft 365 pills, then the Music tab (core/media.ts, not a pill). */
+export const HEADER_PILLS = ["integration_calendar", "integration_mail", "integration_todo", "music"] as const;
 
 /** The header pills a settings list asks for, in header order, unknown ones left out. */
 export function headerPillIds(list: readonly string[] | undefined): string[] {

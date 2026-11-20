@@ -10,7 +10,7 @@ import { washRGBA, type IslandViewName, type Wash } from "../core/layout";
 import { createMiniBot, pruneMiniBots } from "../cat/minibots";
 import { buildPrompt } from "./chat";
 import { buildChoose, buildUpload, buildUploading } from "./upload";
-import { renderIntegrationCard, type IntegrationCardHooks } from "./integrations";
+import { idleStatus, renderIntegrationCard, type IntegrationCardHooks } from "./integrations";
 import { overdueCount, readTasks } from "./todo";
 import { highlightRow, listRows, openRow } from "./github";
 import { pillDefinition, sessionSubtitle } from "../core/pills";
@@ -25,12 +25,15 @@ import { buildWardrobe } from "./wardrobe";
 import { buildUpdate } from "./update";
 import { buildWhatsNew } from "./whatsnew";
 import { buildLaunch } from "./launch";
+import { buildMusicSpace } from "./music";
+import { buildReminder } from "./reminder";
 import { SPACE_OF, buildAgendaSpace, buildMailSpace, buildTodoSpace } from "./spaces";
 import { buildSpotifyCard, buildSpotifyPill, type SpotifyPillHost } from "./spotify";
 import { SPOTIFY_ID } from "../core/spotify";
 import { buildWhatsAppCard } from "./whatsapp";
 import { WHATSAPP_ID } from "../core/whatsapp";
 import { MAIL_ID } from "../core/mail";
+import { MUSIC_ID } from "../core/media";
 import { buildMailCard } from "./mail";
 import type { Outfit, OutfitSelection } from "../cat/wardrobe";
 import { language, t, tl, type Msg } from "../i18n/i18n";
@@ -68,6 +71,10 @@ export interface ViewActions {
   holdOpen(on: boolean): void;
   /** A Claude Code session was started from the launch card: Ronron is pleased, the island folds. */
   launched(): void;
+  /** The overview shows the focused pill's card, island taller (a diff or a plan card asked for it). */
+  openPill(): void;
+  /** OK or Join on a calendar reminder. */
+  dismissReminder(): void;
 }
 
 export interface ViewHost {
@@ -219,6 +226,29 @@ export function buildHeader(actions: ViewActions): ViewHost {
 
 /** The column of pills beside an open pill: as many as the taller island holds. */
 const TALL_PILLS = 7;
+/** The overview's slots, side by side. */
+const SLOTS = 4;
+
+/** One slot: the pill's little Ronron and name, its state, and what it is doing now. */
+function slotTile(task: AgentTask, actions: ViewActions): HTMLElement {
+  const label = task.id === "integration_claude" ? pillDefinition(task.id)!.name : task.name;
+  const session = hasSessionTicker(task);
+  const info = State.integrations[task.id];
+  const status = session
+    ? { label: t(sessionSubtitle(task.id)), color: task.state === "error" ? "#F4505E" : task.state === "idle" ? "#22C55E" : "#3B9EFF" }
+    : idleStatus(task.id, info, State.settings.model);
+  const step = task.steps[task.stepIndex] ?? task.steps.at(-1) ?? "";
+  const tile = h("button", { class: "slot", "data-pill": task.id, onclick: () => actions.setFocus(task.id) },
+    h("div", { class: "slot-head" }, createMiniBot(task, 20), h("b", { text: label })),
+    h("div", { class: "slot-status" }, dot(status.color, 6), h("span", { text: status.label })),
+    step ? h("div", { class: "slot-line", text: step }) : null);
+  tile.style.setProperty("--pill", task.color);
+  if (task.pillBadge) {
+    const colors = { approval: "#F5A524", finished: "#22C55E", error: "#F4505E" } as const;
+    tile.append(h("i", { class: "slot-badge", style: `background:${colors[task.pillBadge]}` }));
+  }
+  return tile;
+}
 
 function buildOverview(actions: ViewActions): ViewHost {
   /** The diff open in the left card (a FileDiff id), as activeDiffId on macOS. */
@@ -244,6 +274,9 @@ function buildOverview(actions: ViewActions): ViewHost {
   const left = card(null, leftBody, jump);
   const pills = h("div", { class: "pills" });
   const right = card(null, pills);
+  // No pill open: the four slots side by side, one space each (State.pillOpen opens one).
+  const slots = h("div", { class: "slots" });
+  let slotKey = "";
   // Opened from a plan pill in the header: stands in for the left card.
   const plan = new PlanCard();
   let planTimer: number | null = null;
@@ -263,6 +296,7 @@ function buildOverview(actions: ViewActions): ViewHost {
   const el = h("div", { class: "view overview" },
     h("div", { class: "left" }, left),
     h("div", { class: "right" }, right),
+    slots,
   );
 
   let pillIds = "";
@@ -319,6 +353,25 @@ function buildOverview(actions: ViewActions): ViewHost {
       if (planCardOpen() && State.mode === "expanded") State.notify();
       else stop();
     }, 30_000);
+  }
+
+  /** The four slots: each pill's name, its state and what it is doing; a free slot leads to Settings. */
+  function syncSlots() {
+    const header = State.headerIds;
+    const shown = State.tasks.filter((t) => !header.includes(t.id)).slice(0, SLOTS);
+    const key = JSON.stringify([language(), ...shown.map((t) => {
+      const info = State.integrations[t.id];
+      return [t.id, t.color, t.state, t.pillBadge, t.steps[t.stepIndex] ?? t.steps.at(-1) ?? "", info?.configured, info?.error, info?.loaded];
+    })]);
+    if (key === slotKey) return;
+    slotKey = key;
+    clear(slots);
+    for (const task of shown) slots.append(slotTile(task, actions));
+    for (let i = shown.length; i < SLOTS; i++) {
+      slots.append(h("button", { class: "slot free", title: t("Settings"), onclick: () => actions.openSettingsWindow() },
+        svg(ICONS.plus, 14), h("span", { text: t("Free slot") })));
+    }
+    pruneMiniBots();
   }
 
   return {
@@ -467,8 +520,11 @@ function buildOverview(actions: ViewActions): ViewHost {
       shownSelection = State.cardSelection;
 
       // A pill open: its card takes the island, every pill in a column on the side, the open one lit.
+      // A diff or a plan card needs the card: it opens the focused pill.
+      if (!State.pillOpen && (mode === "plan" || mode === "diff")) actions.openPill();
       const tall = State.pillOpen;
       el.classList.toggle("tall", tall);
+      if (!tall) syncSlots();
       const header = State.headerIds;
       const others = tall
         ? State.tasks.filter((t) => !header.includes(t.id)).slice(0, TALL_PILLS)
@@ -922,6 +978,8 @@ export function buildViews(
   map.set("agenda", buildAgendaSpace(actions));
   map.set("inbox", buildMailSpace(actions));
   map.set("tasks", buildTodoSpace(actions));
+  map.set("music", buildMusicSpace(actions));
+  map.set("reminder", buildReminder(actions));
   // Not in the Windows v1: sending a file by email, window attach + web result.
   map.set("mail", buildPlaceholder(tl("Sending by email isn't in this version."), ""));
   map.set("searching", buildPlaceholder(tl("Claude is searching…"), ""));
@@ -962,6 +1020,8 @@ export function headerTabs(now: number): HeaderTab[] {
       const tasks = readTasks(data);
       const late = overdueCount(tasks);
       out.push({ id, view, label: "To Do", badge: tasks.length ? String(tasks.length) : "", alert: late > 0 });
+    } else if (id === MUSIC_ID) {
+      out.push({ id, view, label: t("Music"), badge: "", alert: false });
     }
   }
   return out;

@@ -10,12 +10,13 @@ import { h, svg, clear } from "./dom";
 import { ICONS } from "./icons";
 import { State } from "../core/state";
 import { Bridge } from "../core/bridge";
-import { dayKey, readBookings, type Booking } from "../core/calendar";
+import { dayKey, readBookings, readCalendars, type Booking } from "../core/calendar";
 import {
   MAIL_FILTERS, MAIL_ID, MailBridge, filterTitle, messageId, senderName,
   type MailCardData, type MailFilter, type MailMessage,
 } from "../core/mail";
 import type { IslandViewName } from "../core/layout";
+import { MUSIC_ID } from "../core/media";
 import { timeAgo } from "./integrations";
 import { TODO_ID, dueLabel, overdueCount, todayKey, doneTodayCount, todoActions, type TodoTask } from "./todo";
 import type { ViewActions, ViewHost } from "./views";
@@ -31,10 +32,11 @@ export const SPACE_OF: Record<string, IslandViewName> = {
   [CALENDAR_ID]: "agenda",
   [MAIL_ID]: "inbox",
   [TODO_ID]: "tasks",
+  [MUSIC_ID]: "music",
 };
 
 export function isSpace(view: IslandViewName): boolean {
-  return view === "agenda" || view === "inbox" || view === "tasks";
+  return view === "agenda" || view === "inbox" || view === "tasks" || view === "music";
 }
 
 function tile(cls: string, ...children: (Node | null)[]): HTMLElement {
@@ -123,7 +125,9 @@ export function buildAgendaSpace(actions: ViewActions): ViewHost {
     const today = new Date(now);
     const data = dataOf(CALENDAR_ID);
     const bookings = readBookings(data.bookings) ?? [];
-    const k = JSON.stringify([language(), Math.floor(now / 60_000), selectedDay, selectedEvent, signedOut(CALENDAR_ID),
+    const calendars = readCalendars(data.calendars);
+    const colorOf = (b: Booking, i: number) => calendars.find((c) => c.id === b.calendarId)?.color ?? EVENT_COLORS[i % EVENT_COLORS.length];
+    const k = JSON.stringify([language(), Math.floor(now / 60_000), calendars, selectedDay, selectedEvent, signedOut(CALENDAR_ID),
       info(CALENDAR_ID)?.error ?? "", bookings.map((b) => [b.id, b.start.getTime(), b.end.getTime(), b.title])]);
     if (k === key) return;
     key = k;
@@ -181,7 +185,7 @@ export function buildAgendaSpace(actions: ViewActions): ViewHost {
           draw();
         },
       },
-      h("i", { style: `background:${EVENT_COLORS[i % EVENT_COLORS.length]}` }),
+      h("i", { style: `background:${colorOf(b, i)}` }),
       h("span", { class: "sp-time", text: b.allDay ? t("All day") : time(b.start) }),
       h("span", { class: "sp-name", text: b.title || t("Meeting") }),
       b.joinUrl ? h("span", { class: "sp-tag", text: "Teams" }) : null));

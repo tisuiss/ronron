@@ -25,7 +25,8 @@ import { claudeModelControl } from "./claude-models";
 import { agentsSection } from "./agents";
 import { phoneSection } from "./phone";
 import { whatsappSection } from "./whatsapp";
-import { microsoftSection } from "./microsoft";
+import { microsoftSection, musicSection } from "./microsoft";
+import { calendarsSection } from "./calendars";
 import { WHATSAPP_ID } from "../core/whatsapp";
 import { updateRows, updatesListener } from "./updates";
 import { colorDot } from "./colors";
@@ -1566,6 +1567,14 @@ async function render() {
         set: (ids) => {
           settings.headerPills = ids;
           settings.activeIntegrations = settings.activeIntegrations.filter((x) => !ids.includes(x));
+          declaredChanged();
+        },
+      }),
+      calendarsSection({ settings: () => settings, save: () => void save() }),
+      musicSection({
+        get: () => settings.headerPills ?? [],
+        set: (ids) => {
+          settings.headerPills = ids;
           declaredChanged();
         },
       }),

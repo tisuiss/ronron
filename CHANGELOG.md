@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.0 — November 20, 2026
+
+- **Several calendars**: the Microsoft 365 account's calendars, and up to eight iCal ones (`webcal://` or `https://`, kept in the credential store), each shown or not and in its own colour (Settings → Integrations → Calendars). Recurring iCal events are expanded in their time zone.
+- **Reminders**: per calendar, none or 5, 10, 15, 30 minutes before. The island opens on the event with **Join the meeting** (Teams, Meet, Zoom), **Open** and **OK**.
+- **Music tab**: plays, pauses and skips what plays on this computer — Spotify, YouTube Music, Amazon Music — through the system's media controls (Windows) or MPRIS (Linux), with the cover and the progress. No account.
+- **Overview in four slots**: with no pill open, the four pills sit side by side, each with its own space; a click opens it as before (its card, the pills in a column).
+
 ## 0.7.2 — November 20, 2026
 
 - **Mail space**: the inbox takes the whole width beside the unread count, without the preview tile. A click on a message shows it in the inbox's place, with Reply, Open, Mark as read and Important; **‹ Inbox** (or Esc) goes back.
