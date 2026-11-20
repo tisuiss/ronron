@@ -3853,46 +3853,551 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
   flex: 1 1 auto;
 }
 
-/* ── Microsoft 365 chips in the header (views.ts headerChips) ───────────────── */
-.m365-strip {
-  flex: 1 1 auto;
+/* ── Microsoft 365 tabs in the header (views.ts headerTabs) ─────────────────── */
+.tabs.space-tabs {
+  padding-left: 5px;
   min-width: 0;
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  padding: 0 10px;
 }
-.m365-chip {
+.tabs.space-tabs:empty {
+  display: none;
+}
+.tabs.rest {
+  padding-left: 5px;
+}
+.tab.text {
+  width: auto;
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  padding: 0 10px;
+  font: 500 12px var(--font);
+  white-space: nowrap;
+}
+.tab.text.on {
+  background: #3a2a1c;
+  color: #ffc58f;
+}
+.tab.text .badge {
+  font: 600 10px var(--font);
+  font-style: normal;
+  color: var(--dim-3);
+}
+.tab.text.on .badge {
+  color: #ffc58f;
+}
+.tab.text .badge.alert {
+  color: #f4505e;
+}
+
+/* ── Microsoft 365 spaces (views/spaces.ts) ─────────────────────────────────── */
+.space {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) 200px;
+  gap: 8px;
+}
+.sp-tile {
   min-width: 0;
-  max-width: 190px;
-  height: 22px;
-  padding: 0 9px;
-  border: 0;
-  border-radius: 11px;
-  background: #ffffff0f;
-  color: var(--dim-2);
-  font: 500 11px var(--font);
-  cursor: pointer;
+  min-height: 0;
+  border-radius: 20px;
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
 }
-.m365-chip:hover {
-  background: #ffffff1a;
+.sp-stack {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sp-stack .sp-tile {
+  flex: 1 1 0;
+  gap: 5px;
+}
+/* The left tile: Ronron sits at its foot (layout.ts: botY). */
+.sp-date,
+.sp-count,
+.sp-progress {
+  align-items: center;
+  padding-bottom: 60px;
+  gap: 2px;
+  text-align: center;
+}
+.sp-kicker {
+  font: 600 11px var(--font);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffc58f;
+}
+.sp-kicker.dim {
+  color: var(--dim-3);
+}
+.sp-big {
+  font: 700 46px/1 var(--font);
+  color: var(--ink);
+  margin-top: 2px;
+}
+.sp-dim {
+  font: 12px var(--font);
+  color: var(--dim);
+}
+.sp-next {
+  margin-top: 10px;
+  font: 600 13px var(--font);
   color: var(--ink);
 }
-.m365-chip.on {
-  background: #2564cf33;
+.sp-late {
+  margin-top: 6px;
+  font: 600 12px var(--font);
+  color: #ff8a9a;
+}
+.sp-progress .sp-dim {
+  margin-top: 6px;
+}
+.sp-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font: 12px var(--font);
+  color: var(--dim);
+}
+.sp-title b {
+  font: 600 14px var(--font);
   color: var(--ink);
-}
-.m365-chip svg {
-  flex: none;
-}
-.m365-chip span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.m365-chip span.alert {
+.sp-tile-title {
+  font: 600 13px var(--font);
+  color: var(--ink);
+}
+.sp-list {
+  min-height: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.sp-empty {
+  padding: 14px 4px;
+  font: 12px var(--font);
+  color: var(--dim-3);
+  text-align: center;
+}
+.sp-empty.small {
+  padding: 6px 0;
+  text-align: start;
+}
+.sp-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sp-due,
+.sp-ago,
+.sp-tag {
+  flex: none;
+  font: 500 11px var(--font);
+  color: var(--dim-3);
+}
+.sp-due.late {
+  color: #ff8a9a;
+}
+.sp-buttons {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sp-buttons.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.sp-btn {
+  height: 30px;
+  border: 0;
+  border-radius: 10px;
+  background: #2a2c30;
+  color: var(--ink);
+  font: 500 12px var(--font);
+  cursor: default;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 8px;
+}
+.sp-btn:hover {
+  background: #33363b;
+}
+.sp-btn.primary {
+  background: #f0913c;
+  color: #1a1208;
+  font-weight: 600;
+}
+.sp-btn.primary:hover {
+  background: #f5a35a;
+}
+.sp-btn.amber.on {
+  color: #f5a524;
+}
+
+/* Calendar */
+.sp-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+}
+.sp-day {
+  height: 38px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #c9ccd1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font: 500 13px var(--font);
+  cursor: default;
+  position: relative;
+}
+.sp-day small {
+  font: 10px var(--font);
+  color: var(--dim-3);
+}
+.sp-day:hover {
+  background: #ffffff0d;
+}
+.sp-day.today span {
+  color: #ffc58f;
+}
+.sp-day.busy::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 2px;
+  background: #f0913c;
+}
+.sp-day.on {
+  background: #f0913c;
+  color: #1a1208;
+  font-weight: 700;
+}
+.sp-day.on small,
+.sp-day.on span {
+  color: #1a1208;
+}
+.sp-day.on::after {
+  background: #1a1208;
+}
+.sp-event-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: #ffffff08;
+  color: var(--ink);
+  font: 500 12px var(--font);
+  text-align: start;
+  cursor: default;
+}
+.sp-event-row:hover,
+.sp-event-row.on {
+  background: #ffffff12;
+}
+.sp-event-row.past {
+  opacity: 0.5;
+}
+.sp-event-row i {
+  width: 3px;
+  align-self: stretch;
+  border-radius: 2px;
+  flex: none;
+}
+.sp-time {
+  flex: none;
+  width: 40px;
+  font: 500 11px var(--font);
+  color: #ffc58f;
+}
+.sp-event-title {
+  margin: 0;
+  font: 600 15px/1.3 var(--font);
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.sp-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font: 12px var(--font);
+  color: #c9ccd1;
+}
+
+/* Mail */
+.sp-search-box {
+  height: 28px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 10px;
+  border-radius: 10px;
+  background: #ffffff0a;
+  color: var(--dim-3);
+}
+.sp-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: 12px var(--font);
+}
+.sp-filters {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow: hidden;
+  flex: none;
+}
+.sp-chip {
+  height: 22px;
+  padding: 0 7px;
+  white-space: nowrap;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--dim-2);
+  font: 500 11px var(--font);
+  cursor: default;
+}
+.sp-chip:hover {
+  background: #ffffff0d;
+}
+.sp-chip.on {
+  background: #3a2a1c;
+  color: #ffc58f;
+}
+.sp-mail-row {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto auto;
+  column-gap: 6px;
+  align-items: center;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--dim-2);
+  font: 12px var(--font);
+  text-align: start;
+  cursor: default;
+}
+.sp-mail-row:hover,
+.sp-mail-row.on {
+  background: #ffffff0f;
+}
+.sp-mail-row.unread {
+  color: var(--ink);
+}
+.sp-mail-row .sp-from {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sp-mail-row.unread .sp-from {
+  font-weight: 600;
+}
+.sp-mail-row .sp-subject {
+  grid-column: 2 / -1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--dim);
+}
+.sp-mail-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.sp-mail-head .sp-from {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 600 13px var(--font);
+}
+.sp-mail-subject {
+  font: 600 12px/1.35 var(--font);
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.sp-mail-text {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  font: 12px/1.45 var(--font);
+  color: var(--dim);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* To Do */
+.sp-ring {
+  position: relative;
+  width: 84px;
+  height: 84px;
+}
+.sp-ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.sp-ring-text b {
+  font: 700 18px var(--font);
+}
+.sp-ring-text small {
+  font: 10px var(--font);
+  color: var(--dim);
+}
+.sp-task {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 6px;
+  border-radius: 10px;
+  font: 12px var(--font);
+  color: var(--ink);
+}
+.sp-task:hover {
+  background: #ffffff08;
+}
+.sp-task.done .sp-name {
+  color: var(--dim-3);
+  text-decoration: line-through;
+}
+.sp-check {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  border: 1.5px solid #6b7079;
+  background: transparent;
+  color: #1a1208;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: default;
+}
+.sp-check:hover {
+  border-color: #f0913c;
+}
+.sp-check.on {
+  background: #f0913c;
+  border-color: #f0913c;
+}
+.sp-error {
+  font: 11px var(--font);
   color: #f4505e;
+}
+.sp-error:empty {
+  display: none;
+}
+.sp-add {
+  flex: none;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px 0 12px;
+  border: 1.5px solid #6b5440;
+  border-radius: 12px;
+}
+.sp-add-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: 12px var(--font);
+}
+.sp-add-go {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 9px;
+  background: #f0913c;
+  color: #1a1208;
+  display: grid;
+  place-items: center;
+  cursor: default;
+}
+.sp-list-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 6px;
+  margin: 0 -6px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  font: 12px var(--font);
+  text-align: start;
+  cursor: default;
+}
+.sp-list-row:hover {
+  background: #ffffff0d;
+}
+.sp-list-row.on {
+  background: #3a2a1c;
+  color: #ffc58f;
+}
+.sp-soon-row {
+  display: flex;
+  gap: 8px;
+  font: 12px var(--font);
+  color: var(--ink);
+  min-width: 0;
+}
+.sp-soon-row .sp-due {
+  width: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sp-open {
+  margin-top: auto;
+  align-self: flex-start;
 }

@@ -58,23 +58,23 @@ test("the card shows what is under way and next, past events left out", () => {
 });
 
 test("Microsoft 365 pills can live in the header instead of taking a slot", async () => {
-  const { headerChips } = await import("../src/views/views.ts");
+  const { headerTabs } = await import("../src/views/views.ts");
   const now = Date.now();
   State.settings.headerPills = ["integration_todo", "integration_calendar", "integration_mail", "integration_github"];
   State.integrations.integration_mail = { data: { unread: 4 }, error: null, loaded: true, configured: true };
   State.integrations.integration_todo = { data: { tasks: [{ id: "a", listId: "L", due: "2000-01-01" }] }, error: null, loaded: true, configured: true };
   State.integrations[ID] = { data: { bookings: [{ id: "e", title: "Revue", start: iso(now - 60_000), end: iso(now + 60_000) }] }, error: null, loaded: true, configured: true };
   State.loadIntegrationTasks();
-  const chips = headerChips(now);
-  // Header order, and nothing but the three Microsoft 365 pills.
-  assert.deepEqual(chips.map((c) => c.id), ["integration_calendar", "integration_mail", "integration_todo"]);
-  assert.equal(chips[0].text, "Now · Revue");
-  assert.equal(chips[1].text, "4");
-  assert.equal(chips[2].alert, true);
-  // They are loaded (their card can be shown) but not among the pills beside the focused one.
+  const tabs = headerTabs(now);
+  // Header order, nothing but the three Microsoft 365 pills, each opening its space.
+  assert.deepEqual(tabs.map((c) => c.id), ["integration_calendar", "integration_mail", "integration_todo"]);
+  assert.deepEqual(tabs.map((c) => c.view), ["agenda", "inbox", "tasks"]);
+  assert.deepEqual(tabs.map((c) => c.label), ["Calendar", "Mail", "To Do"]);
+  assert.equal(tabs[0].badge, "•");
+  assert.equal(tabs[1].badge, "4");
+  assert.equal(tabs[2].alert, true);
+  // They are loaded but not among the pills: the overview keeps the other pills only.
   assert.ok(State.tasks.some((t) => t.id === "integration_todo"));
   assert.ok(!State.otherTasks.some((t) => ["integration_calendar", "integration_mail", "integration_todo"].includes(t.id)));
-  State.setFocus("integration_todo");
-  assert.equal(State.focusTask.id, "integration_todo");
   State.settings.headerPills = [];
 });

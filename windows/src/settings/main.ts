@@ -900,7 +900,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     fields: [{ key: "calcom-api-key", label: N_("API key"), placeholder: "cal_…", secret: true }] },
   // Microsoft 365 through Graph: the sign-in is its own section (./microsoft.ts).
   { id: "integration_todo", name: "To Do", color: "#2564CF", fields: [], hint: N_("Uses the Microsoft 365 sign-in above.") },
-  { id: "integration_calendar", name: "Calendar", color: "#0F78D4", fields: [], hint: N_("Uses the Microsoft 365 sign-in above.") },
+  { id: "integration_calendar", name: N_("Calendar"), color: "#0F78D4", fields: [], hint: N_("Uses the Microsoft 365 sign-in above.") },
   // Nothing to enter: Spotify is read from the OS (src-tauri/src/spotify.rs).
   { id: "integration_spotify", name: "Spotify", color: "#1DB954", fields: [] },
 ];

@@ -25,6 +25,7 @@ import { buildWardrobe } from "./wardrobe";
 import { buildUpdate } from "./update";
 import { buildWhatsNew } from "./whatsnew";
 import { buildLaunch } from "./launch";
+import { SPACE_OF, buildAgendaSpace, buildMailSpace, buildTodoSpace } from "./spaces";
 import { buildSpotifyCard, buildSpotifyPill, type SpotifyPillHost } from "./spotify";
 import { SPOTIFY_ID } from "../core/spotify";
 import { buildWhatsAppCard } from "./whatsapp";
@@ -147,16 +148,17 @@ export function buildHeader(actions: ViewActions): ViewHost {
     actions.setView(v);
   }
 
-  // Microsoft 365 in the header (Settings → Integrations → Microsoft 365): a chip
-  // per pill with what matters now; a click shows its card in the overview.
-  const m365 = h("div", { class: "m365-strip" });
-  let m365Key = "";
+  // Microsoft 365 in the header (Settings → Integrations → Microsoft 365): a tab per
+  // pill, after the overview's, opening its space (spaces.ts).
+  const spaceTabs = h("div", { class: "tabs space-tabs" });
+  let spaceKey = "";
 
   const el = h(
     "div",
     { id: "header" },
-    h("div", { class: "tabs" }, tabHome, tabChat, tabDrop, tabLaunch),
-    m365,
+    h("div", { class: "tabs" }, tabHome),
+    spaceTabs,
+    h("div", { class: "tabs rest" }, tabChat, tabDrop, tabLaunch),
     h("div", { class: "header-actions" }, planPills, gearBtn, soundBtn, closeBtn),
   );
   const headerActions = el.lastElementChild as HTMLElement;
@@ -176,29 +178,23 @@ export function buildHeader(actions: ViewActions): ViewHost {
       soundBtn.append(svg(State.settings.soundEnabled ? ICONS.speakerLine : ICONS.speakerSlashLine, 18, { stroke: 1.6 }));
       closeBtn.style.display = State.pendingApproval ? "none" : "";
       syncPlanPills();
-      syncM365();
+      syncSpaceTabs();
       el.style.opacity = v === "confused" ? "0" : "1";
     },
   };
 
-  function syncM365() {
-    const chips = headerChips(Date.now());
-    const focus = State.view === "overview" ? State.focusTask?.id ?? "" : "";
-    const key = JSON.stringify([chips, focus, language()]);
-    if (key === m365Key) return;
-    m365Key = key;
-    clear(m365);
-    for (const chip of chips) {
-      const b = h("button", {
-        class: chip.id === focus ? "m365-chip on" : "m365-chip",
-        title: chip.title,
-        onclick: () => {
-          actions.blip();
-          State.setFocus(chip.id);
-          actions.setView("overview");
-        },
-      }, svg(chip.icon, 13, { stroke: 1.7 }), h("span", { class: chip.alert ? "alert" : "", text: chip.text }));
-      m365.append(b);
+  function syncSpaceTabs() {
+    const tabs = headerTabs(Date.now());
+    const key = JSON.stringify([tabs, State.view, language()]);
+    if (key === spaceKey) return;
+    spaceKey = key;
+    clear(spaceTabs);
+    for (const tab of tabs) {
+      spaceTabs.append(h("button", {
+        class: State.view === tab.view ? "tab text on" : "tab text",
+        "data-space": tab.view,
+        onclick: () => go(tab.view),
+      }, h("span", { text: tab.label }), tab.badge ? h("i", { class: tab.alert ? "badge alert" : "badge", text: tab.badge }) : null));
     }
   }
 
@@ -911,6 +907,9 @@ export function buildViews(
   map.set("update", buildUpdate());
   map.set("whatsNew", buildWhatsNew());
   map.set("launch", buildLaunch(actions));
+  map.set("agenda", buildAgendaSpace(actions));
+  map.set("inbox", buildMailSpace(actions));
+  map.set("tasks", buildTodoSpace(actions));
   // Not in the Windows v1: sending a file by email, window attach + web result.
   map.set("mail", buildPlaceholder(tl("Sending by email isn't in this version."), ""));
   map.set("searching", buildPlaceholder(tl("Claude is searching…"), ""));
@@ -918,47 +917,39 @@ export function buildViews(
   return map;
 }
 
-// ── Microsoft 365 chips in the header ──────────────────────────────────────────
+// ── Microsoft 365 tabs in the header ──────────────────────────────────────────
 
-export interface HeaderChip {
+export interface HeaderTab {
   id: string;
-  icon: string;
-  text: string;
-  title: string;
+  view: IslandViewName;
+  label: string;
+  /** A small count after the name: unread mail, tasks left; "" for none. */
+  badge: string;
   /** Red: something is late. */
   alert: boolean;
 }
 
-/** One chip per header pill: the next event, the unread mail, the tasks left. */
-export function headerChips(now: number): HeaderChip[] {
-  const out: HeaderChip[] = [];
+/** One tab per header pill, in the header's order: Calendar, Mail, To Do. */
+export function headerTabs(now: number): HeaderTab[] {
+  const out: HeaderTab[] = [];
   for (const id of State.headerIds) {
+    const view = SPACE_OF[id];
+    if (!view) continue;
     const info = State.integrations[id];
     const data = (info?.data ?? {}) as Record<string, unknown>;
-    const connected = info?.configured ?? false;
     if (id === "integration_calendar") {
-      const next = (Array.isArray(data.bookings) ? data.bookings : [])
+      // A dot while an event is under way.
+      const live = (Array.isArray(data.bookings) ? data.bookings : [])
         .map((b) => b as Record<string, unknown>)
-        .filter((b) => Date.parse(String(b.end)) > now)
-        .sort((a, b) => Date.parse(String(a.start)) - Date.parse(String(b.start)))[0];
-      let text = connected ? t("No events") : "–";
-      if (next) {
-        const start = new Date(String(next.start));
-        const today = start.toDateString() === new Date(now).toDateString();
-        const when = start.getTime() <= now ? t("Now")
-          : next.allDay === true ? (today ? t("Today") : start.toLocaleDateString(language(), { weekday: "short" }))
-          : today ? start.toLocaleTimeString(language(), { hour: "2-digit", minute: "2-digit" })
-          : start.toLocaleDateString(language(), { weekday: "short" }) + " " + start.toLocaleTimeString(language(), { hour: "2-digit", minute: "2-digit" });
-        text = `${when} · ${String(next.title || t("Meeting"))}`;
-      }
-      out.push({ id, icon: ICONS.calendar, text, title: "Calendar", alert: false });
+        .some((b) => b.allDay !== true && Date.parse(String(b.start)) <= now && Date.parse(String(b.end)) > now);
+      out.push({ id, view, label: t("Calendar"), badge: live ? "•" : "", alert: false });
     } else if (id === "integration_mail") {
-      const unread = typeof data.unread === "number" ? data.unread : null;
-      out.push({ id, icon: ICONS.envelope, text: unread === null ? "–" : String(unread), title: t("Mail"), alert: false });
+      const unread = typeof data.unread === "number" ? data.unread : 0;
+      out.push({ id, view, label: t("Mail"), badge: unread > 0 ? (unread > 99 ? "99+" : String(unread)) : "", alert: false });
     } else if (id === "integration_todo") {
       const tasks = readTasks(data);
       const late = overdueCount(tasks);
-      out.push({ id, icon: ICONS.checkCircle, text: tasks.length || connected ? String(tasks.length) : "–", title: "To Do", alert: late > 0 });
+      out.push({ id, view, label: "To Do", badge: tasks.length ? String(tasks.length) : "", alert: late > 0 });
     }
   }
   return out;
