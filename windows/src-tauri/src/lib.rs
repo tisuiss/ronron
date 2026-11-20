@@ -21,6 +21,7 @@ mod identity;
 mod integrations;
 mod calcom;
 mod calendar365;
+mod ical;
 mod msgraph;
 mod todo;
 mod island;
@@ -28,6 +29,7 @@ mod launch;
 mod local_chat;
 mod log;
 mod mail;
+mod media;
 mod net;
 mod notes;
 mod openai_compat;
@@ -1044,6 +1046,13 @@ pub fn run() {
             spotify::spotify_control,
             spotify::spotify_open,
             spotify::spotify_installed,
+            media::media_state,
+            calendar365::calendar_refresh,
+            calendar365::calendar_sources,
+            calendar365::ical_check,
+            calendar365::ical_normalize,
+            media::media_control,
+            media::media_art,
             whatsapp::whatsapp_island,
             whatsapp::whatsapp_open,
             whatsapp::whatsapp_close,

@@ -35,6 +35,15 @@ pub const KNOWN_KEYS: &[&str] = &[
     "msgraph-refresh-1",
     "msgraph-refresh-2",
     "msgraph-refresh-3",
+    // iCal calendars (ical.rs): each address opens its calendar to whoever has it.
+    "ical-url-0",
+    "ical-url-1",
+    "ical-url-2",
+    "ical-url-3",
+    "ical-url-4",
+    "ical-url-5",
+    "ical-url-6",
+    "ical-url-7",
     // « OK Ronron »'s answers in an ElevenLabs voice.
     "elevenlabs-api-key",
 ];

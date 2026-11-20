@@ -1,5 +1,6 @@
 // App state — mirror of AppState.swift (the parts the island needs).
 
+import type { Booking, CalendarInfo } from "./calendar";
 import type { BotEmoteName, BotStateName, IslandMode, IslandViewName } from "./layout";
 import type { EyeShape } from "../cat/engine";
 import {
@@ -97,6 +98,18 @@ export interface IntegrationInfo {
   configured: boolean;
 }
 
+export interface CalendarPref {
+  id: string;
+  shown: boolean;
+  remind: number;
+}
+
+export interface IcalCalendar {
+  slot: number;
+  name: string;
+  color: string;
+}
+
 export interface Settings {
   soundEnabled: boolean;
   soundVolume: number;
@@ -114,6 +127,10 @@ export interface Settings {
   activeIntegrations: string[];
   /** Microsoft 365 pills shown in the header instead (Calendar, Mail, To Do): no pill slot taken. */
   headerPills: string[];
+  /** Each calendar: shown or not, and minutes of reminder before its events (0 = none). */
+  calendarPrefs: CalendarPref[];
+  /** iCal calendars; their address is in the credential store (`ical-url-<slot>`). */
+  icalCalendars: IcalCalendar[];
   /** The always-on workspace pill: VS Code, Cursor, Codex or Antigravity. */
   mainPill: string;
   /** "primary", "cursor", or `at:<x>,<y>` for one display (logical origin). */
@@ -189,6 +206,8 @@ export const DEFAULT_SETTINGS: Settings = {
     "integration_resend", "integration_n8n", "integration_vercel", "integration_github",
   ],
   headerPills: [],
+  calendarPrefs: [],
+  icalCalendars: [],
   mainPill: DEFAULT_MAIN_PILL,
   screen: "primary",
   autostart: false,
@@ -223,6 +242,8 @@ class AppState {
 
   tasks: AgentTask[] = [];
   focusId: string | null = null;
+  /** The calendar reminder on screen (island/reminders.ts). */
+  reminder: { booking: Booking; calendar: CalendarInfo | null } | null = null;
   /** A pill was clicked in the overview: its card takes the island, taller, the pills in a column. */
   pillOpen = false;
 

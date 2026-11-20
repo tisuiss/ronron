@@ -29,7 +29,9 @@ export type IslandViewName =
   | "launch"
   | "agenda"
   | "inbox"
-  | "tasks";
+  | "tasks"
+  | "music"
+  | "reminder";
 
 export type BotStateName =
   | "idle"
@@ -113,6 +115,9 @@ export const VIEW_LAYOUTS: Record<IslandViewName, ViewLayout> = {
   agenda: { height: SPACE_H, botX: 80, botY: SPACE_H - 46, botDiameter: 46, agentMode: "none" },
   inbox: { height: SPACE_H, botX: 80, botY: SPACE_H - 46, botDiameter: 46, agentMode: "none" },
   tasks: { height: SPACE_H, botX: 80, botY: SPACE_H - 46, botDiameter: 46, agentMode: "none" },
+  // A calendar reminder (views/reminder.ts): Ronron on the left, the event, Join.
+  reminder: { height: 160, botX: 62, botY: null, botDiameter: 56, agentMode: "none" },
+  music: { height: SPACE_H, botX: 80, botY: SPACE_H - 46, botDiameter: 46, agentMode: "none" },
 };
 
 // The upload views above are only the fallback geometry. Once a file is actually

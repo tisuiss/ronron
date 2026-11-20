@@ -437,6 +437,11 @@ export const Bridge = {
   msSignInCode: () => callOrThrow<{ userCode: string; verificationUri: string; expiresIn: number }>("ms_sign_in_code"),
   msSignInCancel: () => call<void>("ms_sign_in_cancel"),
   msSignOut: () => call<void>("ms_sign_out"),
+  /** Calendars (calendar365.rs): read again after a change in Settings; the account's calendars; an iCal address checked. */
+  calendarRefresh: () => call<void>("calendar_refresh"),
+  calendarSources: () => call<{ id: string; name: string; color: string; default: boolean }[]>("calendar_sources"),
+  icalCheck: (url: string) => callOrThrow<number>("ical_check", { url }),
+  icalNormalize: (url: string) => callOrThrow<string>("ical_normalize", { url }),
   /** Ticks a task off, or back on for Undo. */
   todoSetDone: (listId: string, taskId: string, done: boolean) =>
     callOrThrow<void>("todo_set_done", { listId, taskId, done }),

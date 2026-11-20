@@ -1,6 +1,8 @@
-//! The Outlook calendar through Microsoft Graph (sign-in: crate::msgraph), read
-//! only: the events from yesterday to 30 days ahead, in the shape the Cal.com card
-//! and its month view already read (`bookings`, `rangeStart`, `rangeEnd`).
+//! The calendars, read only: the Microsoft 365 account's calendars through Graph
+//! (sign-in: crate::msgraph) and the iCal ones (crate::ical), from yesterday to 30
+//! days ahead, in the shape the Cal.com card and its month view already read
+//! (`bookings`, `rangeStart`, `rangeEnd`), with `calendars` (each one's name,
+//! colour, whether it is shown and its reminder) and each event's `calendarId`.
 
 use std::time::Duration;
 
@@ -8,6 +10,7 @@ use serde_json::{json, Value};
 use tauri::AppHandle;
 
 use crate::integrations::{self, IntegrationUpdate};
+use crate::settings::{CalendarPref, IcalCalendar};
 use crate::msgraph;
 
 pub const ID: &str = "integration_calendar";
@@ -27,11 +30,13 @@ pub async fn poll(app: AppHandle) {
 }
 
 pub async fn poll_now(app: &AppHandle) {
-    if !msgraph::signed_in() {
+    let (prefs, icals) = calendar_settings(app);
+    let icals: Vec<IcalCalendar> = icals.into_iter().filter(|c| (c.slot as usize) < crate::ical::SLOTS && crate::secrets::present(&crate::ical::key(c.slot as usize))).collect();
+    if !msgraph::signed_in() && icals.is_empty() {
         integrations::emit(app, IntegrationUpdate { id: ID, data: json!({}), error: None, event: None });
         return;
     }
-    let result = tokio::time::timeout(Duration::from_secs(45), fetch()).await
+    let result = tokio::time::timeout(Duration::from_secs(60), fetch(&prefs, &icals)).await
         .unwrap_or_else(|_| Err(crate::i18n::t("No response text.")));
     let (data, error) = match result {
         Ok(data) => (data, None),
@@ -40,14 +45,142 @@ pub async fn poll_now(app: &AppHandle) {
     integrations::emit(app, IntegrationUpdate { id: ID, data, error, event: None });
 }
 
+/// The calendars changed in Settings (shown, reminders, an iCal address): read them again.
+#[tauri::command]
+pub async fn calendar_refresh(app: AppHandle) {
+    if active(&app) {
+        poll_now(&app).await;
+    }
+}
+
+/// The Microsoft 365 account's calendars, for Settings: id, name, colour, default.
+#[tauri::command]
+pub async fn calendar_sources() -> Result<Vec<Value>, String> {
+    if !msgraph::signed_in() {
+        return Ok(Vec::new());
+    }
+    Ok(microsoft_calendars().await?.into_iter().enumerate().map(|(i, (id, name, color, default))| {
+        let color = if color.starts_with('#') && color.len() == 7 { color } else { PALETTE[i % PALETTE.len()].to_string() };
+        json!({ "id": id, "name": name, "color": color, "default": default })
+    }).collect())
+}
+
+/// Checks an iCal address before it is kept: how many events it has in the coming month.
+#[tauri::command]
+pub async fn ical_check(url: String) -> Result<usize, String> {
+    let text = crate::ical::fetch(&url).await?;
+    let now = now_ms();
+    Ok(crate::ical::read(&text, "check", now - DAY_MS, now + WINDOW_DAYS * DAY_MS).len())
+}
+
+/// "webcal://…" as the https address Ronron keeps, or an error to show.
+#[tauri::command]
+pub fn ical_normalize(url: String) -> Result<String, String> {
+    crate::ical::normalize_url(&url).ok_or_else(|| crate::i18n::t("The iCal address must start with https:// or webcal://."))
+}
+
+fn calendar_settings(app: &AppHandle) -> (Vec<CalendarPref>, Vec<IcalCalendar>) {
+    use tauri::Manager;
+    app.try_state::<crate::Shared>()
+        .map(|shared| {
+            let s = shared.settings.lock().unwrap();
+            (s.calendar_prefs.clone(), s.ical_calendars.clone())
+        })
+        .unwrap_or_default()
+}
+
 fn now_ms() -> i64 {
     std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis() as i64).unwrap_or(0)
 }
 
-async fn fetch() -> Result<Value, String> {
+/// Colours for calendars that come without one, in turn.
+const PALETTE: [&str; 6] = ["#0F78D4", "#E879A9", "#34D399", "#A78BFA", "#F0913C", "#F5A524"];
+
+/// Shown unless the user said otherwise; for Microsoft 365, only the default calendar until then.
+fn pref<'a>(prefs: &'a [CalendarPref], id: &str) -> Option<&'a CalendarPref> {
+    prefs.iter().find(|p| p.id == id)
+}
+
+async fn fetch(prefs: &[CalendarPref], icals: &[IcalCalendar]) -> Result<Value, String> {
     let now = now_ms();
     let (from, until) = (now - DAY_MS, now + WINDOW_DAYS * DAY_MS);
-    let mut next = msgraph::url(&["calendarView"])?;
+    let mut calendars = Vec::new();
+    let mut events = Vec::new();
+    let mut errors = Vec::new();
+    let mut read_one = false;
+
+    if msgraph::signed_in() {
+        match microsoft_calendars().await {
+            Ok(list) => {
+                for (i, (id, name, color, default)) in list.into_iter().enumerate() {
+                    let p = pref(prefs, &id);
+                    let shown = p.map(|p| p.shown).unwrap_or(default);
+                    let color = if color.starts_with('#') && color.len() == 7 { color } else { PALETTE[i % PALETTE.len()].to_string() };
+                    calendars.push(json!({ "id": id, "name": name, "color": color, "kind": "microsoft", "default": default,
+                        "shown": shown, "remind": p.map(|p| p.remind).unwrap_or(0) }));
+                    if !shown {
+                        continue;
+                    }
+                    match microsoft_events(&id, from, until).await {
+                        Ok(mut list) => {
+                            for e in &mut list {
+                                e["calendarId"] = json!(id);
+                            }
+                            events.extend(list);
+                            read_one = true;
+                        }
+                        Err(error) => errors.push(json!({ "id": id, "error": error })),
+                    }
+                }
+            }
+            Err(error) => errors.push(json!({ "id": "microsoft", "error": error })),
+        }
+    }
+
+    for (i, cal) in icals.iter().enumerate() {
+        let id = format!("ical-{}", cal.slot);
+        let p = pref(prefs, &id);
+        let shown = p.map(|p| p.shown).unwrap_or(true);
+        let color = if cal.color.starts_with('#') && cal.color.len() == 7 { cal.color.clone() } else { PALETTE[(i + 1) % PALETTE.len()].to_string() };
+        let name = if cal.name.trim().is_empty() { format!("iCal {}", cal.slot + 1) } else { cal.name.clone() };
+        calendars.push(json!({ "id": id, "name": name, "color": color, "kind": "ical", "default": false,
+            "shown": shown, "remind": p.map(|p| p.remind).unwrap_or(0) }));
+        if !shown {
+            continue;
+        }
+        let Some(url) = crate::secrets::get(&crate::ical::key(cal.slot as usize)) else { continue };
+        match crate::ical::fetch(&url).await {
+            Ok(text) => {
+                events.extend(crate::ical::read(&text, &id, from, until));
+                read_one = true;
+            }
+            Err(error) => errors.push(json!({ "id": id, "error": error })),
+        }
+    }
+
+    if !read_one && !errors.is_empty() && calendars.iter().all(|c| c["shown"] != true || errors.iter().any(|e| e["id"] == c["id"])) {
+        return Err(errors[0]["error"].as_str().unwrap_or("").to_string());
+    }
+    events.sort_by(|a, b| a["start"].as_str().cmp(&b["start"].as_str()));
+    Ok(json!({ "calendars": calendars, "bookings": events, "rangeStart": from, "rangeEnd": until, "errors": errors }))
+}
+
+/// The account's calendars: id, name, colour, default.
+async fn microsoft_calendars() -> Result<Vec<(String, String, String, bool)>, String> {
+    let mut url = msgraph::url(&["calendars"])?;
+    url.query_pairs_mut().append_pair("$top", "50").append_pair("$select", "id,name,hexColor,isDefaultCalendar");
+    let value = msgraph::get(url).await?;
+    let items = value.get("value").and_then(Value::as_array).ok_or_else(|| crate::i18n::t("Unexpected API response."))?;
+    Ok(items.iter().filter_map(|c| Some((
+        c.get("id")?.as_str()?.to_string(),
+        c.get("name").and_then(Value::as_str).unwrap_or("").to_string(),
+        c.get("hexColor").and_then(Value::as_str).unwrap_or("").to_string(),
+        c.get("isDefaultCalendar").and_then(Value::as_bool).unwrap_or(false),
+    ))).collect())
+}
+
+async fn microsoft_events(calendar: &str, from: i64, until: i64) -> Result<Vec<Value>, String> {
+    let mut next = msgraph::url(&["calendars", calendar, "calendarView"])?;
     next.query_pairs_mut()
         .append_pair("startDateTime", &crate::whatsapp::gateway::iso_utc(from))
         .append_pair("endDateTime", &crate::whatsapp::gateway::iso_utc(until))
@@ -62,10 +195,10 @@ async fn fetch() -> Result<Value, String> {
         events.extend(parse(&value)?);
         match msgraph::next_link(&value) {
             Some(link) => next = link,
-            None => return Ok(json!({ "bookings": events, "rangeStart": from, "rangeEnd": until })),
+            None => break,
         }
     }
-    Ok(json!({ "bookings": events, "rangeStart": from, "rangeEnd": until }))
+    Ok(events)
 }
 
 /// Graph's "2026-11-20T09:30:00.0000000" in UTC → "2026-11-20T09:30:00Z".
