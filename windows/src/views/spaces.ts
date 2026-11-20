@@ -55,8 +55,12 @@ function dataOf(id: string): Record<string, unknown> {
   return (info(id)?.data ?? {}) as Record<string, unknown>;
 }
 
-/** Not signed in (or the pill left the header): one line in the middle tile. */
+/** Not signed in (or the pill left the header): one line in the middle tile. To Do and the
+ *  calendars also work without Microsoft 365 (tasks on this computer, iCal calendars). */
 function signedOut(id: string): boolean {
+  const d = dataOf(id);
+  if (Array.isArray(d.lists) && d.lists.length > 0) return false;
+  if (Array.isArray(d.calendars) && d.calendars.length > 0) return false;
   return !(info(id)?.configured ?? false);
 }
 

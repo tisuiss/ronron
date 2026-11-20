@@ -36,11 +36,21 @@ pub struct NowPlaying {
     pub can_next: bool,
 }
 
+#[derive(Serialize, Clone, Copy, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct Volume {
+    /// The computer's output volume, 0 to 1.
+    pub level: f64,
+    pub muted: bool,
+}
+
 #[derive(Serialize, Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct MediaState {
     pub sources: Vec<Source>,
     pub now: Option<NowPlaying>,
+    /// The computer's volume (the default output), when it can be read.
+    pub volume: Option<Volume>,
 }
 
 /// A friendly name for a media session's id.
@@ -100,9 +110,137 @@ const ART_LIMIT: u64 = 3 * 1024 * 1024;
 
 #[tauri::command]
 pub async fn media_state(source: Option<String>) -> MediaState {
-    tauri::async_runtime::spawn_blocking(move || platform::state(source.as_deref()))
-        .await
-        .unwrap_or_default()
+    tauri::async_runtime::spawn_blocking(move || {
+        let mut state = platform::state(source.as_deref());
+        state.volume = volume::get();
+        state
+    })
+    .await
+    .unwrap_or_default()
+}
+
+/// The computer's volume, 0 to 1 (the default output).
+#[tauri::command]
+pub async fn media_set_volume(level: f64) -> bool {
+    if !level.is_finite() {
+        return false;
+    }
+    tauri::async_runtime::spawn_blocking(move || volume::set(level.clamp(0.0, 1.0))).await.unwrap_or(false)
+}
+
+#[tauri::command]
+pub async fn media_set_mute(muted: bool) -> bool {
+    tauri::async_runtime::spawn_blocking(move || volume::mute(muted)).await.unwrap_or(false)
+}
+
+/// "Volume: 0.45 [MUTED]" (wpctl) → the level and whether it is muted.
+pub fn parse_wpctl(out: &str) -> Option<Volume> {
+    let rest = out.trim().strip_prefix("Volume:")?.trim();
+    let level: f64 = rest.split_whitespace().next()?.parse().ok()?;
+    Some(Volume { level: level.clamp(0.0, 1.0), muted: rest.contains("[MUTED]") })
+}
+
+/// pactl's "Volume: front-left: 29491 /  45% / …" → 0.45.
+pub fn parse_pactl_volume(out: &str) -> Option<f64> {
+    let pct = out.split('/').nth(1)?.trim().trim_end_matches('%').trim();
+    pct.parse::<f64>().ok().map(|p| (p / 100.0).clamp(0.0, 1.0))
+}
+
+// ── Volume ────────────────────────────────────────────────────────────────────
+
+#[cfg(windows)]
+mod volume {
+    use super::Volume;
+    use windows::Win32::Media::Audio::Endpoints::IAudioEndpointVolume;
+    use windows::Win32::Media::Audio::{eMultimedia, eRender, IMMDeviceEnumerator, MMDeviceEnumerator};
+    use windows::Win32::System::Com::{CoCreateInstance, CoInitializeEx, CLSCTX_ALL, COINIT_MULTITHREADED};
+
+    fn endpoint() -> Option<IAudioEndpointVolume> {
+        unsafe {
+            let _ = CoInitializeEx(None, COINIT_MULTITHREADED);
+            let devices: IMMDeviceEnumerator = CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL).ok()?;
+            let device = devices.GetDefaultAudioEndpoint(eRender, eMultimedia).ok()?;
+            device.Activate::<IAudioEndpointVolume>(CLSCTX_ALL, None).ok()
+        }
+    }
+
+    pub fn get() -> Option<Volume> {
+        let e = endpoint()?;
+        unsafe {
+            Some(Volume {
+                level: e.GetMasterVolumeLevelScalar().ok()? as f64,
+                muted: e.GetMute().map(|b| b.as_bool()).unwrap_or(false),
+            })
+        }
+    }
+
+    pub fn set(level: f64) -> bool {
+        let Some(e) = endpoint() else { return false };
+        unsafe {
+            // Moving the slider also brings the sound back, as the Windows one does.
+            let _ = e.SetMute(false, std::ptr::null());
+            e.SetMasterVolumeLevelScalar(level as f32, std::ptr::null()).is_ok()
+        }
+    }
+
+    pub fn mute(muted: bool) -> bool {
+        endpoint().is_some_and(|e| unsafe { e.SetMute(muted, std::ptr::null()).is_ok() })
+    }
+}
+
+#[cfg(target_os = "linux")]
+mod volume {
+    use super::{parse_pactl_volume, parse_wpctl, Volume};
+    use std::process::{Command, Stdio};
+
+    fn run(cmd: &str, args: &[&str]) -> Option<String> {
+        let out = Command::new(cmd).args(args).stdin(Stdio::null()).stderr(Stdio::null()).output().ok()?;
+        out.status.success().then(|| String::from_utf8_lossy(&out.stdout).into_owned())
+    }
+
+    /// PipeWire's wpctl first, else PulseAudio's pactl.
+    pub fn get() -> Option<Volume> {
+        if let Some(v) = run("wpctl", &["get-volume", "@DEFAULT_AUDIO_SINK@"]).as_deref().and_then(parse_wpctl) {
+            return Some(v);
+        }
+        let level = parse_pactl_volume(&run("pactl", &["get-sink-volume", "@DEFAULT_SINK@"])?)?;
+        let muted = run("pactl", &["get-sink-mute", "@DEFAULT_SINK@"]).is_some_and(|m| m.contains("yes"));
+        Some(Volume { level, muted })
+    }
+
+    pub fn set(level: f64) -> bool {
+        let text = format!("{level:.2}");
+        if run("wpctl", &["set-volume", "@DEFAULT_AUDIO_SINK@", &text]).is_some() {
+            let _ = run("wpctl", &["set-mute", "@DEFAULT_AUDIO_SINK@", "0"]);
+            return true;
+        }
+        let pct = format!("{}%", (level * 100.0).round() as i64);
+        let ok = run("pactl", &["set-sink-volume", "@DEFAULT_SINK@", &pct]).is_some();
+        if ok {
+            let _ = run("pactl", &["set-sink-mute", "@DEFAULT_SINK@", "0"]);
+        }
+        ok
+    }
+
+    pub fn mute(muted: bool) -> bool {
+        let flag = if muted { "1" } else { "0" };
+        run("wpctl", &["set-mute", "@DEFAULT_AUDIO_SINK@", flag]).is_some()
+            || run("pactl", &["set-sink-mute", "@DEFAULT_SINK@", flag]).is_some()
+    }
+}
+
+#[cfg(not(any(windows, target_os = "linux")))]
+mod volume {
+    use super::Volume;
+    pub fn get() -> Option<Volume> {
+        None
+    }
+    pub fn set(_: f64) -> bool {
+        false
+    }
+    pub fn mute(_: bool) -> bool {
+        false
+    }
 }
 
 /// "playPause", "next" or "previous" on `source`.
@@ -164,10 +302,10 @@ mod platform {
         }).collect();
         let current = manager.GetCurrentSession().ok().map(|s| id_of(&s));
         let Some(chosen) = pick(&sources, wanted, current.as_deref()).cloned() else {
-            return MediaState { sources, now: None };
+            return MediaState { sources, now: None, volume: None };
         };
         let now = all.iter().find(|s| id_of(s) == chosen.id).and_then(|s| now_playing(s, &chosen).ok());
-        MediaState { sources, now }
+        MediaState { sources, now, volume: None }
     }
 
     fn now_playing(s: &Session, source: &Source) -> windows::core::Result<NowPlaying> {
@@ -300,7 +438,7 @@ mod platform {
             let playing = get_str(&conn, &id, PLAYER, "PlaybackStatus").as_deref() == Some("Playing");
             Source { name: source_name(&id, identity.as_deref()), playing, id }
         }).collect();
-        let Some(chosen) = pick(&sources, wanted, None).cloned() else { return MediaState { sources, now: None } };
+        let Some(chosen) = pick(&sources, wanted, None).cloned() else { return MediaState { sources, now: None, volume: None } };
         let meta = metadata(&conn, &chosen.id);
         let field = |k: &str| meta.iter().find(|(key, _, _)| key == k).map(|(_, v, _)| v.clone()).unwrap_or_default();
         let length = meta.iter().find(|(key, _, _)| key == "mpris:length").and_then(|(_, _, n)| *n).unwrap_or(0);
@@ -317,7 +455,7 @@ mod platform {
             can_previous: get_bool(&conn, &chosen.id, "CanGoPrevious").unwrap_or(true),
             can_next: get_bool(&conn, &chosen.id, "CanGoNext").unwrap_or(true),
         };
-        MediaState { sources, now: Some(now) }
+        MediaState { sources, now: Some(now), volume: None }
     }
 
     pub fn control(id: &str, action: &str) -> bool {
@@ -407,6 +545,14 @@ mod tests {
         assert_eq!(pick(&quiet, None, Some("c")).unwrap().id, "c");
         assert_eq!(pick(&quiet, None, None).unwrap().id, "a");
         assert!(pick(&[], None, None).is_none());
+    }
+
+    #[test]
+    fn linux_volumes_are_read() {
+        assert_eq!(parse_wpctl("Volume: 0.45\n"), Some(Volume { level: 0.45, muted: false }));
+        assert_eq!(parse_wpctl("Volume: 0.30 [MUTED]"), Some(Volume { level: 0.30, muted: true }));
+        assert_eq!(parse_wpctl("nope"), None);
+        assert_eq!(parse_pactl_volume("Volume: front-left: 29491 /  45% / -20.81 dB,   front-right: 29491 /  45% / -20.81 dB"), Some(0.45));
     }
 
     #[test]

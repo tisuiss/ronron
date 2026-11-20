@@ -77,7 +77,9 @@ export function idleStatus(
   if (def?.connect.kind === "none") return ok(t("Ready · no setup needed"));
   if (def?.connect.kind === "server") return configured ? ok(t("Connected")) : missing(t("Not connected"));
   // To Do has no key to paste: the user signs in with Microsoft in Settings.
-  if ((id === "integration_todo" || id === "integration_calendar") && !configured) return missing(t("Not signed in"));
+  // To Do keeps its tasks on this computer without an account.
+  if (id === "integration_todo" && !configured) return ok(t("On this computer"));
+  if (id === "integration_calendar" && !configured) return missing(t("Not signed in"));
   if (def?.category === "ai") {
     if (!configured) return missing(t("Key not configured"));
     return ok(id === "ai_anthropic" ? t("Key configured · {model}", { model: chatModel }) : t("Key configured"));

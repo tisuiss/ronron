@@ -1055,6 +1055,8 @@ pub fn run() {
             calendar365::ical_normalize,
             media::media_control,
             media::media_art,
+            media::media_set_volume,
+            media::media_set_mute,
             whatsapp::whatsapp_island,
             whatsapp::whatsapp_open,
             whatsapp::whatsapp_close,

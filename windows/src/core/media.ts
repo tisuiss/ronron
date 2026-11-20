@@ -26,9 +26,17 @@ export interface NowPlaying {
   canNext: boolean;
 }
 
+export interface Volume {
+  /** 0 to 1. */
+  level: number;
+  muted: boolean;
+}
+
 export interface MediaState {
   sources: MediaSource[];
   now: NowPlaying | null;
+  /** The computer's volume (default output), when it can be read. */
+  volume?: Volume | null;
 }
 
 async function call<T>(cmd: string, args?: Record<string, unknown>): Promise<T | null> {
@@ -45,6 +53,8 @@ export const MediaBridge = {
   state: (source: string | null) => call<MediaState>("media_state", { source }),
   control: (source: string, action: "playPause" | "next" | "previous") => call<boolean>("media_control", { source, action }),
   art: (source: string) => call<string | null>("media_art", { source }),
+  setVolume: (level: number) => call<boolean>("media_set_volume", { level }),
+  setMute: (muted: boolean) => call<boolean>("media_set_mute", { muted }),
 };
 
 /** "3:07", "1:02:45". */

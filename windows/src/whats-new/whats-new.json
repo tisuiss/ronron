@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.8.2",
+      "items": [
+        {
+          "icon": "checklist",
+          "title": {
+            "en": "To Do without an account",
+            "zh-Hans": "无需账号的 To Do",
+            "hi": "बिना खाते के To Do",
+            "es": "To Do sin cuenta",
+            "ar": "To Do دون حساب",
+            "fr": "To Do sans compte",
+            "bn": "অ্যাকাউন্ট ছাড়া To Do",
+            "pt-BR": "To Do sem conta",
+            "ru": "To Do без аккаунта",
+            "id": "To Do tanpa akun",
+            "de": "To Do ohne Konto",
+            "tr": "Hesapsız To Do",
+            "ko": "계정 없이 To Do",
+            "ja": "アカウントなしで To Do"
+          },
+          "detail": {
+            "en": "Tasks kept on this computer when you're not signed in to Microsoft 365.",
+            "zh-Hans": "未登录 Microsoft 365 时，任务保存在这台电脑上。",
+            "hi": "Microsoft 365 में साइन इन न होने पर टास्क इसी कंप्यूटर पर रहते हैं।",
+            "es": "Tareas guardadas en este ordenador si no inicias sesión en Microsoft 365.",
+            "ar": "مهام محفوظة على هذا الكمبيوتر دون تسجيل الدخول إلى Microsoft 365.",
+            "fr": "Des tâches gardées sur cet ordinateur sans compte Microsoft 365.",
+            "bn": "Microsoft 365-এ সাইন ইন না থাকলে কাজ এই কম্পিউটারে থাকে।",
+            "pt-BR": "Tarefas guardadas neste computador sem entrar no Microsoft 365.",
+            "ru": "Задачи хранятся на этом компьютере без входа в Microsoft 365.",
+            "id": "Tugas disimpan di komputer ini tanpa masuk ke Microsoft 365.",
+            "de": "Aufgaben auf diesem Computer, ohne Microsoft-365-Anmeldung.",
+            "tr": "Microsoft 365 oturumu yokken görevler bu bilgisayarda kalır.",
+            "ko": "Microsoft 365에 로그인하지 않으면 할 일이 이 컴퓨터에 저장됩니다.",
+            "ja": "Microsoft 365 未サインイン時はこのパソコンにタスクを保存。"
+          }
+        },
+        {
+          "icon": "sparkles",
+          "title": {
+            "en": "Volume in the Music tab",
+            "zh-Hans": "音乐标签中的音量",
+            "hi": "संगीत टैब में वॉल्यूम",
+            "es": "Volumen en la pestaña Música",
+            "ar": "مستوى الصوت في تبويب الموسيقى",
+            "fr": "Le volume dans l'onglet Musique",
+            "bn": "সংগীত ট্যাবে ভলিউম",
+            "pt-BR": "Volume na aba Música",
+            "ru": "Громкость во вкладке «Музыка»",
+            "id": "Volume di tab Musik",
+            "de": "Lautstärke im Musik-Tab",
+            "tr": "Müzik sekmesinde ses",
+            "ko": "음악 탭의 볼륨",
+            "ja": "音楽タブで音量"
+          },
+          "detail": {
+            "en": "A slider and mute for your computer's sound.",
+            "zh-Hans": "电脑声音的滑块和静音。",
+            "hi": "कंप्यूटर की आवाज़ के लिए स्लाइडर और म्यूट।",
+            "es": "Un control deslizante y silencio para el sonido del ordenador.",
+            "ar": "شريط تمرير وكتم لصوت الكمبيوتر.",
+            "fr": "Un curseur et la sourdine pour le son de l'ordinateur.",
+            "bn": "কম্পিউটারের শব্দের জন্য স্লাইডার ও মিউট।",
+            "pt-BR": "Um controle deslizante e mudo para o som do computador.",
+            "ru": "Ползунок и отключение звука компьютера.",
+            "id": "Penggeser dan bisu untuk suara komputer.",
+            "de": "Ein Regler und Stummschaltung für den Computerton.",
+            "tr": "Bilgisayar sesi için kaydırıcı ve sessiz.",
+            "ko": "컴퓨터 소리를 위한 슬라이더와 음소거.",
+            "ja": "パソコンの音量スライダーとミュート。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.8.1",
       "items": [
         {

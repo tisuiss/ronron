@@ -347,9 +347,11 @@ One sign-in gives three pills their data through Microsoft Graph: **To Do** (you
 
 The pill refreshes every two minutes while it is turned on, and right after each change. Tasks in **Planner** are not shown yet.
 
+**Without a Microsoft 365 account**, To Do keeps its tasks on this computer (`todo-local.json` next to the settings): add, tick off with Undo, in a list called *On this computer*. Once you sign in, that list stays beside your account's lists while it still holds tasks.
+
 **Several calendars and reminders:** Settings → Integrations → **Calendars** lists the Microsoft 365 account's calendars and your iCal ones (Google's secret address, Outlook's published calendar, iCloud… up to eight, `webcal://` or `https://`; the address is a secret and goes to the credential store, `ical-url-0` … `ical-url-7`). For each: **Shown in Ronron** and a **Reminder** (none, 5, 10, 15 or 30 min before). A reminder opens the island on the event a few minutes before, with **Join the meeting** for Teams, Meet or Zoom, **Open** and **OK**; it stays until you answer or the event starts. iCal recurring events (RRULE, EXDATE, moved occurrences) are expanded in their time zone, Outlook's Windows zone names included.
 
-**Music:** Settings → Integrations → **Music** → *Music tab in the header*. The tab shows what plays on this computer — the Spotify app, YouTube Music in a browser or as an app, Amazon Music, anything that shows in the system's media controls (Windows) or MPRIS (Linux) — with its cover, progress, **previous**, **play/pause** and **next**, and a chip per player when there are several. No account: YouTube Music and Amazon Music have no public API to drive playback, and Spotify's needs Premium. Read every 1.5 s while the tab is on screen, never otherwise.
+**Music:** Settings → Integrations → **Music** → *Music tab in the header*. The tab shows what plays on this computer — the Spotify app, YouTube Music in a browser or as an app, Amazon Music, anything that shows in the system's media controls (Windows) or MPRIS (Linux) — with its cover, progress, **previous**, **play/pause** and **next**, a chip per player when there are several, and the **computer's volume** (a slider and mute, for the default output). No account: YouTube Music and Amazon Music have no public API to drive playback, and Spotify's needs Premium. Read every 1.5 s while the tab is on screen, never otherwise.
 
 **The overview:** with no pill open, the four pills sit side by side, one space each (name, state, what it is doing); a free slot leads to Settings.
 
