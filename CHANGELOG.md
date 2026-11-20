@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased: Ronron
+## 0.6.0 — November 20, 2026: Ronron
 
 - **Ronron is born**: a fork of [Coucou](https://github.com/Louis-CFM/coucou) 0.6.1 (Windows and Linux app 0.5.9), renamed Ronron, with its own character, icon and sounds.
 - **A cat**: the island's character is now Ronron, a ginger tabby with ears that twitch, a tail that sways, stripes, a pink nose and whiskers. The mini pills are little cats too.
