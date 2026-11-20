@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.9.0",
+      "items": [
+        {
+          "icon": "terminal",
+          "title": {
+            "en": "Ronron for VS Code",
+            "zh-Hans": "Ronron for VS Code",
+            "hi": "Ronron for VS Code",
+            "es": "Ronron for VS Code",
+            "ar": "Ronron for VS Code",
+            "fr": "Ronron for VS Code",
+            "bn": "Ronron for VS Code",
+            "pt-BR": "Ronron for VS Code",
+            "ru": "Ronron for VS Code",
+            "id": "Ronron for VS Code",
+            "de": "Ronron for VS Code",
+            "tr": "Ronron for VS Code",
+            "ko": "Ronron for VS Code",
+            "ja": "Ronron for VS Code"
+          },
+          "detail": {
+            "en": "Claude Code sessions of remote workspaces (Tunnels, SSH) in the island.",
+            "zh-Hans": "远程工作区（Tunnels、SSH）中的 Claude Code 会话显示在岛中。",
+            "hi": "रिमोट वर्कस्पेस (Tunnels, SSH) के Claude Code सत्र आइलैंड में।",
+            "es": "Las sesiones de Claude Code de espacios remotos (Tunnels, SSH) en la isla.",
+            "ar": "جلسات Claude Code في مساحات العمل البعيدة (Tunnels وSSH) في الجزيرة.",
+            "fr": "Les sessions Claude Code des workspaces distants (Tunnels, SSH) dans l'île.",
+            "bn": "রিমোট ওয়ার্কস্পেসের (Tunnels, SSH) Claude Code সেশন আইল্যান্ডে।",
+            "pt-BR": "Sessões do Claude Code de workspaces remotos (Tunnels, SSH) na ilha.",
+            "ru": "Сессии Claude Code удалённых пространств (Tunnels, SSH) на острове.",
+            "id": "Sesi Claude Code dari workspace jarak jauh (Tunnels, SSH) di pulau.",
+            "de": "Claude-Code-Sitzungen entfernter Workspaces (Tunnels, SSH) in der Insel.",
+            "tr": "Uzak çalışma alanlarının (Tunnels, SSH) Claude Code oturumları adada.",
+            "ko": "원격 작업 영역(Tunnels, SSH)의 Claude Code 세션을 아일랜드에.",
+            "ja": "リモートワークスペース（Tunnels、SSH）の Claude Code をアイランドに。"
+          }
+        },
+        {
+          "icon": "chat",
+          "title": {
+            "en": "Chat with a workspace",
+            "zh-Hans": "与工作区聊天",
+            "hi": "वर्कस्पेस से चैट",
+            "es": "Chatea con un espacio de trabajo",
+            "ar": "الدردشة مع مساحة عمل",
+            "fr": "Discuter avec un workspace",
+            "bn": "ওয়ার্কস্পেসের সাথে চ্যাট",
+            "pt-BR": "Converse com um workspace",
+            "ru": "Чат с рабочей областью",
+            "id": "Mengobrol dengan workspace",
+            "de": "Chat mit einem Workspace",
+            "tr": "Bir çalışma alanıyla sohbet",
+            "ko": "작업 영역과 채팅",
+            "ja": "ワークスペースとチャット"
+          },
+          "detail": {
+            "en": "Pick VS Code in the chat: Claude Code answers in that folder.",
+            "zh-Hans": "在聊天中选择 VS Code：Claude Code 在该文件夹中回答。",
+            "hi": "चैट में VS Code चुनें: Claude Code उसी फ़ोल्डर में जवाब देता है।",
+            "es": "Elige VS Code en el chat: Claude Code responde en esa carpeta.",
+            "ar": "اختر VS Code في الدردشة: يجيب Claude Code في ذلك المجلد.",
+            "fr": "Choisissez VS Code dans le chat : Claude Code répond dans ce dossier.",
+            "bn": "চ্যাটে VS Code বাছুন: Claude Code সেই ফোল্ডারে উত্তর দেয়।",
+            "pt-BR": "Escolha VS Code no chat: o Claude Code responde nessa pasta.",
+            "ru": "Выберите VS Code в чате: Claude Code ответит в этой папке.",
+            "id": "Pilih VS Code di chat: Claude Code menjawab di folder itu.",
+            "de": "Wähle VS Code im Chat: Claude Code antwortet in diesem Ordner.",
+            "tr": "Sohbette VS Code'u seçin: Claude Code o klasörde yanıtlar.",
+            "ko": "채팅에서 VS Code 선택: Claude Code가 그 폴더에서 답합니다.",
+            "ja": "チャットで VS Code を選ぶと、そのフォルダで Claude Code が答えます。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.8.2",
       "items": [
         {

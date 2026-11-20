@@ -122,6 +122,11 @@ jobs:
             windows/target/release/ronron-hook.exe
           retention-days: 3
 
+      - name: Package Ronron for VS Code
+        if: env.PUBLISH == 'true' && (startsWith(github.ref, 'refs/tags/windows-v') || (github.event_name == 'workflow_dispatch' && inputs.publish && github.ref == 'refs/heads/main'))
+        shell: bash
+        run: bash ../vscode/package.sh "$(pwd)/release"
+
       - name: Publish the release
         if: env.PUBLISH == 'true' && (startsWith(github.ref, 'refs/tags/windows-v') || (github.event_name == 'workflow_dispatch' && inputs.publish && github.ref == 'refs/heads/main'))
         shell: pwsh
@@ -142,10 +147,13 @@ jobs:
           # Mac users to the .exe. The macOS `v*` releases own that slot.
           # A tag push names the release; a manual run makes the tag from the version.
           $tag = if ("${{ github.ref_type }}" -eq "tag") { "${{ github.ref_name }}" } else { "windows-v$v" }
+          # Ronron for VS Code (vscode/, packaged in the step before) rides along.
+          $vsix = @(Get-ChildItem release/ronron-vscode-*.vsix | ForEach-Object { "release/$($_.Name)" })
           gh release create $tag `
             --target "${{ github.sha }}" `
             "release/Ronron-Windows-$v-setup.exe" `
             "release/Ronron-Windows-$v.msi" `
+            @vsix `
             --title "Ronron for Windows $v" `
             --notes $notes `
             --latest=false

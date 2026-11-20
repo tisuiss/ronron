@@ -8688,6 +8688,66 @@
       "tr": "Sessiz",
       "ko": "음소거됨",
       "ja": "ミュート中"
+    },
+    "VS Code took too long to answer.": {
+      "zh-Hans": "VS Code 响应时间过长。",
+      "hi": "VS Code ने जवाब देने में बहुत देर की।",
+      "es": "VS Code tardó demasiado en responder.",
+      "ar": "استغرق VS Code وقتًا طويلًا للرد.",
+      "fr": "VS Code a mis trop de temps à répondre.",
+      "bn": "VS Code উত্তর দিতে অনেক দেরি করেছে।",
+      "pt-BR": "O VS Code demorou demais para responder.",
+      "ru": "VS Code слишком долго не отвечал.",
+      "id": "VS Code terlalu lama menjawab.",
+      "de": "VS Code hat zu lange gebraucht.",
+      "tr": "VS Code yanıt vermekte çok gecikti.",
+      "ko": "VS Code의 응답이 너무 오래 걸렸습니다.",
+      "ja": "VS Code の応答に時間がかかりすぎました。"
+    },
+    "No remote VS Code window with Ronron for VS Code. Open your workspace in VS Code (Remote Tunnels, SSH), with both Ronron extensions installed.": {
+      "zh-Hans": "没有装有 Ronron for VS Code 的远程 VS Code 窗口。请在 VS Code 中打开你的工作区（Remote Tunnels、SSH），并安装两个 Ronron 扩展。",
+      "hi": "Ronron for VS Code वाली कोई रिमोट VS Code विंडो नहीं। VS Code में अपना वर्कस्पेस खोलें (Remote Tunnels, SSH), दोनों Ronron एक्सटेंशन के साथ।",
+      "es": "No hay ninguna ventana remota de VS Code con Ronron for VS Code. Abre tu espacio de trabajo en VS Code (Remote Tunnels, SSH) con las dos extensiones de Ronron.",
+      "ar": "لا توجد نافذة VS Code بعيدة مع Ronron for VS Code. افتح مساحة عملك في VS Code ‏(Remote Tunnels أو SSH) مع تثبيت إضافتي Ronron.",
+      "fr": "Aucune fenêtre VS Code distante avec Ronron for VS Code. Ouvrez votre workspace dans VS Code (Remote Tunnels, SSH), avec les deux extensions Ronron installées.",
+      "bn": "Ronron for VS Code সহ কোনো রিমোট VS Code উইন্ডো নেই। VS Code-এ আপনার ওয়ার্কস্পেস খুলুন (Remote Tunnels, SSH), দুটি Ronron এক্সটেনশনসহ।",
+      "pt-BR": "Nenhuma janela remota do VS Code com o Ronron for VS Code. Abra seu workspace no VS Code (Remote Tunnels, SSH) com as duas extensões do Ronron.",
+      "ru": "Нет удалённого окна VS Code с Ronron for VS Code. Откройте рабочую область в VS Code (Remote Tunnels, SSH) с обоими расширениями Ronron.",
+      "id": "Tidak ada jendela VS Code jarak jauh dengan Ronron for VS Code. Buka workspace Anda di VS Code (Remote Tunnels, SSH) dengan kedua ekstensi Ronron.",
+      "de": "Kein entferntes VS-Code-Fenster mit Ronron for VS Code. Öffne deinen Workspace in VS Code (Remote Tunnels, SSH) mit beiden Ronron-Erweiterungen.",
+      "tr": "Ronron for VS Code içeren uzak bir VS Code penceresi yok. Çalışma alanınızı VS Code'da (Remote Tunnels, SSH) iki Ronron uzantısıyla açın.",
+      "ko": "Ronron for VS Code가 있는 원격 VS Code 창이 없습니다. 두 Ronron 확장을 설치하고 VS Code에서 작업 영역을 여세요(Remote Tunnels, SSH).",
+      "ja": "Ronron for VS Code を入れたリモートの VS Code ウィンドウがありません。両方の Ronron 拡張を入れて VS Code でワークスペースを開いてください（Remote Tunnels、SSH）。"
+    },
+    "Pick a VS Code workspace in the model list.": {
+      "zh-Hans": "请在模型列表中选择一个 VS Code 工作区。",
+      "hi": "मॉडल सूची में एक VS Code वर्कस्पेस चुनें।",
+      "es": "Elige un espacio de trabajo de VS Code en la lista de modelos.",
+      "ar": "اختر مساحة عمل VS Code من قائمة النماذج.",
+      "fr": "Choisissez un workspace VS Code dans la liste des modèles.",
+      "bn": "মডেল তালিকা থেকে একটি VS Code ওয়ার্কস্পেস বেছে নিন।",
+      "pt-BR": "Escolha um workspace do VS Code na lista de modelos.",
+      "ru": "Выберите рабочую область VS Code в списке моделей.",
+      "id": "Pilih workspace VS Code di daftar model.",
+      "de": "Wähle einen VS-Code-Workspace in der Modellliste.",
+      "tr": "Model listesinden bir VS Code çalışma alanı seçin.",
+      "ko": "모델 목록에서 VS Code 작업 영역을 선택하세요.",
+      "ja": "モデル一覧から VS Code のワークスペースを選んでください。"
+    },
+    "This VS Code window is closed. Pick another workspace.": {
+      "zh-Hans": "该 VS Code 窗口已关闭。请选择另一个工作区。",
+      "hi": "यह VS Code विंडो बंद है। कोई दूसरा वर्कस्पेस चुनें।",
+      "es": "Esta ventana de VS Code está cerrada. Elige otro espacio de trabajo.",
+      "ar": "نافذة VS Code هذه مغلقة. اختر مساحة عمل أخرى.",
+      "fr": "Cette fenêtre VS Code est fermée. Choisissez un autre workspace.",
+      "bn": "এই VS Code উইন্ডো বন্ধ। অন্য ওয়ার্কস্পেস বেছে নিন।",
+      "pt-BR": "Esta janela do VS Code está fechada. Escolha outro workspace.",
+      "ru": "Это окно VS Code закрыто. Выберите другую рабочую область.",
+      "id": "Jendela VS Code ini tertutup. Pilih workspace lain.",
+      "de": "Dieses VS-Code-Fenster ist geschlossen. Wähle einen anderen Workspace.",
+      "tr": "Bu VS Code penceresi kapalı. Başka bir çalışma alanı seçin.",
+      "ko": "이 VS Code 창은 닫혔습니다. 다른 작업 영역을 선택하세요.",
+      "ja": "この VS Code ウィンドウは閉じています。別のワークスペースを選んでください。"
     }
   }
 }

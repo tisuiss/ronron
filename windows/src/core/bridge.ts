@@ -284,6 +284,8 @@ export const Bridge = {
   quit: () => call<void>("quit_app"),
 
   openSettingsWindow: () => call<void>("open_settings_window"),
+  /** A remote VS Code window with the Ronron extensions is open (the chat's VS Code provider). */
+  vscodeAvailable: () => call<boolean>("vscode_available"),
   /** Whether the Ronron window is on screen. */
   hubShown: () => call<boolean>("hub_shown"),
 

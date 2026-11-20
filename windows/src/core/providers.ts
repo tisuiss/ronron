@@ -8,7 +8,8 @@ import { N_ } from "../i18n/i18n";
 export type ProviderId =
   | "anthropic" | "openai" | "google" | "openrouter"
   | "ollama" | "lmstudio" | "custom"
-  | "cursor" | "copilot";
+  | "cursor" | "copilot"
+  | "vscode";
 
 export interface ProviderDef {
   id: ProviderId;
@@ -35,7 +36,12 @@ export const PROVIDERS: readonly ProviderDef[] = [
   // Only through the user's own subscription (cli_relay.rs): no key, no address.
   { id: "cursor", name: "Cursor", accent: "#A1A1AA", key: null, urlField: null, defaultModel: "", prefer: null },
   { id: "copilot", name: "GitHub Copilot", accent: "#8B5CF6", key: null, urlField: null, defaultModel: "", prefer: null },
+  // Claude Code in a remote VS Code workspace (vscode_bridge.rs): its "models" are the open folders.
+  { id: "vscode", name: "VS Code", accent: "#3B82F6", key: null, urlField: null, defaultModel: "", prefer: null },
 ];
+
+/** Shown once a remote VS Code window with the Ronron extensions is open. */
+export const VSCODE_PROVIDER: ProviderId = "vscode";
 
 /** Answered only through the user's subscription, switched on in Settings → Chat. */
 export const SUBSCRIPTION_ONLY: readonly ProviderId[] = ["cursor", "copilot"];
@@ -70,6 +76,7 @@ export function withModel(settings: Settings, provider: ProviderId, model: strin
 export function visibleProviders(settings: Settings, subscribed: ReadonlySet<string> = new Set()): ProviderDef[] {
   return PROVIDERS.filter((p) => {
     if (settings.chatProvider === p.id) return true;
+    if (p.id === VSCODE_PROVIDER) return subscribed.has(p.id);
     if (SUBSCRIPTION_ONLY.includes(p.id)) return subscribed.has(p.id) || settings.chatSubscriptions?.[p.id] === true;
     return !p.urlField || settings[p.urlField] !== "";
   });

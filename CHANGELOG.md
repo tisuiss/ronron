@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.0 — November 20, 2026
+
+- **Ronron for VS Code**: two extensions (`vscode/`, attached to the Windows release) bring the Claude Code sessions of a remote VS Code workspace — Remote Tunnels, Remote-SSH, containers — to the island, through VS Code's own connection. Permissions can be approved from the island. The remote one installs the hooks in the remote's `~/.claude/settings.json` after showing the change, with a dated backup.
+- **Chat with a workspace**: the chat's model picker offers **VS Code** and the open remote folders; Claude Code answers there and carries the conversation on in the same session.
+
 ## 0.8.2 — November 20, 2026
 
 - **To Do without an account**: not signed in to Microsoft 365, the tasks are kept on this computer (add, tick off, Undo) in a list *On this computer*, which stays beside the account's lists once signed in while it holds tasks.

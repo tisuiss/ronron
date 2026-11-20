@@ -1,0 +1,51 @@
+{
+  "name": "ronron-vscode-remote",
+  "displayName": "Ronron for VS Code (remote)",
+  "description": "Shows the Claude Code sessions of a remote workspace (Remote Tunnels, SSH, containers) in Ronron's island on your computer, and lets Ronron's chat ask Claude Code in a workspace. Install it in the remote; install \"Ronron for VS Code (local)\" on your computer.",
+  "version": "0.9.0",
+  "publisher": "tisuiss",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tisuiss/ronron"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "extensionKind": [
+    "workspace"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "ronron.installHooks",
+        "title": "Install the Claude Code hooks here",
+        "category": "Ronron"
+      }
+    ],
+    "configuration": {
+      "title": "Ronron",
+      "properties": {
+        "ronron.claudePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path of the Claude Code CLI in the remote, when it is not found by itself (PATH, ~/.local/bin, the Claude Code extension)."
+        }
+      }
+    }
+  },
+  "files": [
+    "extension.js",
+    "hook-client.js",
+    "lib.js",
+    "README.md",
+    "LICENSE"
+  ]
+}

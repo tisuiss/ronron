@@ -157,7 +157,9 @@ function buildPicker(onChange: () => void): Picker {
     const ticket = ++request;
     const subscribed = subscription(p.id)?.on ?? false;
     const cacheKey = `${p.id}:${subscribed}`;
-    const cached = p.urlField ? undefined : cache.get(cacheKey);
+    // Model servers and VS Code (its open folders) are asked again each time.
+    const fresh = Boolean(p.urlField) || p.id === "vscode";
+    const cached = fresh ? undefined : cache.get(cacheKey);
     if (cached) {
       drawModels(p, cached);
       return;
@@ -172,7 +174,7 @@ function buildPicker(onChange: () => void): Picker {
     try {
       const models = await Bridge.chatModels(p.id);
       if (ticket !== request) return;
-      if (!p.urlField) cache.set(cacheKey, models);
+      if (!fresh) cache.set(cacheKey, models);
       const keep = subscribed && p.id !== "anthropic" ? null : pickModel(p, models.map((m) => m.id), activeModel(State.settings));
       if (keep && keep !== activeModel(State.settings)) {
         State.settings = withModel(State.settings, p.id, keep);
