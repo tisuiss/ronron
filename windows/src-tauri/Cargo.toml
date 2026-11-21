@@ -76,10 +76,8 @@ windows = { version = "0.61", features = [
   "Media_Control",
   "Storage_Streams",
   "Win32_Foundation",
-  # The Spotify pill's volume: Spotify's session in the Windows mixer.
+  # The Spotify pill's and the Music tab's volume: the player's session in the Windows mixer.
   "Win32_Media_Audio",
-  # The Music tab's volume: the default output's master volume and mute.
-  "Win32_Media_Audio_Endpoints",
   "Win32_System_Com",
   "Win32_System_Com_StructuredStorage",
   "Win32_System_Variant",
