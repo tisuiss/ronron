@@ -4,8 +4,7 @@
 
 import { h, clear } from "../../views/dom";
 import { t } from "../../i18n/i18n";
-import { Bridge, onEvent } from "../../core/bridge";
-import { NO_UPDATE, isBusy, type UpdateStatus } from "../../core/update";
+import { onEvent } from "../../core/bridge";
 import { FlowBridge, flowKeyId, type Edge, type FlowKey, type ModelsStatus } from "../../core/flow";
 import { comboFromKeys } from "../keys";
 import type { HubContext } from "../shell";
@@ -159,10 +158,6 @@ export async function flowSettingsPage(page: HTMLElement, ctx: HubContext) {
     row(t("Open this window when you open Ronron"), t("Not when Ronron starts with the computer."), toggle(prefs.openAtLaunch, (on) => void ctx.setPrefs((p) => (p.openAtLaunch = on)))),
   )));
 
-  // ── Updates ──
-  page.append(label(t("Updates")));
-  page.append(anchor("flow.updates", updatesCard()));
-
   // ── Privacy ──
   page.append(label(t("Privacy")));
   const keep: [string, string][] = [["0", t("Don't keep")], ["7", t("7 days")], ["30", t("30 days")], ["365", t("1 year")], ["-1", t("Forever")]];
@@ -242,58 +237,5 @@ function shortcutRecorder(combo: string[], platform: "windows" | "linux", onDone
     window.addEventListener("keydown", down, true);
     window.addEventListener("keyup", up, true);
   }
-  return el;
-}
-
-/**
- * Updates, as in Notch → General: "Check now" (a click, so it works with the
- * automatic check off) and "Install X" once a new version is out — the island's
- * update card takes it from there.
- */
-function updatesCard(): HTMLElement {
-  let status: UpdateStatus = { ...NO_UPDATE };
-  const feedback = h("span", { class: "hub-note" });
-  const install = button("", () => void (status.canInstall ? Bridge.updateShow() : Bridge.updateOpenPage()), "primary");
-  const check = button(t("Check now"), async () => {
-    check.disabled = true;
-    feedback.textContent = "";
-    const fresh = await Bridge.updateCheck();
-    if (fresh) status = fresh;
-    draw();
-  });
-  const auto = toggle(false, (on) => void Bridge.updateSetConsent(on));
-  // Its title is the version you have, filled in by draw().
-  const versionRow = row("", null, feedback, install, check);
-  const current = versionRow.querySelector(".title") as HTMLElement;
-
-  function draw() {
-    const r = status.latest;
-    install.style.display = r ? "" : "none";
-    if (r) {
-      install.textContent = status.canInstall
-        ? t("Install {version}", { version: r.version })
-        : t("Get {version} on GitHub", { version: r.version });
-    }
-    check.disabled = status.check === "checking" || isBusy(status.phase);
-    feedback.textContent =
-      status.check === "upToDate" ? t("Ronron is up to date")
-        : status.check === "unreachable" ? t("Couldn't reach GitHub")
-          : "";
-    current.textContent = status.current ? t("You have {version}", { version: status.current }) : "";
-    auto.classList.toggle("on", status.consent === true);
-    auto.setAttribute("aria-pressed", String(status.consent === true));
-  }
-
-  const el = card(versionRow, divider(), row(t("Tell me when a new version is out"), null, auto));
-  void Bridge.updateStatus().then((fresh) => {
-    if (fresh) status = fresh;
-    draw();
-  });
-  void onEvent<UpdateStatus>("update-status", (fresh) => {
-    if (!el.isConnected) return;
-    status = fresh;
-    draw();
-  });
-  draw();
   return el;
 }

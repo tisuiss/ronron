@@ -1440,18 +1440,17 @@ export class Island {
     const ctx = this.botCanvas.getContext("2d");
     if (!ctx) return;
 
-    const focus = State.focusTask;
     // A new Ronron waits: over an idle or sleeping Ronron, the blue and the arrow
     // badge (whats-new.ts). Anything Ronron has to say comes first.
     this.engine.setUpdateHint(this.updateHintOn() ? UPDATE_BLUE_RGB : null);
     // While a plan card is open Ronron wears the plan's colour, like its pill.
+    // Otherwise he is Ronron himself, in his ginger coat, on every tab: the pills'
+    // colours stay on their own little cats (the slots, the pills, the header).
     this.engine.bodyColor = planCardOpen()
       ? hexToRGB(openPlanColor())
       : this.engine.showsUpdateHint
         ? UPDATE_BLUE_RGB
-        : focus?.isIntegration && !this.ronronAtRest()
-          ? hexToRGB(focus.color)
-          : null;
+        : null;
     this.engine.particleOverhang = BOT_OVERHANG;
     this.engine.lookX = this.lookX();
     this.engine.lookY = this.lookY();
@@ -1464,15 +1463,11 @@ export class Island {
         this.engine.slotHVel = 0;
       }
     }
-    // Only the main Ronron is dressed — the one of the main tool's pill (Settings →
-    // Active pills): a focused integration pill shows its own colours, unless
-    // the wardrobe is open (BotCanvasView.showOutfit, macOS).
+    // Ronron is always himself, so he keeps his outfit on every tab.
     // In the wardrobe the hovered outfit swaps in at once, without the drop-in.
     const inWardrobe = State.mode === "expanded" && State.view === "wardrobe";
-    const mainFocused = State.focusId == null || State.focusId === State.mainPillId;
-    const showOutfit = mainFocused || State.mode !== "expanded" || inWardrobe;
     const outfit = State.wardrobePreview ?? this.seasons.get(parseOutfit(State.settings.catOutfit));
-    this.engine.setOutfit(showOutfit ? outfit : "none", !inWardrobe);
+    this.engine.setOutfit(outfit, !inWardrobe);
     // Dances while music plays: always in the compact island, expanded only on
     // the music pill's card (BotCanvasView, macOS). Asked every frame.
     this.engine.setDancing(islandDances({

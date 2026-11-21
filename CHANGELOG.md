@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.11.0 — November 21, 2026
+
+- **Settings, arranged by what you set**: the Ronron window's sidebar now reads Ronron (appearance & sounds), Island (behavior, active pills, shortcuts), AI agents (agents, chat), Accounts & services (accounts, integrations, Android phone), Voice (dictation, Notetaker, statistics, words, styles, OK Ronron, dictation settings), Mail and System (startup, language, updates, weekly recap). "Notch" and "Flow" are gone from the PC's names, the General page is split by subject, and Updates lives in one place.
+- **Accounts**: Microsoft 365, Google and the calendars have a page of their own, apart from the integrations.
+- **Ronron on every tab**: the open island shows Ronron in his ginger coat and outfit whatever the pill — the pills' colours stay on their own little cats.
+
 ## 0.10.0 — November 21, 2026
 
 - **Google accounts**: Settings → Integrations → **Google** signs in with your own Google Cloud project and feeds the Mail, Calendar and To Do tabs from **Gmail**, **Google Calendar** and **Google Tasks** — beside Microsoft 365 or instead of it. Signed in to both, the inboxes are merged (each message's actions go back to its own account), and the calendars and task lists sit side by side.

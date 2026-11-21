@@ -1030,7 +1030,13 @@ function whatsappSections(): HTMLElement[] {
  */
 let generalSync: (() => void) | null = null;
 
-function generalSection(): HTMLElement {
+/**
+ * What used to be one General page, in three: Ronron's sounds (Ronron → Appearance &
+ * sounds), how the island behaves (Island → Behavior) and the system's part (startup,
+ * language, updates, the recap's history). Built together: generalSync keeps the
+ * switches of whichever is on screen in step.
+ */
+function generalParts(): { sound: HTMLElement; island: HTMLElement; system: HTMLElement[] } {
   const volume = h("input", {
     type: "range", min: "0", max: "0.2", step: "0.005",
     value: String(settings.soundVolume),
@@ -1126,10 +1132,10 @@ function generalSection(): HTMLElement {
   volume.addEventListener("blur", () => generalSync?.());
   autoClose.addEventListener("blur", () => generalSync?.());
 
-  return h(
+  const sound_ = h(
     "section",
     {},
-    h("h2", {}, h("span", { text: t("General") })),
+    h("h2", {}, h("span", { text: t("Sound") })),
     h("div", { class: "row" },
       h("label", { text: t("Sound") }),
       sound,
@@ -1137,6 +1143,11 @@ function generalSection(): HTMLElement {
     ),
     h("div", { class: "row" }, soundsFolder, reloadSounds, customCount),
     h("div", { class: "hint", text: t("Drop a file named like one of Ronron's sounds (finish.wav, approval.mp3, greet.m4a…) in the sounds folder to replace it, then Reload.") }),
+  );
+  const island = h(
+    "section",
+    {},
+    h("h2", {}, h("span", { text: t("Behavior") })),
     h("div", { class: "row" },
       h("label", { text: t("Open on hover") }),
       openOnHover,
@@ -1171,14 +1182,26 @@ function generalSection(): HTMLElement {
       h("label", { text: t("Island lives on") }),
       screen,
     ),
-    h("div", { class: "row" },
-      h("label", { text: t("Launch at startup") }),
-      autostart,
-    ),
-    ...recapRows(),
-    ...updateRows(toggle, version),
-    languageRow(),
   );
+  const system = [
+    h("section", {},
+      h("h2", {}, h("span", { text: t("Startup") })),
+      h("div", { class: "row" },
+        h("label", { text: t("Launch at startup") }),
+        autostart,
+      ),
+      languageRow(),
+    ),
+    h("section", {},
+      h("h2", {}, h("span", { text: t("Updates") })),
+      ...updateRows(toggle, version),
+    ),
+    h("section", {},
+      h("h2", {}, h("span", { text: t("Weekly recap") })),
+      ...recapRows(),
+    ),
+  ];
+  return { sound: sound_, island, system };
 }
 
 /**
@@ -1570,11 +1593,13 @@ async function render() {
   generalSync = null;
   clear(root);
   const sections: Partial<Record<PageId, () => HTMLElement[]>> = {
-    general: () => [generalSection()],
+    appearance: () => [generalParts().sound],
+    general: () => [generalParts().island],
+    system: () => generalParts().system,
     pills: () => [activePillsSection(connected)],
     agents: () => [claudeSection(status), agentsSection(agents), planSection(status)],
     chat: () => [subscriptionsSection(), apiSection(hasKey, claudeRelay), chatProvidersSection(chatKeys, keyChanged), localSection(customKey)],
-    integrations: () => [
+    accounts: () => [
       microsoftSection({
         get: () => settings.headerPills ?? [],
         set: (ids) => {
@@ -1585,6 +1610,8 @@ async function render() {
       }),
       googleSection(),
       calendarsSection({ settings: () => settings, save: () => void save() }),
+    ],
+    integrations: () => [
       musicSection({
         get: () => settings.headerPills ?? [],
         set: (ids) => {
@@ -1599,7 +1626,7 @@ async function render() {
     shortcuts: () => [shortcutsSection(shortcutReport)],
   };
   root.append(...(sections[notchPage]?.() ?? []));
-  if (notchPage === "general") {
+  if (notchPage === "system") {
     root.append(h("div", {
       class: "hint",
       text: t("No telemetry. Network requests only go to the services you configure yourself."),

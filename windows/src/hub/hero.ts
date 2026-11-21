@@ -454,6 +454,9 @@ export const THEMES: Record<string, Theme> = {
   styles: { color: "#F472B6", cast: [m("#F472B6", 60, 0.25, { outfit: "sunglasses" }), m(RONRON, 48, 0.7, { outfit: "bow" }), m("#22D3EE", 42, 1, { outfit: "partyHat" })] },
   flowsettings: { color: "#8E939C", cast: [m(RONRON, 56, 0.3), m("#8E939C", 46, 0.95, { state: "sleeping", roams: false })] },
   general: { color: "#8E939C", cast: [m(RONRON, 60, 0.4, { outfit: "scarf" }), m("#FB923C", 46, 0.85)] },
+  appearance: { color: "#FB923C", cast: [m(RONRON, 62, 0.3, { outfit: "bow" }), m(RONRON, 46, 0.8, { outfit: "partyHat" })] },
+  accounts: { color: "#2F8CFF", cast: [m("#2F8CFF", 56, 0.2), m("#EA4335", 50, 0.6), m(RONRON, 46, 0.95)] },
+  system: { color: "#8E939C", cast: [m(RONRON, 56, 0.35, { outfit: "roundGlasses" }), m("#8E939C", 44, 0.9, { state: "sleeping", roams: false })] },
   pills: {
     color: "#F5A524",
     cast: [m("#F5A524", 44, 0.05), m("#3B9EFF", 44, 0.3), m("#34D399", 44, 0.55), m("#E07950", 44, 0.8), m("#A78BFA", 44, 1)],

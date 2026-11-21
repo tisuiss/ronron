@@ -99,22 +99,31 @@ export const SETTINGS_ENTRIES: SettingsSearchEntry[] = [
   { id: "flow.recognition", page: "flowsettings", title: "hub.settings.recognition", terms: ["Dictation language"] },
   { id: "flow.summary", page: "flowsettings", title: "hub.page.notes", terms: ["notes.engine"] },
   { id: "flow.app", page: "flowsettings", title: "hub.settings.app", terms: ["hub.settings.dock", "hub.settings.open-at-launch"] },
-  { id: "flow.updates", page: "flowsettings", title: "Updates", terms: ["Check now", "Tell me when a new version is out"] },
   { id: "flow.privacy", page: "flowsettings", title: "hub.settings.privacy", terms: ["hub.settings.keep"] },
 
-  // Notch → General
+  // Ronron → Appearance & sounds
+  { id: "general.sound", page: "appearance", title: "Sound", terms: ["Enable sounds", "Volume", "Open sounds folder", "Reload sounds"] },
+
+  // Island → Behavior
   { id: "general.demo", page: "general", title: "demo.groupbox.title", terms: [] },
-  { id: "general.sound", page: "general", title: "Sound", terms: ["Enable sounds", "Volume", "Open sounds folder", "Reload sounds"] },
   { id: "general.behavior", page: "general", title: "Behavior", terms: ["Open on hover", "Close after", "Hide after", "alerts.all-pills"] },
   { id: "general.display", page: "general", title: "Display", terms: ["Show Ronron on", "Screen with the notch", "Main screen (menu bar)", "Follow the mouse"] },
   { id: "general.vitals", page: "general", title: "vitals.title", terms: ["vitals.toggle"] },
   { id: "general.hotkey", page: "general", title: "Hotkey", terms: ["Show island with shortcut", "Shortcut"] },
-  { id: "general.startup", page: "general", title: "Startup", terms: ["Launch at Mac startup"] },
-  { id: "general.update", page: "general", title: "update.settings.title", terms: [] },
-  { id: "general.recap", page: "general", title: "Weekly recap", terms: ["Keep a history of my coding sessions", "Hide project names in shared images", "Clear history"] },
-  { id: "general.language", page: "general", title: "Language", terms: ["Restart Ronron"] },
+  { id: "general.closed", page: "general", title: "Closed island shows", terms: ["Auto-close", "Island lives on", "Show clock in the island"] },
 
-  // Notch → Pills, Agents, Chat, Integrations, Phone, Voice, Shortcuts
+  // System
+  { id: "general.startup", page: "system", title: "Startup", terms: ["Launch at startup"] },
+  { id: "general.update", page: "system", title: "Updates", terms: ["Check now", "Tell me when a new version is out"] },
+  { id: "general.recap", page: "system", title: "Weekly recap", terms: ["Keep a history of my coding sessions", "Hide project names in shared images", "Clear history"] },
+  { id: "general.language", page: "system", title: "Language", terms: ["Restart Ronron"] },
+
+  // Accounts & services
+  { id: "accounts.microsoft", page: "accounts", title: "Microsoft 365", terms: ["Outlook", "To Do", "Calendar", "Sign in with Microsoft"] },
+  { id: "accounts.google", page: "accounts", title: "Google", terms: ["Gmail", "Google Calendar", "Google Tasks", "Sign in with Google"] },
+  { id: "accounts.calendars", page: "accounts", title: "Calendars", terms: ["iCal", "Reminder"] },
+
+  // Island → Pills, Shortcuts; AI agents; Integrations, Phone; Voice
   { id: "pills.main", page: "pills", title: "settings.main-pill", terms: ["Active pills"] },
   { id: "agents.claude", page: "agents", title: "hooks.claude-code.title", terms: ["Answer questions and permissions from terminal sessions in the notch"] },
   { id: "agents.claude-desktop", page: "agents", title: "claude-desktop.chat.title", terms: [] },
@@ -136,7 +145,7 @@ export const SETTINGS_ENTRIES: SettingsSearchEntry[] = [
     page: "integrations",
     title: "Integrations",
     terms: [
-      "Stripe", "GitHub", "Vercel", "n8n", "Notion", "Resend", "Cal.com", "To Do", "Microsoft", "WhatsApp", "Spotify", "Crypto",
+      "Stripe", "GitHub", "Vercel", "n8n", "Notion", "Resend", "Cal.com", "Music", "WhatsApp", "Spotify", "Crypto",
       "Linear", "X", "YouTube", "Figma", "OpenWeather", "Railway", "Supabase", "Hugging Face", "Sentry", "PostHog", "Twilio",
     ],
   },
