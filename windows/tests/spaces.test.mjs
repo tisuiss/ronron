@@ -43,6 +43,9 @@ test("the spaces are tall, without pills, Ronron in the left tile", () => {
 
 test("an open pill makes the overview as tall as a space", () => {
   assert.equal(islandSize("expanded", "overview").h, VIEW_LAYOUTS.overview.height);
+  // The compact island leaves room in its middle only for the clock.
+  assert.equal(islandSize("compact", "overview").w, 200);
+  assert.equal(islandSize("compact", "overview", false, true).w, 288);
   // The chat is as tall as the To Do space.
   assert.equal(islandSize("expanded", "prompt").h, islandSize("expanded", "tasks").h);
   assert.equal(islandSize("expanded", "overview", true).h, VIEW_LAYOUTS.agenda.height);

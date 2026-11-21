@@ -67,6 +67,13 @@ export const PANEL_H = 320;
 export const NOTCH_W = 184;
 export const NOTCH_H = 32;
 export const COMPACT_W = 288; // NOTCH_W + 104
+/** Without the clock in its middle: Ronron, the plan and the pills, no empty band between them. */
+export const COMPACT_NARROW_W = 200;
+
+/** The compact island's width: room in the middle only when the clock shows there. */
+export function compactWidth(clock: boolean): number {
+  return clock ? COMPACT_W : COMPACT_NARROW_W;
+}
 export const EXPANDED_W = 640;
 
 export const ROUNDED_CORNER = 14; // hidden / compact
@@ -133,6 +140,7 @@ export function islandSize(
   mode: IslandMode,
   view: IslandViewName,
   pillOpen = false,
+  clock = false,
 ): { w: number; h: number } {
   switch (mode) {
     case "hidden":
@@ -140,7 +148,7 @@ export function islandSize(
       // slides into the top edge of the screen instead of sitting there as a bar.
       return { w: NOTCH_W, h: 0 };
     case "compact":
-      return { w: COMPACT_W, h: NOTCH_H };
+      return { w: compactWidth(clock), h: NOTCH_H };
     case "expanded": {
       const h = view === "overview" && pillOpen ? SPACE_H
         : VIEW_LAYOUTS[view].height;

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.11.1 — November 21, 2026
+
+- **The closed island you picked, at once**: once the pointer leaves the compact island — after a fold, a hover or the launch — what Settings → Behavior → *Closed island shows* asks for comes back after a second, instead of the compact island staying for a minute. A request or a message that brings the island back still keeps it out for a minute.
+- **No empty band in the compact island**: without the clock it is 200 px wide instead of 288 — Ronron, the plan and the pills, nothing in between. With the clock on, it keeps its room in the middle.
+
 ## 0.11.0 — November 21, 2026
 
 - **Settings, arranged by what you set**: the Ronron window's sidebar now reads Ronron (appearance & sounds), Island (behavior, active pills, shortcuts), AI agents (agents, chat), Accounts & services (accounts, integrations, Android phone), Voice (dictation, Notetaker, statistics, words, styles, OK Ronron, dictation settings), Mail and System (startup, language, updates, weekly recap). "Notch" and "Flow" are gone from the PC's names, the General page is split by subject, and Updates lives in one place.
