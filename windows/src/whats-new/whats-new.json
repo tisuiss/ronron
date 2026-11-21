@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.10.0",
+      "items": [
+        {
+          "icon": "sparkles",
+          "title": {
+            "en": "Google accounts",
+            "zh-Hans": "Google 账户",
+            "hi": "Google खाते",
+            "es": "Cuentas de Google",
+            "ar": "حسابات Google",
+            "fr": "Comptes Google",
+            "bn": "Google অ্যাকাউন্ট",
+            "pt-BR": "Contas do Google",
+            "ru": "Аккаунты Google",
+            "id": "Akun Google",
+            "de": "Google-Konten",
+            "tr": "Google hesapları",
+            "ko": "Google 계정",
+            "ja": "Google アカウント"
+          },
+          "detail": {
+            "en": "Gmail, Google Calendar and Google Tasks in the Mail, Calendar and To Do tabs.",
+            "zh-Hans": "在邮件、日历和 To Do 标签页中使用 Gmail、Google 日历和 Google Tasks。",
+            "hi": "मेल, कैलेंडर और To Do टैब में Gmail, Google Calendar और Google Tasks।",
+            "es": "Gmail, Google Calendar y Google Tasks en las pestañas Correo, Calendario y To Do.",
+            "ar": "Gmail وتقويم Google ومهام Google في تبويبات البريد والتقويم وTo Do.",
+            "fr": "Gmail, Google Agenda et Google Tasks dans les onglets Mail, Agenda et To Do.",
+            "bn": "মেল, ক্যালেন্ডার ও To Do ট্যাবে Gmail, Google Calendar ও Google Tasks।",
+            "pt-BR": "Gmail, Google Agenda e Google Tasks nas abas E-mail, Agenda e To Do.",
+            "ru": "Gmail, Google Календарь и Google Задачи во вкладках Почта, Календарь и To Do.",
+            "id": "Gmail, Google Kalender, dan Google Tasks di tab Email, Kalender, dan To Do.",
+            "de": "Gmail, Google Kalender und Google Tasks in den Tabs Mail, Kalender und To Do.",
+            "tr": "Posta, Takvim ve To Do sekmelerinde Gmail, Google Takvim ve Google Tasks.",
+            "ko": "메일, 캘린더, To Do 탭에서 Gmail, Google 캘린더, Google Tasks를.",
+            "ja": "メール・カレンダー・To Do タブで Gmail、Google カレンダー、Google Tasks を。"
+          }
+        },
+        {
+          "icon": "puzzle",
+          "title": {
+            "en": "Microsoft and Google together",
+            "zh-Hans": "Microsoft 与 Google 并用",
+            "hi": "Microsoft और Google साथ में",
+            "es": "Microsoft y Google a la vez",
+            "ar": "Microsoft وGoogle معًا",
+            "fr": "Microsoft et Google ensemble",
+            "bn": "Microsoft ও Google একসাথে",
+            "pt-BR": "Microsoft e Google juntos",
+            "ru": "Microsoft и Google вместе",
+            "id": "Microsoft dan Google bersama",
+            "de": "Microsoft und Google zusammen",
+            "tr": "Microsoft ve Google birlikte",
+            "ko": "Microsoft와 Google을 함께",
+            "ja": "Microsoft と Google を一緒に"
+          },
+          "detail": {
+            "en": "Signed in to both, each tab shows both accounts.",
+            "zh-Hans": "两个都登录后，每个标签页同时显示两个账户。",
+            "hi": "दोनों में साइन इन होने पर हर टैब दोनों खाते दिखाता है।",
+            "es": "Con ambas cuentas, cada pestaña muestra las dos.",
+            "ar": "عند تسجيل الدخول إلى الاثنين، يعرض كل تبويب الحسابين معًا.",
+            "fr": "Connecté aux deux, chaque onglet montre les deux comptes.",
+            "bn": "দুটিতেই সাইন ইন থাকলে প্রতিটি ট্যাব দুই অ্যাকাউন্টই দেখায়।",
+            "pt-BR": "Conectado aos dois, cada aba mostra as duas contas.",
+            "ru": "Если вошли в оба, каждая вкладка показывает оба аккаунта.",
+            "id": "Masuk ke keduanya, setiap tab menampilkan kedua akun.",
+            "de": "Bei beiden angemeldet, zeigt jeder Tab beide Konten.",
+            "tr": "İkisinde de oturum açıkken her sekme iki hesabı da gösterir.",
+            "ko": "둘 다 로그인하면 탭마다 두 계정이 함께 보여요.",
+            "ja": "両方にログインすると、各タブに両方のアカウントが表示されます。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.9.4",
       "items": [
         {
