@@ -35,6 +35,11 @@ pub const KNOWN_KEYS: &[&str] = &[
     "msgraph-refresh-1",
     "msgraph-refresh-2",
     "msgraph-refresh-3",
+    // Google (google/): the user's own OAuth client, the account and the refresh token.
+    "google-client-id",
+    "google-client-secret",
+    "google-account",
+    "google-refresh",
     // iCal calendars (ical.rs): each address opens its calendar to whoever has it.
     "ical-url-0",
     "ical-url-1",

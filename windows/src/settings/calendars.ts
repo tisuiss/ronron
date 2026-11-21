@@ -43,7 +43,7 @@ export function calendarsSection(access: CalendarsAccess): HTMLElement {
     h("div", { class: "hint", text: t("The calendars Ronron shows, and the ones that remind you of their events: the island opens a few minutes before, with Join for an online meeting.") }),
     list,
     addForm());
-  let microsoft: { id: string; name: string; color: string; default: boolean }[] = [];
+  let microsoft: { id: string; name: string; color: string; default: boolean; kind?: "microsoft" | "google" }[] = [];
 
   function changed() {
     access.save();
@@ -86,7 +86,7 @@ export function calendarsSection(access: CalendarsAccess): HTMLElement {
 
   function draw() {
     clear(list);
-    for (const c of microsoft) list.append(row(c.id, c.name || t("Calendar"), c.color, "Microsoft 365", c.default));
+    for (const c of microsoft) list.append(row(c.id, c.name || t("Calendar"), c.color, c.kind === "google" ? "Google" : "Microsoft 365", c.default));
     for (const c of access.settings().icalCalendars ?? []) {
       list.append(row(`ical-${c.slot}`, c.name || `iCal ${c.slot + 1}`, c.color, "iCal", true, async () => {
         const s = access.settings();
@@ -102,7 +102,7 @@ export function calendarsSection(access: CalendarsAccess): HTMLElement {
       }));
     }
     if (list.childNodes.length === 0) {
-      list.append(h("div", { class: "hint", text: t("Sign in to Microsoft 365 above, or add an iCal address below.") }));
+      list.append(h("div", { class: "hint", text: t("Sign in to Microsoft 365 or Google above, or add an iCal address below.") }));
     }
   }
 

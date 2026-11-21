@@ -134,7 +134,7 @@ fn account_from_id_token(id_token: &str) -> Option<Account> {
     Some(Account { name, tid })
 }
 
-fn base64url(s: &str) -> Option<Vec<u8>> {
+pub(crate) fn base64url(s: &str) -> Option<Vec<u8>> {
     let mut out = Vec::with_capacity(s.len() * 3 / 4);
     let (mut acc, mut bits) = (0u32, 0u32);
     for c in s.bytes() {
@@ -271,7 +271,7 @@ pub fn cancel() {
 
 // ── Sign-in in the browser (authorization code + PKCE, loopback redirect) ──────
 
-fn base64url_encode(bytes: &[u8]) -> String {
+pub(crate) fn base64url_encode(bytes: &[u8]) -> String {
     const A: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
     let mut out = String::with_capacity(bytes.len() * 4 / 3 + 2);
     for chunk in bytes.chunks(3) {
@@ -283,7 +283,7 @@ fn base64url_encode(bytes: &[u8]) -> String {
     out
 }
 
-fn random(len: usize) -> Result<Vec<u8>, String> {
+pub(crate) fn random(len: usize) -> Result<Vec<u8>, String> {
     use ring::rand::{SecureRandom, SystemRandom};
     let mut bytes = vec![0u8; len];
     SystemRandom::new().fill(&mut bytes).map_err(|_| crate::i18n::t("Not available"))?;
@@ -291,7 +291,7 @@ fn random(len: usize) -> Result<Vec<u8>, String> {
 }
 
 /// The PKCE pair: a random verifier, and its SHA-256 sent with the request.
-fn pkce() -> Result<(String, String), String> {
+pub(crate) fn pkce() -> Result<(String, String), String> {
     let verifier = base64url_encode(&random(32)?);
     let challenge = base64url_encode(ring::digest::digest(&ring::digest::SHA256, verifier.as_bytes()).as_ref());
     Ok((verifier, challenge))

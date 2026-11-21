@@ -97,7 +97,7 @@ test("Calendar: the week, today's events, and the next one to join", () => {
   // Signed out: one line, no buttons.
   State.integrations.integration_calendar = { data: {}, error: null, loaded: true, configured: false };
   view.sync();
-  assert.match(text(view.el), /Sign in to Microsoft 365 in Settings\./);
+  assert.match(text(view.el), /Sign in to Microsoft 365 or Google in Settings\./);
   assert.equal(view.el.querySelector(".sp-join"), null);
 });
 

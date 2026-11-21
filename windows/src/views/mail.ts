@@ -213,11 +213,11 @@ export function buildMailCard(host: MailCardHost): MailCard {
 
     clear(listBody);
     if (!d.windows) {
-      listBody.append(h("div", { class: "mail-empty", text: t("Sign in to Microsoft 365 in Settings to see your mail here.") }));
+      listBody.append(h("div", { class: "mail-empty", text: t("Sign in to Microsoft 365 or Google in Settings to see your mail here.") }));
       return;
     }
     if (!d.running) {
-      listBody.append(h("div", { class: "mail-empty", text: t("Sign in to Microsoft 365 in Settings, or open the classic Outlook, to see your mail here.") }));
+      listBody.append(h("div", { class: "mail-empty", text: t("Sign in to Microsoft 365 or Google in Settings, or open the classic Outlook, to see your mail here.") }));
       return;
     }
     if (list.length === 0) {

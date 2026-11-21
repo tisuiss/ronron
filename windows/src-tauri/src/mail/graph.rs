@@ -249,7 +249,7 @@ pub async fn accounts() -> Result<Value, String> {
 }
 
 /// A file name that stays inside the folder it is saved in.
-fn safe_name(name: &str) -> String {
+pub(crate) fn safe_name(name: &str) -> String {
     let base = name.rsplit(['/', '\\']).next().unwrap_or("");
     let clean: String = base.chars().map(|c| if c.is_control() || "<>:\"|?*".contains(c) { '_' } else { c }).collect();
     let clean = clean.trim().trim_matches('.').to_string();

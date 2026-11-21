@@ -181,7 +181,7 @@ export function buildAgendaSpace(actions: ViewActions): ViewHost {
       h("span", { class: "sp-spacer" }),
       prev, nextWeek));
     if (signedOut(CALENDAR_ID)) {
-      middle.append(h("div", { class: "sp-empty", text: t("Sign in to Microsoft 365 in Settings.") }));
+      middle.append(h("div", { class: "sp-empty", text: t("Sign in to Microsoft 365 or Google in Settings.") }));
       clear(right);
       return;
     }
@@ -432,8 +432,8 @@ export function buildMailSpace(actions: ViewActions): ViewHost {
     clear(rows);
     if (!d.running) {
       rows.append(h("div", { class: "sp-empty", text: d.windows
-        ? t("Sign in to Microsoft 365 in Settings, or open the classic Outlook, to see your mail here.")
-        : t("Sign in to Microsoft 365 in Settings to see your mail here.") }));
+        ? t("Sign in to Microsoft 365 or Google in Settings, or open the classic Outlook, to see your mail here.")
+        : t("Sign in to Microsoft 365 or Google in Settings to see your mail here.") }));
     } else if (list.length === 0) {
       rows.append(h("div", { class: "sp-empty", text: results !== null ? t("Nothing found") : t("No messages") }));
     } else {
@@ -692,7 +692,7 @@ export function buildTodoSpace(actions: ViewActions): ViewHost {
     }
     clear(rows);
     if (signedOut(TODO_ID)) {
-      rows.append(h("div", { class: "sp-empty", text: t("Sign in to Microsoft 365 in Settings.") }));
+      rows.append(h("div", { class: "sp-empty", text: t("Sign in to Microsoft 365 or Google in Settings.") }));
     } else {
       const shown = listFilter ? open.filter((x) => x.listId === listFilter) : dueNow.length ? dueNow : open;
       const doneHere = done.filter((x) => !listFilter || x.listId === listFilter);

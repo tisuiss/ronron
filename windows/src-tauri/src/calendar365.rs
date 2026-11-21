@@ -1,5 +1,6 @@
 //! The calendars, read only: the Microsoft 365 account's calendars through Graph
-//! (sign-in: crate::msgraph) and the iCal ones (crate::ical), from four weeks back
+//! (sign-in: crate::msgraph), the Google account's (crate::google::calendar) and the
+//! iCal ones (crate::ical), from four weeks back
 //! to nine weeks ahead, in the shape the Cal.com card and its month view already read
 //! (`bookings`, `rangeStart`, `rangeEnd`), with `calendars` (each one's name,
 //! colour, whether it is shown and its reminder) and each event's `calendarId`.
@@ -34,7 +35,7 @@ pub async fn poll(app: AppHandle) {
 pub async fn poll_now(app: &AppHandle) {
     let (prefs, icals) = calendar_settings(app);
     let icals: Vec<IcalCalendar> = icals.into_iter().filter(|c| (c.slot as usize) < crate::ical::SLOTS && crate::secrets::present(&crate::ical::key(c.slot as usize))).collect();
-    if !msgraph::signed_in() && icals.is_empty() {
+    if !msgraph::signed_in() && !crate::google::signed_in() && icals.is_empty() {
         integrations::emit(app, IntegrationUpdate { id: ID, data: json!({}), error: None, event: None });
         return;
     }
@@ -55,16 +56,29 @@ pub async fn calendar_refresh(app: AppHandle) {
     }
 }
 
-/// The Microsoft 365 account's calendars, for Settings: id, name, colour, default.
+/// The signed-in accounts' calendars, for Settings: id, name, colour, default, kind.
 #[tauri::command]
 pub async fn calendar_sources() -> Result<Vec<Value>, String> {
-    if !msgraph::signed_in() {
-        return Ok(Vec::new());
+    let mut out = Vec::new();
+    if msgraph::signed_in() {
+        out.extend(microsoft_calendars().await?.into_iter().enumerate().map(|(i, (id, name, color, default))| {
+            let color = if color.starts_with('#') && color.len() == 7 { color } else { PALETTE[i % PALETTE.len()].to_string() };
+            json!({ "id": id, "name": name, "color": color, "default": default, "kind": "microsoft" })
+        }));
     }
-    Ok(microsoft_calendars().await?.into_iter().enumerate().map(|(i, (id, name, color, default))| {
-        let color = if color.starts_with('#') && color.len() == 7 { color } else { PALETTE[i % PALETTE.len()].to_string() };
-        json!({ "id": id, "name": name, "color": color, "default": default })
-    }).collect())
+    if crate::google::signed_in() {
+        out.extend(crate::google::calendar::calendars().await?.into_iter().enumerate().map(|(i, (id, name, color, primary))| {
+            let color = if color.starts_with('#') && color.len() == 7 { color } else { PALETTE[(i + 2) % PALETTE.len()].to_string() };
+            json!({ "id": google_id(&id), "name": name, "color": color, "default": primary, "kind": "google" })
+        }));
+    }
+    Ok(out)
+}
+
+/// A Google calendar's id as the island and the preferences know it: apart from
+/// Microsoft's and the iCal ones.
+fn google_id(id: &str) -> String {
+    format!("google:{id}")
 }
 
 /// Checks an iCal address before it is kept: how many events it has in the coming month.
@@ -136,6 +150,36 @@ async fn fetch(prefs: &[CalendarPref], icals: &[IcalCalendar]) -> Result<Value, 
                 }
             }
             Err(error) => errors.push(json!({ "id": "microsoft", "error": error })),
+        }
+    }
+
+    if crate::google::signed_in() {
+        match crate::google::calendar::calendars().await {
+            Ok(list) => {
+                for (i, (raw, name, color, primary)) in list.into_iter().enumerate() {
+                    let id = google_id(&raw);
+                    let p = pref(prefs, &id);
+                    // Only the account's own calendar until the user picks others.
+                    let shown = p.map(|p| p.shown).unwrap_or(primary);
+                    let color = if color.starts_with('#') && color.len() == 7 { color } else { PALETTE[(i + 2) % PALETTE.len()].to_string() };
+                    calendars.push(json!({ "id": id, "name": name, "color": color, "kind": "google", "default": primary,
+                        "shown": shown, "remind": p.map(|p| p.remind).unwrap_or(0) }));
+                    if !shown {
+                        continue;
+                    }
+                    match crate::google::calendar::events(&raw, from, until).await {
+                        Ok(mut list) => {
+                            for e in &mut list {
+                                e["calendarId"] = json!(id);
+                            }
+                            events.extend(list);
+                            read_one = true;
+                        }
+                        Err(error) => errors.push(json!({ "id": id, "error": error })),
+                    }
+                }
+            }
+            Err(error) => errors.push(json!({ "id": "google", "error": error })),
         }
     }
 
