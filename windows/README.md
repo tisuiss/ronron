@@ -357,7 +357,7 @@ The pill refreshes every two minutes while it is turned on, and right after each
 
 **Fold when the pointer leaves** (Settings → General, on by default): the open island folds a moment after the pointer leaves it — not while the Ronron window is on screen, a card waits for an answer (permission, question, reminder) or something is being typed. Off, it waits for the auto-close delay as before.
 
-**The compact island:** at rest, Ronron alone on the left and your four pills on the right. A pill doing something (a session at work or waiting on you, a badge, unread WhatsApp) leaves the right and takes Ronron's place on the left.
+**The compact island:** at rest, Ronron alone on the left — himself, ginger, as at launch — and your four pills on the right. A pill doing something (a session at work or waiting on you, an approval or error badge, unread WhatsApp) leaves the right and takes Ronron's place on the left; once you've answered, read or replied, or the turn is over, it goes back to the right.
 
 **A pill open:** clicking a pill in the overview gives its card the whole island, taller (as tall as a space), with every pill stacked in a column on the right, the open one lit. Click it again, or the overview's tab, to go back.
 

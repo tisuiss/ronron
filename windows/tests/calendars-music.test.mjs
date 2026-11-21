@@ -109,10 +109,17 @@ test("a pill is busy at work, with a badge, or with unread WhatsApp; asleep othe
   const pill = (over) => ({ id: "agent_claude", state: "idle", pillBadge: null, ...over });
   assert.equal(pillBusy(pill({ state: "working" })), true);
   assert.equal(pillBusy(pill({ state: "approval" })), true);
-  assert.equal(pillBusy(pill({ pillBadge: "finished" })), true);
+  assert.equal(pillBusy(pill({ pillBadge: "approval" })), true);
+  assert.equal(pillBusy(pill({ pillBadge: "error" })), true);
+  // Done is news, not a pending action: the pill goes back right.
+  assert.equal(pillBusy(pill({ pillBadge: "finished" })), false);
+  assert.equal(pillBusy(pill({ state: "finished", pillBadge: "finished" })), false);
   assert.equal(pillBusy(pill({})), false);
   assert.equal(pillBusy(pill({ state: "finished" })), false);
   assert.equal(pillBusy(pill({ id: "integration_whatsapp" }), 3), true);
   assert.equal(pillBusy(pill({ id: "integration_whatsapp" }), 0), false);
+  // Replied to (unread back to 0): the badge left from the message doesn't hold it.
+  assert.equal(pillBusy(pill({ id: "integration_whatsapp", state: "finished", pillBadge: "finished" }), 0), false);
+  assert.equal(pillBusy(pill({ id: "integration_whatsapp", pillBadge: "error" }), 0), false);
   assert.equal(pillBusy(pill({ id: "integration_github" })), false);
 });

@@ -45,6 +45,8 @@ export function applyWhatsApp(view: WaIslandView) {
     if (view.down) t.pillBadge = "error";
     else if (t.pillBadge === "error") t.pillBadge = null;
   }
+  // Read or replied to (from the island or the phone): nothing left waiting.
+  if (t && view.unread === 0 && t.pillBadge === "finished") t.pillBadge = null;
   State.notify();
 }
 
