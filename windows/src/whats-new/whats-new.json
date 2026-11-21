@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.9.4",
+      "items": [
+        {
+          "icon": "heart",
+          "title": {
+            "en": "The player's own volume",
+            "zh-Hans": "播放器自己的音量",
+            "hi": "प्लेयर का अपना वॉल्यूम",
+            "es": "El volumen del reproductor",
+            "ar": "مستوى صوت المشغّل نفسه",
+            "fr": "Le volume du lecteur",
+            "bn": "প্লেয়ারের নিজস্ব ভলিউম",
+            "pt-BR": "O volume do próprio player",
+            "ru": "Громкость самого плеера",
+            "id": "Volume pemutar itu sendiri",
+            "de": "Die Lautstärke des Players",
+            "tr": "Oynatıcının kendi sesi",
+            "ko": "플레이어 자체 볼륨",
+            "ja": "プレーヤー自身の音量"
+          },
+          "detail": {
+            "en": "The Music tab's slider sets only the app playing, not the computer.",
+            "zh-Hans": "音乐页的滑块只调节正在播放的应用，而非整台电脑。",
+            "hi": "म्यूज़िक टैब का स्लाइडर सिर्फ़ चल रहे ऐप को बदलता है, कंप्यूटर को नहीं।",
+            "es": "El control del tab Música ajusta solo la app que suena, no el equipo.",
+            "ar": "شريط تبويب الموسيقى يضبط التطبيق المشغّل فقط، لا الكمبيوتر.",
+            "fr": "Le curseur de l'onglet Musique règle seulement l'appli qui joue, pas l'ordinateur.",
+            "bn": "মিউজিক ট্যাবের স্লাইডার শুধু চলমান অ্যাপটি বদলায়, কম্পিউটার নয়।",
+            "pt-BR": "O controle da aba Música ajusta só o app tocando, não o computador.",
+            "ru": "Ползунок вкладки «Музыка» меняет только играющее приложение, не компьютер.",
+            "id": "Penggeser tab Musik hanya mengatur aplikasi yang diputar, bukan komputer.",
+            "de": "Der Regler im Musik-Tab stellt nur die spielende App ein, nicht den Computer.",
+            "tr": "Müzik sekmesindeki kaydırıcı yalnızca çalan uygulamayı ayarlar, bilgisayarı değil.",
+            "ko": "음악 탭 슬라이더는 컴퓨터가 아닌 재생 중인 앱만 조절합니다.",
+            "ja": "音楽タブのスライダーは再生中のアプリだけを調整し、PC 全体は変えません。"
+          }
+        },
+        {
+          "icon": "chat",
+          "title": {
+            "en": "A roomier chat",
+            "zh-Hans": "更宽敞的聊天",
+            "hi": "ज़्यादा जगह वाला चैट",
+            "es": "Un chat más amplio",
+            "ar": "دردشة أوسع",
+            "fr": "Un chat plus grand",
+            "bn": "আরও প্রশস্ত চ্যাট",
+            "pt-BR": "Um chat mais espaçoso",
+            "ru": "Просторный чат",
+            "id": "Obrolan yang lebih lega",
+            "de": "Ein geräumigerer Chat",
+            "tr": "Daha geniş sohbet",
+            "ko": "더 넓은 채팅",
+            "ja": "ゆったりしたチャット"
+          },
+          "detail": {
+            "en": "The chat opens at the size of the To Do space.",
+            "zh-Hans": "聊天以 To Do 空间的大小打开。",
+            "hi": "चैट To Do स्पेस के आकार में खुलता है।",
+            "es": "El chat se abre al tamaño del espacio To Do.",
+            "ar": "تُفتح الدردشة بحجم مساحة To Do.",
+            "fr": "Le chat s'ouvre à la taille de l'espace To Do.",
+            "bn": "চ্যাট To Do স্পেসের আকারে খোলে।",
+            "pt-BR": "O chat abre no tamanho do espaço To Do.",
+            "ru": "Чат открывается размером с пространство To Do.",
+            "id": "Obrolan terbuka seukuran ruang To Do.",
+            "de": "Der Chat öffnet sich in der Größe des To-Do-Bereichs.",
+            "tr": "Sohbet, To Do alanı boyutunda açılır.",
+            "ko": "채팅이 To Do 공간 크기로 열립니다.",
+            "ja": "チャットが To Do スペースと同じ大きさで開きます。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.9.3",
       "items": [
         {

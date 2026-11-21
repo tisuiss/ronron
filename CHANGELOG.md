@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.4 — November 21, 2026
+
+- **The Music tab's volume is the player's own**: the slider and mute now set only the app playing (Spotify, the browser with YouTube Music, Amazon Music…) — its stream in the Windows mixer, or in PulseAudio / PipeWire on Linux — and no longer the computer's volume.
+- **The chat is as tall as To Do**: it opens at the size of the To Do space and the other header spaces, instead of growing with the conversation.
+
 ## 0.9.3 — November 21, 2026
 
 - **Pills go back to the right**: once nothing is waiting on you — a WhatsApp message read or replied to (from the island or the phone), a card answered, a turn finished — the pill leaves Ronron's place and goes back to sleep on the right. A "finished" badge no longer holds it on the left.

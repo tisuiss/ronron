@@ -43,8 +43,10 @@ test("the spaces are tall, without pills, Ronron in the left tile", () => {
 
 test("an open pill makes the overview as tall as a space", () => {
   assert.equal(islandSize("expanded", "overview").h, VIEW_LAYOUTS.overview.height);
-  assert.equal(islandSize("expanded", "overview", 0, true).h, VIEW_LAYOUTS.agenda.height);
-  assert.equal(islandSize("expanded", "launch", 0, true).h, VIEW_LAYOUTS.launch.height);
+  // The chat is as tall as the To Do space.
+  assert.equal(islandSize("expanded", "prompt").h, islandSize("expanded", "tasks").h);
+  assert.equal(islandSize("expanded", "overview", true).h, VIEW_LAYOUTS.agenda.height);
+  assert.equal(islandSize("expanded", "launch", true).h, VIEW_LAYOUTS.launch.height);
 });
 
 test("how long until the next event", () => {

@@ -93,7 +93,9 @@ export const VIEW_LAYOUTS: Record<IslandViewName, ViewLayout> = {
   uploading: { height: 176, botX: 46, botY: 103, botDiameter: 20, agentMode: "none" },
   choose: { height: 176, botX: 60, botY: 101, botDiameter: 52, agentMode: "column" },
   mail: { height: 240, botX: 56, botY: null, botDiameter: 46, agentMode: "column" },
-  prompt: { height: 160, botX: 52, botY: null, botDiameter: 44, agentMode: "column" },
+  // The chat: as tall as the To Do space and the other header spaces, from its
+  // first message on (it used to grow with the conversation).
+  prompt: { height: SPACE_H, botX: 52, botY: null, botDiameter: 44, agentMode: "column" },
   searching: { height: 160, botX: 52, botY: null, botDiameter: 44, agentMode: "column" },
   result: { height: 160, botX: 52, botY: null, botDiameter: 44, agentMode: "column" },
   note: { height: 160, botX: 60, botY: null, botDiameter: 50, agentMode: "column" },
@@ -127,15 +129,9 @@ export const VIEW_LAYOUTS: Record<IslandViewName, ViewLayout> = {
 /** The question view with options to pick from: room for two rows of them. */
 export const QUESTION_PICKER_H = 200;
 
-/** Chat view grows with the conversation — IslandContainer.chatPromptHeight. */
-export function chatPromptHeight(messageCount: number): number {
-  return Math.min(300, 240 + messageCount * 40);
-}
-
 export function islandSize(
   mode: IslandMode,
   view: IslandViewName,
-  chatCount = 0,
   pillOpen = false,
 ): { w: number; h: number } {
   switch (mode) {
@@ -146,8 +142,7 @@ export function islandSize(
     case "compact":
       return { w: COMPACT_W, h: NOTCH_H };
     case "expanded": {
-      const h = view === "prompt" ? chatPromptHeight(chatCount)
-        : view === "overview" && pillOpen ? SPACE_H
+      const h = view === "overview" && pillOpen ? SPACE_H
         : VIEW_LAYOUTS[view].height;
       return { w: EXPANDED_W, h };
     }

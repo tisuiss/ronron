@@ -28,7 +28,8 @@ export function buildMusicSpace(actions: ViewActions): ViewHost {
   const play = h("button", { class: "mu-btn play" });
   const next = h("button", { class: "mu-btn", title: t("Next track"), "aria-label": t("Next track") }, svg(ICONS.forward, 18));
   const controls = h("div", { class: "mu-controls" }, prev, play, next);
-  // The computer's volume: the speaker mutes, the slider sets the level.
+  // The playing app's volume, not the computer's: the speaker mutes it, the
+  // slider sets its level.
   const muteBtn = h("button", { class: "mu-mute", title: t("Mute"), "aria-label": t("Mute") });
   const slider = h("input", { class: "mu-volume", type: "range", min: "0", max: "100", step: "1", "aria-label": t("Volume") }) as HTMLInputElement;
   const level = h("span", { class: "mu-level" });
@@ -96,20 +97,25 @@ export function buildMusicSpace(actions: ViewActions): ViewHost {
     if (sendTimer != null) return;
     sendTimer = window.setTimeout(() => {
       sendTimer = null;
-      void MediaBridge.setVolume(Number(slider.value) / 100);
+      sendVolume();
     }, 80);
   });
   slider.addEventListener("change", () => {
     dragging = false;
-    void MediaBridge.setVolume(Number(slider.value) / 100);
+    sendVolume();
   });
+  function sendVolume() {
+    const source = state?.now?.source;
+    if (source) void MediaBridge.setVolume(source, Number(slider.value) / 100);
+  }
   muteBtn.addEventListener("click", () => {
     const v = state?.volume;
-    if (!v) return;
+    const source = state?.now?.source;
+    if (!v || !source) return;
     actions.blip();
     v.muted = !v.muted;
     drawVolume();
-    void MediaBridge.setMute(v.muted);
+    void MediaBridge.setMute(source, v.muted);
   });
 
   function drawVolume() {
