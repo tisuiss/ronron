@@ -12,7 +12,7 @@ import {
   ROUNDED_CORNER, botGlowColor, botGlowOpacity, botPosition, chatPromptHeight,
   islandSize,
   QUESTION_PICKER_H,
-  type BotEmoteName, type IslandMode, type IslandViewName,
+  type BotEmoteName, type BotStateName, type IslandMode, type IslandViewName,
 } from "../core/layout";
 import { Sound } from "../core/sound";
 import { State } from "../core/state";
@@ -159,7 +159,6 @@ export class Island {
   private botPress: { x: number; y: number } | null = null;
 
   /** The next reveal from hidden makes no peek (music starting, as on macOS). */
-  private silentReveal = false;
 
   /** Drop sequence bookkeeping: last tick played, and whether the ✓ has fired. */
   private uploadTens = 0;
@@ -473,7 +472,7 @@ export class Island {
           break;
         case "petit":
           if (from === "ronron") this.greeting.interrupt();
-          else if (from === "hidden" && !this.silentReveal) Sound.play("peek");
+          else if (from === "hidden") Sound.play("peek");
           this.setMode("compact");
           if (from === "ronron") State.view = State.defaultView();
           if (!this.wasInIsland) this.fsm.mouseLeft();
@@ -619,13 +618,6 @@ export class Island {
 
   reveal() {
     this.fsm.reveal();
-  }
-
-  /** Music started playing: the compact island, without the peek sound (musicReveal). */
-  revealSilently() {
-    this.silentReveal = true;
-    this.fsm.reveal();
-    this.silentReveal = false;
   }
 
   /** Right-click on Ronron: wardrobe open ↔ back to the usual view. */
@@ -1292,7 +1284,7 @@ export class Island {
     this.confusedRecovery = window.setTimeout(() => {
       this.confusedRecovery = null;
       State.stateOverride = null;
-      this.engine.setState(State.effectiveState);
+      this.engine.setState(this.ronronState());
       if (State.view === "confused") {
         const fallback = State.defaultView();
         this.setView(this.prevViewBeforeConfused === "confused" ? fallback : this.prevViewBeforeConfused);
@@ -1407,7 +1399,7 @@ export class Island {
     // desktop, he isn't here at all.
     const away = State.catOnDesktop;
     // Compact: a pill at work takes Ronron's place on the left (the busy grid).
-    const replaced = State.mode === "compact" && this.compactPills().busy.length > 0;
+    const replaced = State.mode === "compact" && !this.ronronAtRest();
     const visible = p.opacity > 0 && !greetingActive && !this.uploadActive && !away && !replaced;
     this.botCanvas.style.opacity = visible ? "1" : "0";
 
@@ -1457,7 +1449,7 @@ export class Island {
       ? hexToRGB(openPlanColor())
       : this.engine.showsUpdateHint
         ? UPDATE_BLUE_RGB
-        : focus?.isIntegration
+        : focus?.isIntegration && !this.ronronAtRest()
           ? hexToRGB(focus.color)
           : null;
     this.engine.particleOverhang = BOT_OVERHANG;
@@ -1485,7 +1477,7 @@ export class Island {
     // the music pill's card (BotCanvasView, macOS). Asked every frame.
     this.engine.setDancing(islandDances({
       music: State.spotifyPlaying,
-      state: State.effectiveState,
+      state: this.ronronState(),
       mode: State.mode,
       view: State.view,
       focusId: State.focusTask?.id,
@@ -1613,7 +1605,22 @@ export class Island {
     this.updateClock();
 
     syncMiniBotStates(State.tasks);
-    this.engine.setState(State.effectiveState);
+    this.engine.setState(this.ronronState());
+  }
+
+  /**
+   * The compact island with no pill doing anything: Ronron alone on the left is
+   * Ronron himself, as he comes in at launch — his own ginger coat and at rest,
+   * not the colour and state of whichever pill was focused last.
+   */
+  private ronronAtRest(): boolean {
+    return State.mode === "compact" && this.compactPills().busy.length === 0;
+  }
+
+  /** The state Ronron's canvas shows: at rest in the compact island, the focused pill's otherwise. */
+  private ronronState(): BotStateName {
+    if (this.ronronAtRest()) return State.stateOverride ?? "idle";
+    return State.effectiveState;
   }
 
   /**

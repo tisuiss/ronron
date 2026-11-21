@@ -1,6 +1,6 @@
 // Spotify's reports → the page (src-tauri/src/spotify.rs). The parts of
 // SpotifyController.swift that touch the app: the pill wears the track's
-// title, music starting shows the compact island without a sound, and the
+// title (music starting leaves a closed island closed), and the
 // card reads the player again whenever it comes on screen (seeks made in
 // Spotify's own window are never signalled).
 
@@ -10,13 +10,8 @@ import { SPOTIFY_ID, Spotify, isAd, type SpotifyState } from "../core/spotify";
 import { State } from "../core/state";
 import { t } from "../i18n/i18n";
 
-export interface SpotifyHost {
-  /** Compact island from hidden, no peek sound. */
-  revealSilently(): void;
-}
-
-export function registerSpotifyHandlers(island: SpotifyHost) {
-  void onEvent<SpotifyState>("spotify", (s) => applySpotify(island, s));
+export function registerSpotifyHandlers() {
+  void onEvent<SpotifyState>("spotify", (s) => applySpotify(s));
   void onEvent<{ artUrl: string; dataUrl: string }>("spotify-artwork", (art) => {
     Spotify.artwork = art;
     State.notify();
@@ -28,14 +23,11 @@ export function registerSpotifyHandlers(island: SpotifyHost) {
 }
 
 /** A report from Rust (or the answer to a refresh). */
-export function applySpotify(island: SpotifyHost, next: SpotifyState) {
-  const wasPlaying = State.spotifyPlaying;
+export function applySpotify(next: SpotifyState) {
   Spotify.state = next;
   syncPillName();
-  // Only on not playing → playing (SpotifyController.setPlaying).
-  if (!wasPlaying && State.spotifyPlaying && !State.paused && State.mode === "hidden") {
-    island.revealSilently();
-  }
+  // Music starting doesn't bring a closed island back — only a request or a
+  // message does. Ronron dances once the island is on screen.
   State.notify();
 }
 

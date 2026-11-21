@@ -47,6 +47,7 @@ You can also [build it yourself](#build-it-yourself).
 |---|---|
 | Look at the top-centre of the screen | The closed island: a small black island that stays there while Ronron runs, where a Mac has its notch. It shows Ronron, as on a Mac without a notch, or the time, the date and the time, your Claude usage or what's playing (**Settings → General → Closed island shows**). **Hide the island** keeps nothing there: move the pointer to the very top-centre of the screen instead |
 | Move the pointer onto the closed island | Ronron peeks out: the compact island |
+| A permission, a question or a WhatsApp message comes in | The closed island comes back on its own. Work starting or finishing, a deploy, music playing don't bring it back: it keeps what **Closed island shows**, and the pill keeps a badge |
 | Click the small island | It opens. With **Settings → General → Open on hover**, resting the pointer on it is enough, and it folds again shortly after the pointer leaves (click inside to keep it open) |
 | The **✕** at the top right of the open island | Folds it back to the compact island now, without waiting for the auto-close |
 | Click Ronron | It gets annoyed. Three times in a row and it goes dizzy |
@@ -357,7 +358,7 @@ The pill refreshes every two minutes while it is turned on, and right after each
 
 **Fold when the pointer leaves** (Settings → General, on by default): the open island folds a moment after the pointer leaves it — not while the Ronron window is on screen, a card waits for an answer (permission, question, reminder) or something is being typed. Off, it waits for the auto-close delay as before.
 
-**The compact island:** at rest, Ronron alone on the left and your four pills on the right. A pill doing something (a session at work or waiting on you, a badge, unread WhatsApp) leaves the right and takes Ronron's place on the left.
+**The compact island:** at rest, Ronron alone on the left — himself, ginger, as at launch — and your four pills on the right. A pill doing something (a session at work or waiting on you, an approval or error badge, unread WhatsApp) leaves the right and takes Ronron's place on the left; once you've answered, read or replied, or the turn is over, it goes back to the right.
 
 **A pill open:** clicking a pill in the overview gives its card the whole island, taller (as tall as a space), with every pill stacked in a column on the right, the open one lit. Click it again, or the overview's tab, to go back.
 

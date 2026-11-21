@@ -2,6 +2,151 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.9.3",
+      "items": [
+        {
+          "icon": "eye",
+          "title": {
+            "en": "Pills go back to the right",
+            "zh-Hans": "药丸回到右侧",
+            "hi": "पिल्स दाईं ओर लौटती हैं",
+            "es": "Las píldoras vuelven a la derecha",
+            "ar": "الحبوب تعود إلى اليمين",
+            "fr": "Les pastilles retournent à droite",
+            "bn": "পিলগুলো ডানে ফিরে যায়",
+            "pt-BR": "As pílulas voltam para a direita",
+            "ru": "Пилюли возвращаются направо",
+            "id": "Pil kembali ke kanan",
+            "de": "Pillen kehren nach rechts zurück",
+            "tr": "Haplar sağa döner",
+            "ko": "필이 오른쪽으로 돌아갑니다",
+            "ja": "ピルが右に戻ります"
+          },
+          "detail": {
+            "en": "Replied, answered or done: the pill leaves Ronron's place at once.",
+            "zh-Hans": "回复、作答或完成后，药丸立即让出 Ronron 的位置。",
+            "hi": "जवाब देते ही या काम पूरा होते ही पिल Ronron की जगह छोड़ देती है।",
+            "es": "Respondida o terminada: la píldora deja enseguida el sitio de Ronron.",
+            "ar": "بعد الرد أو الانتهاء تترك الحبة مكان Ronron فورًا.",
+            "fr": "Répondu ou terminé : la pastille rend aussitôt sa place à Ronron.",
+            "bn": "উত্তর দিলে বা কাজ শেষ হলে পিল সঙ্গে সঙ্গে Ronron-এর জায়গা ছাড়ে।",
+            "pt-BR": "Respondida ou concluída: a pílula deixa logo o lugar do Ronron.",
+            "ru": "Ответили или готово — пилюля сразу освобождает место Ronron.",
+            "id": "Dibalas atau selesai: pil langsung meninggalkan tempat Ronron.",
+            "de": "Beantwortet oder fertig: Die Pille gibt Ronrons Platz sofort frei.",
+            "tr": "Yanıtlandı ya da bitti: hap Ronron'un yerini hemen bırakır.",
+            "ko": "답하거나 끝나면 필이 바로 Ronron 자리를 비웁니다.",
+            "ja": "返信や完了で、ピルはすぐ Ronron の場所を空けます。"
+          }
+        },
+        {
+          "icon": "heart",
+          "title": {
+            "en": "Ronron at rest",
+            "zh-Hans": "休息中的 Ronron",
+            "hi": "आराम में Ronron",
+            "es": "Ronron en reposo",
+            "ar": "Ronron في الراحة",
+            "fr": "Ronron au repos",
+            "bn": "বিশ্রামে Ronron",
+            "pt-BR": "Ronron em repouso",
+            "ru": "Ronron отдыхает",
+            "id": "Ronron saat diam",
+            "de": "Ronron in Ruhe",
+            "tr": "Dinlenen Ronron",
+            "ko": "쉬는 Ronron",
+            "ja": "くつろぐ Ronron"
+          },
+          "detail": {
+            "en": "With nothing going on, the cat on the left is Ronron, as at launch.",
+            "zh-Hans": "无事时，左侧的猫就是启动时的 Ronron。",
+            "hi": "कुछ न चल रहा हो तो बाईं ओर वही Ronron है जो शुरू में आता है।",
+            "es": "Sin actividad, el gato de la izquierda es Ronron, como al arrancar.",
+            "ar": "حين لا يجري شيء، القط على اليسار هو Ronron كما عند التشغيل.",
+            "fr": "Quand rien ne se passe, le chat à gauche est Ronron, comme au démarrage.",
+            "bn": "কিছু না চললে বাঁয়ের বিড়ালটি Ronron, চালুর সময়ের মতো।",
+            "pt-BR": "Sem atividade, o gato à esquerda é o Ronron, como ao iniciar.",
+            "ru": "Когда ничего не происходит, слева — Ronron, как при запуске.",
+            "id": "Saat tak ada kegiatan, kucing di kiri adalah Ronron seperti saat mulai.",
+            "de": "Ist nichts los, ist die Katze links Ronron, wie beim Start.",
+            "tr": "Bir şey olmadığında soldaki kedi, açılıştaki gibi Ronron'dur.",
+            "ko": "아무 일 없을 때 왼쪽 고양이는 시작할 때의 Ronron입니다.",
+            "ja": "何もないとき、左の猫は起動時と同じ Ronron です。"
+          }
+        },
+        {
+          "icon": "update",
+          "title": {
+            "en": "Updates in Settings",
+            "zh-Hans": "设置中的更新",
+            "hi": "सेटिंग्स में अपडेट",
+            "es": "Actualizaciones en Ajustes",
+            "ar": "التحديثات في الإعدادات",
+            "fr": "Mises à jour dans Réglages",
+            "bn": "সেটিংসে আপডেট",
+            "pt-BR": "Atualizações em Ajustes",
+            "ru": "Обновления в настройках",
+            "id": "Pembaruan di Pengaturan",
+            "de": "Updates in den Einstellungen",
+            "tr": "Ayarlarda güncellemeler",
+            "ko": "설정에서 업데이트",
+            "ja": "設定からアップデート"
+          },
+          "detail": {
+            "en": "Flow → Settings: check for a new version and install it in one click.",
+            "zh-Hans": "Flow → 设置：一键检查并安装新版本。",
+            "hi": "Flow → सेटिंग्स: नया वर्ज़न जाँचें और एक क्लिक में इंस्टॉल करें।",
+            "es": "Flow → Ajustes: busca una nueva versión e instálala con un clic.",
+            "ar": "Flow ← الإعدادات: ابحث عن إصدار جديد وثبّته بنقرة.",
+            "fr": "Flow → Réglages : cherchez une nouvelle version et installez-la en un clic.",
+            "bn": "Flow → সেটিংস: নতুন সংস্করণ খুঁজুন, এক ক্লিকে ইনস্টল করুন।",
+            "pt-BR": "Flow → Ajustes: procure uma nova versão e instale com um clique.",
+            "ru": "Flow → Настройки: проверьте новую версию и установите в один клик.",
+            "id": "Flow → Pengaturan: cek versi baru dan pasang dengan sekali klik.",
+            "de": "Flow → Einstellungen: nach einer neuen Version suchen und per Klick installieren.",
+            "tr": "Flow → Ayarlar: yeni sürümü denetleyin, tek tıkla kurun.",
+            "ko": "Flow → 설정: 새 버전을 확인하고 한 번에 설치하세요.",
+            "ja": "Flow → 設定：新しいバージョンを確認し、ワンクリックで導入。"
+          }
+        },
+        {
+          "icon": "bell",
+          "title": {
+            "en": "A closed island stays closed",
+            "zh-Hans": "关闭的岛保持关闭",
+            "hi": "बंद आइलैंड बंद रहता है",
+            "es": "La isla cerrada sigue cerrada",
+            "ar": "الجزيرة المغلقة تبقى مغلقة",
+            "fr": "L'îlot fermé reste fermé",
+            "bn": "বন্ধ আইল্যান্ড বন্ধই থাকে",
+            "pt-BR": "A ilha fechada continua fechada",
+            "ru": "Закрытый остров остаётся закрытым",
+            "id": "Pulau tertutup tetap tertutup",
+            "de": "Die geschlossene Insel bleibt zu",
+            "tr": "Kapalı ada kapalı kalır",
+            "ko": "닫힌 아일랜드는 닫힌 채로",
+            "ja": "閉じたアイランドは閉じたまま"
+          },
+          "detail": {
+            "en": "Only a request or a WhatsApp message brings it back.",
+            "zh-Hans": "只有请求或 WhatsApp 消息才会让它重新出现。",
+            "hi": "केवल कोई अनुरोध या WhatsApp संदेश ही उसे वापस लाता है।",
+            "es": "Solo una solicitud o un mensaje de WhatsApp la hace volver.",
+            "ar": "لا يعيدها إلا طلب أو رسالة WhatsApp.",
+            "fr": "Seule une demande ou un message WhatsApp le fait revenir.",
+            "bn": "শুধু একটি অনুরোধ বা WhatsApp বার্তাই একে ফিরিয়ে আনে।",
+            "pt-BR": "Só um pedido ou uma mensagem do WhatsApp a traz de volta.",
+            "ru": "Вернуть его может только запрос или сообщение WhatsApp.",
+            "id": "Hanya permintaan atau pesan WhatsApp yang memunculkannya lagi.",
+            "de": "Nur eine Anfrage oder eine WhatsApp-Nachricht holt sie zurück.",
+            "tr": "Onu yalnızca bir istek ya da WhatsApp mesajı geri getirir.",
+            "ko": "요청이나 WhatsApp 메시지만 다시 불러옵니다.",
+            "ja": "戻ってくるのはリクエストか WhatsApp のメッセージだけ。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.9.2",
       "items": [
         {

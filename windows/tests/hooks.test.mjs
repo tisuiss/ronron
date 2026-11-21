@@ -74,11 +74,11 @@ test("a paused island ignores every other event", () => {
 
 // ── Session and work events ───────────────────────────────────────────────────
 
-test("a session names the pill after its folder and reveals the island", () => {
+test("a session names the pill after its folder and leaves a closed island closed", () => {
   hook({ hook_event_name: "SessionStart", cwd: "C:\\Users\\me\\proj\\" });
   assert.equal(task().name, "proj");
   assert.equal(task().sessionCwd, "C:\\Users\\me\\proj\\");
-  assert.deepEqual(asked, ["reveal"]);
+  assert.deepEqual(asked, []);
 });
 
 test("a prompt sent while the finished card shows takes the card back to the overview", () => {
@@ -166,6 +166,7 @@ test("an unknown event changes nothing", () => {
 // ── Stop ──────────────────────────────────────────────────────────────────────
 
 test("a finished session opens the finished view, then goes idle after 5.2 s", () => {
+  State.mode = "compact";
   hook({ hook_event_name: "Stop", message: "done" });
   assert.equal(task().state, "finished");
   assert.deepEqual(task().steps, ["done"]);
@@ -174,6 +175,21 @@ test("a finished session opens the finished view, then goes idle after 5.2 s", (
   assert.equal(task().state, "finished");
   seconds(0.1);
   assert.equal(task().state, "idle");
+});
+
+test("a closed island stays closed when a turn finishes or fails: the pill is badged", () => {
+  State.setFocus(CLAUDE);
+  hook({ hook_event_name: "Stop", message: "done" });
+  assert.deepEqual(asked, []);
+  assert.equal(task().pillBadge, "finished");
+  hook({ hook_event_name: "StopFailure" });
+  assert.deepEqual(asked, []);
+  assert.equal(task().pillBadge, "error");
+});
+
+test("a request brings a closed island back", () => {
+  hook({ hook_event_name: "PermissionRequest", request_id: "r1", session_id: "s", tool_name: "Bash", tool_input: { command: "rm -rf build" } });
+  assert.deepEqual(asked, ["alert:approval"]);
 });
 
 test("an alert on an island that is already open only switches its view", () => {
@@ -192,6 +208,7 @@ test("a session finishing behind another pill only badges its own, for 5.2 s", (
 });
 
 test("alertsFromAllPills: unfocused pill alert opens the island and restores focus after 5.2 s", () => {
+  State.mode = "compact";
   State.settings.alertsFromAllPills = true;
   State.setFocus("integration_n8n");
   hook({ hook_event_name: "Stop" });
@@ -203,6 +220,7 @@ test("alertsFromAllPills: unfocused pill alert opens the island and restores foc
 });
 
 test("alertsFromAllPills: while the island is open the alert's pill keeps the front", () => {
+  State.mode = "compact";
   State.settings.alertsFromAllPills = true;
   State.setFocus("integration_n8n");
   hook({ hook_event_name: "Stop" });
@@ -215,6 +233,7 @@ test("alertsFromAllPills: while the island is open the alert's pill keeps the fr
 });
 
 test("a failed stop shows the error view, or the error badge behind another pill", () => {
+  State.mode = "compact";
   hook({ hook_event_name: "StopFailure" });
   assert.equal(task().state, "error");
   assert.deepEqual(asked, ["alert:error"]);

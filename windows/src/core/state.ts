@@ -579,12 +579,14 @@ class AppState {
 export const State = new AppState();
 
 /**
- * A pill doing something: a session at work or waiting on you, a badge (approval,
- * finished, error), or WhatsApp with unread messages. The compact island puts these
- * beside Ronron on the left and lets the others sleep on the right.
+ * A pill doing something: a session at work or waiting on you, an approval or
+ * error badge, or WhatsApp with unread messages. The compact island puts these in
+ * Ronron's place on the left; once nothing is left to do — the card answered, the
+ * message read or replied to, the turn finished — the pill goes back to sleep on
+ * the right. A "finished" badge is only news, not something waiting on you.
  */
 export function pillBusy(task: AgentTask, whatsappUnread = 0): boolean {
-  if (task.pillBadge) return true;
   if (task.id === "integration_whatsapp") return whatsappUnread > 0;
+  if (task.pillBadge && task.pillBadge !== "finished") return true;
   return task.state !== "idle" && task.state !== "sleeping" && task.state !== "finished";
 }

@@ -269,8 +269,15 @@ export function backdrop(canvas: HTMLCanvasElement, color: string, pointerFrom: 
 
 // ── The Ronrons ────────────────────────────────────────────────────────────────
 
+/**
+ * Ronron in his own coat — ginger, striped, with his tail — as he comes in at
+ * launch: no body colour for the engine to paint over him.
+ */
+export const RONRON: string | null = null;
+
 export interface CatSpec {
-  color: string;
+  /** A pill's colour, or RONRON for Ronron himself. */
+  color: string | null;
   /** Body width in CSS pixels. */
   size: number;
   /** Where he starts along the floor, 0…1. */
@@ -295,7 +302,7 @@ class Walker {
   waving = 0;
 
   constructor(public spec: CatSpec) {
-    this.engine.bodyColor = hexToRGB(spec.color);
+    this.engine.bodyColor = spec.color ? hexToRGB(spec.color) : null;
     this.engine.setState(spec.state ?? "idle", true);
     if (spec.outfit && spec.outfit !== "none") this.engine.setOutfit(spec.outfit, false);
   }
@@ -400,9 +407,9 @@ export function troupe(canvas: HTMLCanvasElement, cast: CatSpec[], width: number
 }
 
 /** One Ronron alone (the sidebar's logo, an empty page). */
-export function liveCat(canvas: HTMLCanvasElement, color = "#F5F6F8", state: BotStateName = "idle") {
+export function liveCat(canvas: HTMLCanvasElement, color: string | null = RONRON, state: BotStateName = "idle") {
   const engine = new BotEngine();
-  engine.bodyColor = hexToRGB(color);
+  engine.bodyColor = color ? hexToRGB(color) : null;
   engine.setState(state, true);
   canvas.addEventListener("click", () => engine.slap());
   let mouse: { x: number; y: number } | null = null;
@@ -434,19 +441,19 @@ export interface Theme {
   cast: CatSpec[];
 }
 
-const m = (color: string, size: number, start: number, extra: Partial<CatSpec> = {}): CatSpec => ({
+const m = (color: string | null, size: number, start: number, extra: Partial<CatSpec> = {}): CatSpec => ({
   color, size, start, ...extra,
 });
 
 export const THEMES: Record<string, Theme> = {
-  dictation: { color: "#FB923C", cast: [m("#F5F6F8", 66, 0.2), m("#FB923C", 52, 0.65), m("#F472B6", 44, 0.95, { outfit: "bow" })] },
+  dictation: { color: "#FB923C", cast: [m(RONRON, 66, 0.2), m("#FB923C", 52, 0.65), m("#F472B6", 44, 0.95, { outfit: "bow" })] },
   notes: { color: "#3B9EFF", cast: [m("#3B9EFF", 58, 0.1, { outfit: "roundGlasses" }), m("#34D399", 50, 0.5), m("#A78BFA", 46, 0.9)] },
-  insights: { color: "#34D399", cast: [m("#F7B32B", 62, 0.3, { outfit: "crown" }), m("#34D399", 48, 0.75), m("#F5F6F8", 40, 1)] },
-  dictionary: { color: "#A78BFA", cast: [m("#A78BFA", 60, 0.2, { outfit: "roundGlasses" }), m("#F5F6F8", 48, 0.8, { outfit: "beanie" })] },
-  snippets: { color: "#F7B32B", cast: [m("#F7B32B", 56, 0.15, { state: "working" }), m("#FB923C", 46, 0.6), m("#F5F6F8", 40, 0.95)] },
-  styles: { color: "#F472B6", cast: [m("#F472B6", 60, 0.25, { outfit: "sunglasses" }), m("#F5F6F8", 48, 0.7, { outfit: "bow" }), m("#22D3EE", 42, 1, { outfit: "partyHat" })] },
-  flowsettings: { color: "#8E939C", cast: [m("#F5F6F8", 56, 0.3), m("#8E939C", 46, 0.95, { state: "sleeping", roams: false })] },
-  general: { color: "#8E939C", cast: [m("#F5F6F8", 60, 0.4, { outfit: "scarf" }), m("#FB923C", 46, 0.85)] },
+  insights: { color: "#34D399", cast: [m("#F7B32B", 62, 0.3, { outfit: "crown" }), m("#34D399", 48, 0.75), m(RONRON, 40, 1)] },
+  dictionary: { color: "#A78BFA", cast: [m("#A78BFA", 60, 0.2, { outfit: "roundGlasses" }), m(RONRON, 48, 0.8, { outfit: "beanie" })] },
+  snippets: { color: "#F7B32B", cast: [m("#F7B32B", 56, 0.15, { state: "working" }), m("#FB923C", 46, 0.6), m(RONRON, 40, 0.95)] },
+  styles: { color: "#F472B6", cast: [m("#F472B6", 60, 0.25, { outfit: "sunglasses" }), m(RONRON, 48, 0.7, { outfit: "bow" }), m("#22D3EE", 42, 1, { outfit: "partyHat" })] },
+  flowsettings: { color: "#8E939C", cast: [m(RONRON, 56, 0.3), m("#8E939C", 46, 0.95, { state: "sleeping", roams: false })] },
+  general: { color: "#8E939C", cast: [m(RONRON, 60, 0.4, { outfit: "scarf" }), m("#FB923C", 46, 0.85)] },
   pills: {
     color: "#F5A524",
     cast: [m("#F5A524", 44, 0.05), m("#3B9EFF", 44, 0.3), m("#34D399", 44, 0.55), m("#E07950", 44, 0.8), m("#A78BFA", 44, 1)],
@@ -455,14 +462,14 @@ export const THEMES: Record<string, Theme> = {
     color: "#3B9EFF",
     cast: [m("#3B9EFF", 56, 0.1, { state: "working", roams: false }), m("#E07950", 50, 0.5, { state: "thinking", roams: false }), m("#34D399", 50, 0.9)],
   },
-  chat: { color: "#E07950", cast: [m("#E07950", 58, 0.3, { state: "thinking", roams: false }), m("#F5F6F8", 48, 0.85)] },
+  chat: { color: "#E07950", cast: [m("#E07950", 58, 0.3, { state: "thinking", roams: false }), m(RONRON, 48, 0.85)] },
   integrations: { color: "#7C5CFF", cast: [m("#7C5CFF", 54, 0.15), m("#22D3EE", 46, 0.55), m("#F7B32B", 42, 0.95)] },
-  phone: { color: "#3DDC84", cast: [m("#3DDC84", 56, 0.25), m("#F5F6F8", 46, 0.8, { outfit: "beanie" })] },
-  voice: { color: "#F97316", cast: [m("#F97316", 60, 0.3), m("#F5F6F8", 48, 0.85, { outfit: "roundGlasses" })] },
-  shortcuts: { color: "#6366F1", cast: [m("#6366F1", 56, 0.2, { outfit: "sunglasses" }), m("#F5F6F8", 46, 0.8)] },
-  mailOverview: { color: "#2F8CFF", cast: [m("#2F8CFF", 58, 0.2, { state: "working" }), m("#F5F6F8", 46, 0.7), m("#F5A524", 40, 1)] },
+  phone: { color: "#3DDC84", cast: [m("#3DDC84", 56, 0.25), m(RONRON, 46, 0.8, { outfit: "beanie" })] },
+  voice: { color: "#F97316", cast: [m("#F97316", 60, 0.3), m(RONRON, 48, 0.85, { outfit: "roundGlasses" })] },
+  shortcuts: { color: "#6366F1", cast: [m("#6366F1", 56, 0.2, { outfit: "sunglasses" }), m(RONRON, 46, 0.8)] },
+  mailOverview: { color: "#2F8CFF", cast: [m("#2F8CFF", 58, 0.2, { state: "working" }), m(RONRON, 46, 0.7), m("#F5A524", 40, 1)] },
   mailRules: { color: "#34D399", cast: [m("#34D399", 56, 0.3, { outfit: "roundGlasses" }), m("#8E939C", 46, 0.85)] },
-  mailBanned: { color: "#FF453A", cast: [m("#FF453A", 54, 0.25, { outfit: "sunglasses" }), m("#F5F6F8", 44, 0.8, { state: "sleeping", roams: false })] },
+  mailBanned: { color: "#FF453A", cast: [m("#FF453A", 54, 0.25, { outfit: "sunglasses" }), m(RONRON, 44, 0.8, { state: "sleeping", roams: false })] },
   mailVIP: { color: "#F5A524", cast: [m("#F5A524", 60, 0.3, { outfit: "crown" }), m("#2F8CFF", 46, 0.85)] },
 };
 
@@ -517,7 +524,7 @@ export function glowCard(color: string, ...content: (HTMLElement | string)[]): H
 }
 
 /** An empty page: a Ronron asleep, and a line. */
-export function emptyState(text: string, state: BotStateName = "sleeping", color = "#F5F6F8"): HTMLElement {
+export function emptyState(text: string, state: BotStateName = "sleeping", color: string | null = RONRON): HTMLElement {
   const el = document.createElement("div");
   el.className = "hub-empty";
   const canvas = document.createElement("canvas");

@@ -393,15 +393,25 @@ function handleHook(island: Island, payload: HookPayload) {
   const isExternalAgent = validAgent !== null;
   const sessionId = payload.session_id ?? "";
 
-  /** Alerts force the island open; work events only reveal the compact island. */
+  /**
+   * Alerts force the island open; work events leave it as it is — a closed
+   * island keeps what Settings → Closed island shows. Only a request (a
+   * permission, a question) brings a closed island back.
+   */
   const surface = (view: Parameters<Island["alert"]>[0], isAlert: boolean) => {
-    if (State.mode === "expanded") {
-      if (isAlert) island.setView(view);
-    } else if (isAlert) {
-      island.alert(view);
-    } else if (State.mode === "hidden") {
-      island.reveal();
-    }
+    if (!isAlert) return;
+    if (State.mode === "expanded") island.setView(view);
+    else island.alert(view);
+  };
+
+  /**
+   * A turn finished or failed: its card comes up on an island that is on
+   * screen, but a closed one stays closed — nothing is waiting on you — and the
+   * pill keeps a badge instead.
+   */
+  const announce = (view: "finished" | "error") => {
+    if (State.mode !== "hidden" && showsAlert(agentId, focused)) surface(view, true);
+    else State.setPillBadge(agentId, view);
   };
 
   /** Ensure the agent pill exists (no-op for Claude Code). */
@@ -542,8 +552,7 @@ function handleHook(island: Island, payload: HookPayload) {
       }
       Sound.play("finish");
       // A card waiting for an answer is never covered by another alert.
-      if (showsAlert(agentId, focused)) surface("finished", true);
-      else State.setPillBadge(agentId, "finished");
+      announce("finished");
       cancelStopTimer(agentId);
       stopTimers.set(
         agentId,
@@ -575,8 +584,7 @@ function handleHook(island: Island, payload: HookPayload) {
       supersedeStop();
       State.updateTask(agentId, "error");
       Sound.play("error");
-      if (showsAlert(agentId, focused)) surface("error", true);
-      else State.setPillBadge(agentId, "error");
+      announce("error");
       break;
 
     case "SessionEnd":
