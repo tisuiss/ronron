@@ -38,6 +38,41 @@
             "ko": "오늘 완료한 수 / 완료한 것과 오늘에 아직 보이는 할 일의 합.",
             "ja": "今日終えた数 / 終えた数と「今日」にまだ表示されているタスクの合計。"
           }
+        },
+        {
+          "icon": "terminal",
+          "title": {
+            "en": "Remote VS Code, heard again",
+            "zh-Hans": "远程 VS Code 重新连上",
+            "hi": "रिमोट VS Code फिर से जुड़ा",
+            "es": "VS Code remoto, conectado de nuevo",
+            "ar": "VS Code البعيد متصل من جديد",
+            "fr": "VS Code distant, de nouveau entendu",
+            "bn": "রিমোট VS Code আবার সংযুক্ত",
+            "pt-BR": "VS Code remoto, conectado de novo",
+            "ru": "Удалённый VS Code снова на связи",
+            "id": "VS Code jarak jauh, terhubung lagi",
+            "de": "Entferntes VS Code wieder verbunden",
+            "tr": "Uzak VS Code yeniden bağlı",
+            "ko": "원격 VS Code 다시 연결",
+            "ja": "リモート VS Code が再びつながる"
+          },
+          "detail": {
+            "en": "With two windows on one folder, the hook now talks to the newest.",
+            "zh-Hans": "同一文件夹开着两个窗口时，钩子现在会连到最新的那个。",
+            "hi": "एक फ़ोल्डर पर दो विंडो हों, तो हुक अब सबसे नई से बात करता है।",
+            "es": "Con dos ventanas en una carpeta, el hook habla ahora con la más reciente.",
+            "ar": "عند فتح نافذتين على مجلد واحد، يتواصل الخطاف الآن مع الأحدث.",
+            "fr": "Avec deux fenêtres sur un dossier, le hook parle maintenant à la plus récente.",
+            "bn": "একই ফোল্ডারে দুটি উইন্ডো থাকলে, হুক এখন সবচেয়ে নতুনটির সঙ্গে কথা বলে।",
+            "pt-BR": "Com duas janelas na mesma pasta, o hook agora fala com a mais recente.",
+            "ru": "Если на одну папку открыто два окна, хук теперь обращается к новейшему.",
+            "id": "Dengan dua jendela pada satu folder, hook kini terhubung ke yang terbaru.",
+            "de": "Bei zwei Fenstern auf einem Ordner spricht der Hook jetzt mit dem neuesten.",
+            "tr": "Aynı klasörde iki pencere varsa, hook artık en yenisiyle konuşur.",
+            "ko": "한 폴더에 창이 두 개면 이제 훅이 가장 최근 창과 연결돼요.",
+            "ja": "同じフォルダーに 2 つのウィンドウがあると、フックは最新の方とつながります。"
+          }
         }
       ]
     },

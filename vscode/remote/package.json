@@ -2,7 +2,7 @@
   "name": "ronron-vscode-remote",
   "displayName": "Ronron for VS Code (remote)",
   "description": "Shows the Claude Code sessions of a remote workspace (Remote Tunnels, SSH, containers) in Ronron's island on your computer, and lets Ronron's chat ask Claude Code in a workspace. Install it in the remote; install \"Ronron for VS Code (local)\" on your computer.",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "publisher": "tisuiss",
   "license": "MIT",
   "repository": {

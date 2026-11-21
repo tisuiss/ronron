@@ -3,6 +3,7 @@
 ## 0.11.2 — November 21, 2026
 
 - **To Do's ring counts the tasks you see**: with nothing due, Today shows every open task — its ring now counts them too (ticked off today, out of that plus the open ones), and the picker's *Today* number matches the list. It used to read 2/2 with two tasks still waiting.
+- **Claude Code in a remote VS Code workspace reaches Ronron again**: with an older VS Code window still running on the same folder, the remote hook could pick that window, whose tunnel to your computer was gone, and the events went nowhere. It now picks the newest window on the folder (Ronron for VS Code remote 0.9.1).
 
 ## 0.11.1 — November 21, 2026
 
