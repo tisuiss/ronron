@@ -20,7 +20,7 @@ import { SPOTIFY_ID, Spotify, islandDances } from "../core/spotify";
 import { BotEngine, hexToRGB } from "../cat/engine";
 import { Greeting } from "../cat/greeting";
 import { createMiniBot, pruneMiniBots, syncMiniBotStates, tickMiniBots } from "../cat/minibots";
-import { pillBusy } from "../core/state";
+import { pillBusy, type AgentTask } from "../core/state";
 import { WhatsApp } from "../core/whatsapp";
 import { SeasonCache, parseOutfit } from "../cat/wardrobe";
 import { UploadCanvas } from "../upload/canvas";
@@ -949,8 +949,8 @@ export class Island {
     // the state-driven DOM sync.
     this.miniGrid.style.left = `${w - 40 - 14.5}px`;
     this.miniGrid.style.top = `${hh / 2 - 14.5}px`;
-    // Just right of Ronron (compact: centre 40, 20 across).
-    this.miniGridBusy.style.left = "56px";
+    // In Ronron's place (compact: centre 40).
+    this.miniGridBusy.style.left = `${40 - 14.5}px`;
     this.miniGridBusy.style.top = `${hh / 2 - 14.5}px`;
     this.clockEl.style.height = `${hh}px`;
     this.greetingCanvas.style.left = `${(w - EXPANDED_W) / 2}px`;
@@ -1406,7 +1406,9 @@ export class Island {
     // The drop canvas draws its own Ronron; two of them would overlap. Out on the
     // desktop, he isn't here at all.
     const away = State.catOnDesktop;
-    const visible = p.opacity > 0 && !greetingActive && !this.uploadActive && !away;
+    // Compact: a pill at work takes Ronron's place on the left (the busy grid).
+    const replaced = State.mode === "compact" && this.compactPills().busy.length > 0;
+    const visible = p.opacity > 0 && !greetingActive && !this.uploadActive && !away && !replaced;
     this.botCanvas.style.opacity = visible ? "1" : "0";
 
     if (State.mode === "expanded" && State.view !== "uploading" && !greetingActive && !this.uploadActive && !away) {
@@ -1579,9 +1581,7 @@ export class Island {
     // Compact mini grids: the pills doing something (a session at work, a card waiting,
     // unread WhatsApp) beside Ronron on the left; the others asleep on the right.
     const showGrid = State.mode === "compact";
-    const others = State.otherTasks.slice(0, 4);
-    const busy = others.filter((t) => pillBusy(t, WhatsApp.view.unread));
-    const quiet = others.filter((t) => !busy.includes(t));
+    const { busy, quiet } = this.compactPills();
     this.miniGrid.style.opacity = showGrid && quiet.length ? "1" : "0";
     this.miniGridBusy.style.opacity = showGrid && busy.length ? "1" : "0";
     if (showGrid) {
@@ -1590,7 +1590,10 @@ export class Island {
         if (grid.dataset.key === key) continue;
         grid.dataset.key = key;
         grid.replaceChildren();
-        for (const t of list) grid.append(createMiniBot(t, 13));
+        // A single busy pill takes Ronron's place at his size; several share it.
+        const size = grid === this.miniGridBusy && list.length === 1 ? 20 : 13;
+        grid.classList.toggle("one", size === 20);
+        for (const t of list) grid.append(createMiniBot(t, size));
         pruneMiniBots();
       }
     }
@@ -1600,8 +1603,7 @@ export class Island {
     this.compactPlan.style.opacity = showPlan ? "1" : "0";
     this.compactPlan.style.pointerEvents = showPlan ? "auto" : "none";
     if (showPlan) {
-      const others = State.otherTasks.slice(0, 4);
-      this.compactPlan.style.right = others.length > 0 ? "58px" : "20px";
+      this.compactPlan.style.right = this.compactPills().quiet.length > 0 ? "58px" : "20px";
       const pct = dominantPct(State.planUsage);
       const color = planColor(pct);
       this.compactPlan.style.setProperty("--plan", color);
@@ -1612,6 +1614,18 @@ export class Island {
 
     syncMiniBotStates(State.tasks);
     this.engine.setState(State.effectiveState);
+  }
+
+  /**
+   * The compact island's pills: at rest, the four on the right and Ronron alone on the
+   * left; the ones doing something (a session at work or waiting, a badge, unread
+   * WhatsApp) leave the right and take Ronron's place on the left.
+   */
+  private compactPills(): { busy: AgentTask[]; quiet: AgentTask[] } {
+    const header = State.headerIds;
+    const all = State.tasks.filter((t) => !header.includes(t.id)).slice(0, 4);
+    const busy = all.filter((t) => pillBusy(t, WhatsApp.view.unread));
+    return { busy, quiet: all.filter((t) => !busy.includes(t)) };
   }
 
   /** The clock sits in the middle of the compact island, where the notch is on a Mac. */

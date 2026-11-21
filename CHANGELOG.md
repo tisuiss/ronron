@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.2 — November 21, 2026
+
+- **The compact island at rest**: Ronron alone on the left, your four pills on the right (the main one included). When a pill does something — a session at work or waiting on you, a badge, unread WhatsApp — it leaves the right and takes Ronron's place on the left (at his size when it is the only one).
+
 ## 0.9.1 — November 21, 2026
 
 - **More of a session at once**: with a session's pill open, its seven earlier steps show above the two the ticker scrolls.

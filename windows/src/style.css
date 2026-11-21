@@ -164,6 +164,11 @@ body {
 }
 
 /* Compact 2×2 mini grid, to the right of the notch. */
+#mini-grid-busy.one {
+  grid-template-columns: 29px;
+  grid-auto-rows: 29px;
+  place-items: center;
+}
 #mini-grid,
 #mini-grid-busy {
   position: absolute;
