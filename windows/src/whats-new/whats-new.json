@@ -73,6 +73,41 @@
             "ko": "아무 일 없을 때 왼쪽 고양이는 시작할 때의 Ronron입니다.",
             "ja": "何もないとき、左の猫は起動時と同じ Ronron です。"
           }
+        },
+        {
+          "icon": "update",
+          "title": {
+            "en": "Updates in Settings",
+            "zh-Hans": "设置中的更新",
+            "hi": "सेटिंग्स में अपडेट",
+            "es": "Actualizaciones en Ajustes",
+            "ar": "التحديثات في الإعدادات",
+            "fr": "Mises à jour dans Réglages",
+            "bn": "সেটিংসে আপডেট",
+            "pt-BR": "Atualizações em Ajustes",
+            "ru": "Обновления в настройках",
+            "id": "Pembaruan di Pengaturan",
+            "de": "Updates in den Einstellungen",
+            "tr": "Ayarlarda güncellemeler",
+            "ko": "설정에서 업데이트",
+            "ja": "設定からアップデート"
+          },
+          "detail": {
+            "en": "Flow → Settings: check for a new version and install it in one click.",
+            "zh-Hans": "Flow → 设置：一键检查并安装新版本。",
+            "hi": "Flow → सेटिंग्स: नया वर्ज़न जाँचें और एक क्लिक में इंस्टॉल करें।",
+            "es": "Flow → Ajustes: busca una nueva versión e instálala con un clic.",
+            "ar": "Flow ← الإعدادات: ابحث عن إصدار جديد وثبّته بنقرة.",
+            "fr": "Flow → Réglages : cherchez une nouvelle version et installez-la en un clic.",
+            "bn": "Flow → সেটিংস: নতুন সংস্করণ খুঁজুন, এক ক্লিকে ইনস্টল করুন।",
+            "pt-BR": "Flow → Ajustes: procure uma nova versão e instale com um clique.",
+            "ru": "Flow → Настройки: проверьте новую версию и установите в один клик.",
+            "id": "Flow → Pengaturan: cek versi baru dan pasang dengan sekali klik.",
+            "de": "Flow → Einstellungen: nach einer neuen Version suchen und per Klick installieren.",
+            "tr": "Flow → Ayarlar: yeni sürümü denetleyin, tek tıkla kurun.",
+            "ko": "Flow → 설정: 새 버전을 확인하고 한 번에 설치하세요.",
+            "ja": "Flow → 設定：新しいバージョンを確認し、ワンクリックで導入。"
+          }
         }
       ]
     },

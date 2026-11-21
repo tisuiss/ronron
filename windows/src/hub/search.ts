@@ -99,6 +99,7 @@ export const SETTINGS_ENTRIES: SettingsSearchEntry[] = [
   { id: "flow.recognition", page: "flowsettings", title: "hub.settings.recognition", terms: ["Dictation language"] },
   { id: "flow.summary", page: "flowsettings", title: "hub.page.notes", terms: ["notes.engine"] },
   { id: "flow.app", page: "flowsettings", title: "hub.settings.app", terms: ["hub.settings.dock", "hub.settings.open-at-launch"] },
+  { id: "flow.updates", page: "flowsettings", title: "Updates", terms: ["Check now", "Tell me when a new version is out"] },
   { id: "flow.privacy", page: "flowsettings", title: "hub.settings.privacy", terms: ["hub.settings.keep"] },
 
   // Notch → General
