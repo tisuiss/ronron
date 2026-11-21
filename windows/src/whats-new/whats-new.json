@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.9.1",
+      "items": [
+        {
+          "icon": "eye",
+          "title": {
+            "en": "Busy pills on the left",
+            "zh-Hans": "忙碌的药丸在左边",
+            "hi": "व्यस्त पिल्स बाईं ओर",
+            "es": "Píldoras activas a la izquierda",
+            "ar": "الحبوب النشطة على اليسار",
+            "fr": "Les pastilles actives à gauche",
+            "bn": "ব্যস্ত পিল বাঁয়ে",
+            "pt-BR": "Pílulas ativas à esquerda",
+            "ru": "Активные пилюли слева",
+            "id": "Pil yang sibuk di kiri",
+            "de": "Aktive Pillen links",
+            "tr": "Meşgul haplar solda",
+            "ko": "바쁜 필은 왼쪽에",
+            "ja": "動いているピルは左に"
+          },
+          "detail": {
+            "en": "Work in progress or unread messages beside Ronron; the rest sleeps right.",
+            "zh-Hans": "进行中的工作或未读消息在 Ronron 旁，其余在右侧休眠。",
+            "hi": "चल रहा काम या अपठित संदेश Ronron के पास; बाकी दाईं ओर सोते हैं।",
+            "es": "Trabajo en curso o mensajes sin leer junto a Ronron; el resto duerme a la derecha.",
+            "ar": "العمل الجاري أو الرسائل غير المقروءة بجانب Ronron؛ والباقي ينام يمينًا.",
+            "fr": "Activité en cours ou messages non lus près de Ronron ; le reste dort à droite.",
+            "bn": "চলমান কাজ বা অপঠিত বার্তা Ronron-এর পাশে; বাকিরা ডানে ঘুমায়।",
+            "pt-BR": "Trabalho em andamento ou mensagens não lidas ao lado do Ronron; o resto dorme à direita.",
+            "ru": "Работа или непрочитанное — рядом с Ronron; остальные спят справа.",
+            "id": "Pekerjaan berjalan atau pesan belum dibaca di samping Ronron; sisanya tidur di kanan.",
+            "de": "Laufende Arbeit oder Ungelesenes neben Ronron; der Rest schläft rechts.",
+            "tr": "Süren iş veya okunmamış mesajlar Ronron'un yanında; diğerleri sağda uyur.",
+            "ko": "진행 중인 작업이나 읽지 않은 메시지는 Ronron 옆에, 나머지는 오른쪽에서 쉽니다.",
+            "ja": "作業中や未読は Ronron の横に、ほかは右で眠ります。"
+          }
+        },
+        {
+          "icon": "terminal",
+          "title": {
+            "en": "More session lines",
+            "zh-Hans": "更多会话行",
+            "hi": "सत्र की और पंक्तियाँ",
+            "es": "Más líneas de sesión",
+            "ar": "أسطر جلسة أكثر",
+            "fr": "Plus de lignes de session",
+            "bn": "আরও সেশন লাইন",
+            "pt-BR": "Mais linhas da sessão",
+            "ru": "Больше строк сессии",
+            "id": "Lebih banyak baris sesi",
+            "de": "Mehr Sitzungszeilen",
+            "tr": "Daha fazla oturum satırı",
+            "ko": "더 많은 세션 줄",
+            "ja": "セッション行を増量"
+          },
+          "detail": {
+            "en": "An open session pill shows its last nine steps.",
+            "zh-Hans": "展开的会话药丸显示最近九个步骤。",
+            "hi": "खुली सत्र पिल अपने पिछले नौ चरण दिखाती है।",
+            "es": "Una sesión abierta muestra sus últimos nueve pasos.",
+            "ar": "تعرض حبة الجلسة المفتوحة آخر تسع خطوات.",
+            "fr": "Une session ouverte montre ses neuf dernières étapes.",
+            "bn": "খোলা সেশন পিল শেষ নয়টি ধাপ দেখায়।",
+            "pt-BR": "Uma sessão aberta mostra os últimos nove passos.",
+            "ru": "Открытая сессия показывает девять последних шагов.",
+            "id": "Pil sesi yang dibuka menampilkan sembilan langkah terakhir.",
+            "de": "Eine offene Sitzung zeigt ihre letzten neun Schritte.",
+            "tr": "Açık oturum son dokuz adımı gösterir.",
+            "ko": "열린 세션은 최근 아홉 단계를 보여 줍니다.",
+            "ja": "開いたセッションは直近 9 ステップを表示。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.9.0",
       "items": [
         {

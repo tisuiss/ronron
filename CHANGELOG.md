@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.1 — November 21, 2026
+
+- **More of a session at once**: with a session's pill open, its seven earlier steps show above the two the ticker scrolls.
+- **Busy pills on the left**: in the compact island, the pills doing something — a session at work or waiting on you, a badge, unread WhatsApp — sit beside Ronron on the left; the others sleep on the right.
+
 ## 0.9.0 — November 20, 2026
 
 - **Ronron for VS Code**: two extensions (`vscode/`, attached to the Windows release) bring the Claude Code sessions of a remote VS Code workspace — Remote Tunnels, Remote-SSH, containers — to the island, through VS Code's own connection. Permissions can be approved from the island. The remote one installs the hooks in the remote's `~/.claude/settings.json` after showing the change, with a dated backup.

@@ -164,7 +164,8 @@ body {
 }
 
 /* Compact 2×2 mini grid, to the right of the notch. */
-#mini-grid {
+#mini-grid,
+#mini-grid-busy {
   position: absolute;
   width: 29px;
   height: 29px;
@@ -689,6 +690,45 @@ body {
     transparent 100%
   );
   mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 85%, transparent 100%);
+}
+
+/* A session's earlier steps, above the ticker, when its pill is open (views.ts). */
+.ticker-history {
+  margin: 6px 12px 0 108px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ticker-history:empty {
+  display: none;
+}
+.history-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 20px;
+  font: 11.5px var(--font);
+  color: #6b7079;
+  min-width: 0;
+}
+.history-row svg {
+  flex: none;
+  color: #454850;
+  margin-left: 1px;
+}
+.history-row > span:not(.tick-count) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.history-row .tick-count {
+  flex: none;
+  display: inline-flex;
+  gap: 4px;
+}
+.ticker-history + .ticker {
+  margin-top: 0;
 }
 
 .ticker-row {
