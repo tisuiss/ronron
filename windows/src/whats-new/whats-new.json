@@ -2,6 +2,46 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.9.2",
+      "items": [
+        {
+          "icon": "eye",
+          "title": {
+            "en": "Ronron steps aside",
+            "zh-Hans": "Ronron 让位",
+            "hi": "Ronron जगह देता है",
+            "es": "Ronron cede su sitio",
+            "ar": "Ronron يفسح المكان",
+            "fr": "Ronron laisse sa place",
+            "bn": "Ronron জায়গা ছেড়ে দেয়",
+            "pt-BR": "Ronron cede o lugar",
+            "ru": "Ronron уступает место",
+            "id": "Ronron memberi tempat",
+            "de": "Ronron macht Platz",
+            "tr": "Ronron yer açar",
+            "ko": "Ronron이 자리를 내줍니다",
+            "ja": "Ronron が場所を譲る"
+          },
+          "detail": {
+            "en": "At rest, your pills wait on the right; a busy one takes Ronron's place.",
+            "zh-Hans": "空闲时药丸在右侧等待；忙碌的药丸取代 Ronron 的位置。",
+            "hi": "आराम में पिल्स दाईं ओर; व्यस्त पिल Ronron की जगह लेती है।",
+            "es": "En reposo, las píldoras esperan a la derecha; una activa ocupa el sitio de Ronron.",
+            "ar": "في الراحة تنتظر الحبوب يمينًا؛ والحبة النشطة تأخذ مكان Ronron.",
+            "fr": "Au repos, les pastilles attendent à droite ; une active prend la place de Ronron.",
+            "bn": "বিশ্রামে পিলগুলো ডানে; ব্যস্ত পিল Ronron-এর জায়গা নেয়।",
+            "pt-BR": "Em repouso, as pílulas esperam à direita; uma ativa ocupa o lugar do Ronron.",
+            "ru": "В покое пилюли справа; активная занимает место Ronron.",
+            "id": "Saat diam pil menunggu di kanan; yang sibuk mengambil tempat Ronron.",
+            "de": "In Ruhe warten die Pillen rechts; eine aktive nimmt Ronrons Platz ein.",
+            "tr": "Dinlenirken haplar sağda; meşgul olan Ronron'un yerini alır.",
+            "ko": "쉬는 동안 필은 오른쪽에, 바쁜 필은 Ronron 자리로.",
+            "ja": "待機中のピルは右、動いているピルは Ronron の場所へ。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.9.1",
       "items": [
         {
