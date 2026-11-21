@@ -54,6 +54,12 @@ const COMPACT = {
   miniGridCenterX: COMPACT_W - 40,
 };
 
+/** The compact island the greeting lands in: narrower without the clock (layout.compactWidth). */
+export function setGreetingCompactWidth(width: number) {
+  COMPACT.width = width;
+  COMPACT.miniGridCenterX = width - 40;
+}
+
 // ── Easing ────────────────────────────────────────────────────────────────────
 
 const E = {

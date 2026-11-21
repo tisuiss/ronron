@@ -58,22 +58,32 @@ test("the mouse wakes a hidden island, which stays while it is hovered", () => {
   assert.equal(fsm.state, "petit");
 });
 
-test("the compact island hides 60 s after the mouse leaves", () => {
+test("the compact island gives way to the closed one 1 s after the mouse leaves", () => {
   fsm.mouseEntered();
   fsm.mouseLeft();
-  seconds(59);
+  seconds(0.9);
   assert.equal(fsm.state, "petit");
-  seconds(1);
+  seconds(0.1);
   assert.equal(fsm.state, "hidden");
 });
 
-test("coming back before the 60 s are up cancels the hide", () => {
+test("coming back before the second is up cancels the hide", () => {
   fsm.mouseEntered();
   fsm.mouseLeft();
-  seconds(59);
+  seconds(0.5);
   fsm.mouseEntered();
   seconds(600);
   assert.equal(fsm.state, "petit");
+});
+
+test("an island folded with the pointer away goes on to the closed island", () => {
+  fsm.forceHome();
+  fsm.mouseLeft();
+  seconds(15);
+  assert.equal(fsm.state, "petit");
+  fsm.mouseLeft();
+  seconds(1);
+  assert.equal(fsm.state, "hidden");
 });
 
 test("a click opens the compact island, and only the compact island", () => {
@@ -332,8 +342,11 @@ test("open on hover: passing over the closed island doesn't open it", () => {
   fsm.mouseEntered();
   seconds(0.2);
   fsm.mouseLeft();
-  seconds(5);
+  seconds(0.5);
   assert.equal(fsm.state, "petit");
+  // Not opened: back to the closed island the user picked.
+  seconds(5);
+  assert.equal(fsm.state, "hidden");
 });
 
 test("open on hover: leaving folds after the short grace period, resting opens again", () => {

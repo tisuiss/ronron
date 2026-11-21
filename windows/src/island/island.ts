@@ -9,7 +9,7 @@ import {
 } from "../core/closed";
 import {
   EXPANDED_CORNER, EXPANDED_W, NOTCH_W, PANEL_H, PANEL_W,
-  ROUNDED_CORNER, botGlowColor, botGlowOpacity, botPosition,
+  ROUNDED_CORNER, botGlowColor, compactWidth, botGlowOpacity, botPosition,
   islandSize,
   QUESTION_PICKER_H,
   type BotEmoteName, type BotStateName, type IslandMode, type IslandViewName,
@@ -18,7 +18,7 @@ import { Sound } from "../core/sound";
 import { State } from "../core/state";
 import { SPOTIFY_ID, Spotify, islandDances } from "../core/spotify";
 import { BotEngine, hexToRGB } from "../cat/engine";
-import { Greeting } from "../cat/greeting";
+import { Greeting, setGreetingCompactWidth } from "../cat/greeting";
 import { createMiniBot, pruneMiniBots, syncMiniBotStates, tickMiniBots } from "../cat/minibots";
 import { pillBusy, type AgentTask } from "../core/state";
 import { WhatsApp } from "../core/whatsapp";
@@ -907,7 +907,9 @@ export class Island {
     if (State.mode === "hidden" && this.closedShows) {
       return { w: this.closedW, h: CLOSED_H, r: 10 };
     }
-    let { w, h } = islandSize(State.mode, State.view, State.pillOpen);
+    // The greeting lands in the compact island as wide as it is now.
+    setGreetingCompactWidth(compactWidth(State.settings.showClock));
+    let { w, h } = islandSize(State.mode, State.view, State.pillOpen, State.settings.showClock);
     if (State.mode === "expanded" && State.view === "question" && State.pendingApproval?.questions) {
       h = QUESTION_PICKER_H;
     }

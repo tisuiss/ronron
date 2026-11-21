@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.11.1",
+      "items": [
+        {
+          "icon": "eye",
+          "title": {
+            "en": "Your closed island, at once",
+            "zh-Hans": "立即显示你选的收起样式",
+            "hi": "आपका चुना बंद आइलैंड, तुरंत",
+            "es": "Tu isla cerrada, al instante",
+            "ar": "جزيرتك المغلقة، فورًا",
+            "fr": "Ton îlot fermé, tout de suite",
+            "bn": "আপনার বেছে নেওয়া বন্ধ আইল্যান্ড, সঙ্গে সঙ্গে",
+            "pt-BR": "Sua ilha fechada, na hora",
+            "ru": "Ваш закрытый остров — сразу",
+            "id": "Pulau tertutup pilihan Anda, langsung",
+            "de": "Deine geschlossene Insel, sofort",
+            "tr": "Seçtiğiniz kapalı ada, hemen",
+            "ko": "고른 닫힌 아일랜드를 바로",
+            "ja": "選んだ閉じたアイランドをすぐに"
+          },
+          "detail": {
+            "en": "Once the pointer leaves, what you picked for the closed island comes back in a second.",
+            "zh-Hans": "指针离开后，一秒内就会恢复你为收起状态选择的内容。",
+            "hi": "पॉइंटर हटते ही, बंद आइलैंड के लिए चुनी चीज़ एक सेकंड में लौट आती है।",
+            "es": "Al salir el puntero, lo que elegiste para la isla cerrada vuelve en un segundo.",
+            "ar": "عند مغادرة المؤشر، يعود ما اخترته للجزيرة المغلقة خلال ثانية.",
+            "fr": "Dès que le pointeur part, ce que tu as choisi pour l'îlot fermé revient en une seconde.",
+            "bn": "পয়েন্টার সরলেই, বন্ধ আইল্যান্ডের জন্য বেছে নেওয়া জিনিস এক সেকেন্ডে ফিরে আসে।",
+            "pt-BR": "Quando o ponteiro sai, o que você escolheu para a ilha fechada volta em um segundo.",
+            "ru": "Как только указатель уходит, выбранный вид закрытого острова возвращается за секунду.",
+            "id": "Begitu penunjuk pergi, pilihan Anda untuk pulau tertutup kembali dalam sedetik.",
+            "de": "Sobald der Zeiger weg ist, kommt deine Wahl für die geschlossene Insel in einer Sekunde zurück.",
+            "tr": "İşaretçi ayrılınca, kapalı ada için seçtiğiniz şey bir saniyede geri gelir.",
+            "ko": "포인터가 떠나면 닫힌 아일랜드에 고른 모습이 1초 만에 돌아와요.",
+            "ja": "ポインターが離れると、閉じたアイランドに選んだ表示が 1 秒で戻ります。"
+          }
+        },
+        {
+          "icon": "sparkles",
+          "title": {
+            "en": "A snugger compact island",
+            "zh-Hans": "更紧凑的小岛",
+            "hi": "ज़्यादा सटा हुआ कॉम्पैक्ट आइलैंड",
+            "es": "Una isla compacta más ajustada",
+            "ar": "جزيرة مضغوطة أصغر",
+            "fr": "Un îlot compact plus ajusté",
+            "bn": "আরও আঁটসাঁট কমপ্যাক্ট আইল্যান্ড",
+            "pt-BR": "Uma ilha compacta mais justa",
+            "ru": "Компактный остров поуже",
+            "id": "Pulau ringkas yang lebih pas",
+            "de": "Eine schmalere kompakte Insel",
+            "tr": "Daha derli toplu kompakt ada",
+            "ko": "더 꼭 맞는 컴팩트 아일랜드",
+            "ja": "ぴったりのコンパクト アイランド"
+          },
+          "detail": {
+            "en": "Without the clock, no empty band between Ronron and the pills.",
+            "zh-Hans": "不显示时钟时，Ronron 和药丸之间不再有空白。",
+            "hi": "घड़ी के बिना, Ronron और पिल्स के बीच कोई खाली पट्टी नहीं।",
+            "es": "Sin el reloj, ya no hay franja vacía entre Ronron y las píldoras.",
+            "ar": "من دون الساعة، لا شريط فارغ بين Ronron والحبوب.",
+            "fr": "Sans l'horloge, plus de bande vide entre Ronron et les pastilles.",
+            "bn": "ঘড়ি ছাড়া, Ronron আর পিলগুলোর মাঝে কোনো ফাঁকা অংশ নেই।",
+            "pt-BR": "Sem o relógio, nada de faixa vazia entre o Ronron e as pílulas.",
+            "ru": "Без часов между Ronron и пилюлями нет пустой полосы.",
+            "id": "Tanpa jam, tak ada ruang kosong antara Ronron dan pil.",
+            "de": "Ohne Uhr kein leerer Streifen zwischen Ronron und den Pillen.",
+            "tr": "Saat kapalıyken Ronron ile haplar arasında boş bant yok.",
+            "ko": "시계가 없으면 Ronron과 필 사이에 빈 공간이 없어요.",
+            "ja": "時計なしなら、Ronron とピルの間に空白はありません。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.11.0",
       "items": [
         {
