@@ -441,9 +441,17 @@ export const Bridge = {
   msSignInCode: () => callOrThrow<{ userCode: string; verificationUri: string; expiresIn: number }>("ms_sign_in_code"),
   msSignInCancel: () => call<void>("ms_sign_in_cancel"),
   msSignOut: () => call<void>("ms_sign_out"),
+
+  // ── Google: one sign-in for Gmail, Google Calendar and Google Tasks ───────
+  /** Who is signed in ("" when unknown), or null. */
+  googleAccount: () => call<string | null>("google_account"),
+  /** Opens Google's page in the browser; the outcome arrives as a `google-auth` event. */
+  googleSignIn: () => call<void>("google_sign_in"),
+  googleSignInCancel: () => call<void>("google_sign_in_cancel"),
+  googleSignOut: () => call<void>("google_sign_out"),
   /** Calendars (calendar365.rs): read again after a change in Settings; the account's calendars; an iCal address checked. */
   calendarRefresh: () => call<void>("calendar_refresh"),
-  calendarSources: () => call<{ id: string; name: string; color: string; default: boolean }[]>("calendar_sources"),
+  calendarSources: () => call<{ id: string; name: string; color: string; default: boolean; kind?: "microsoft" | "google" }[]>("calendar_sources"),
   icalCheck: (url: string) => callOrThrow<number>("ical_check", { url }),
   icalNormalize: (url: string) => callOrThrow<string>("ical_normalize", { url }),
   /** Ticks a task off, or back on for Undo. */

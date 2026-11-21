@@ -35,7 +35,8 @@ export interface Volume {
 export interface MediaState {
   sources: MediaSource[];
   now: NowPlaying | null;
-  /** The computer's volume (default output), when it can be read. */
+  /** The playing app's own volume (its stream in the system mixer, never the
+   * computer's), when it can be read: null while it has no sound yet. */
   volume?: Volume | null;
 }
 
@@ -53,8 +54,9 @@ export const MediaBridge = {
   state: (source: string | null) => call<MediaState>("media_state", { source }),
   control: (source: string, action: "playPause" | "next" | "previous") => call<boolean>("media_control", { source, action }),
   art: (source: string) => call<string | null>("media_art", { source }),
-  setVolume: (level: number) => call<boolean>("media_set_volume", { level }),
-  setMute: (muted: boolean) => call<boolean>("media_set_mute", { muted }),
+  /** The volume of the app playing as `source` only — never the computer's. */
+  setVolume: (source: string, level: number) => call<boolean>("media_set_volume", { source, level }),
+  setMute: (source: string, muted: boolean) => call<boolean>("media_set_mute", { source, muted }),
 };
 
 /** "3:07", "1:02:45". */

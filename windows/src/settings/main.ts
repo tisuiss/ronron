@@ -26,6 +26,7 @@ import { agentsSection } from "./agents";
 import { phoneSection } from "./phone";
 import { whatsappSection } from "./whatsapp";
 import { microsoftSection, musicSection } from "./microsoft";
+import { googleSection } from "./google";
 import { calendarsSection } from "./calendars";
 import { WHATSAPP_ID } from "../core/whatsapp";
 import { updateRows, updatesListener } from "./updates";
@@ -900,8 +901,8 @@ const INTEGRATIONS: IntegrationDef[] = [
   { id: "integration_calcom", name: "Cal.com", color: "#C9956A",
     fields: [{ key: "calcom-api-key", label: N_("API key"), placeholder: "cal_…", secret: true }] },
   // Microsoft 365 through Graph: the sign-in is its own section (./microsoft.ts).
-  { id: "integration_todo", name: "To Do", color: "#2564CF", fields: [], hint: N_("Uses the Microsoft 365 sign-in above.") },
-  { id: "integration_calendar", name: N_("Calendar"), color: "#0F78D4", fields: [], hint: N_("Uses the Microsoft 365 sign-in above.") },
+  { id: "integration_todo", name: "To Do", color: "#2564CF", fields: [], hint: N_("Uses the Microsoft 365 or Google sign-in above.") },
+  { id: "integration_calendar", name: N_("Calendar"), color: "#0F78D4", fields: [], hint: N_("Uses the Microsoft 365 or Google sign-in above.") },
   // Nothing to enter: Spotify is read from the OS (src-tauri/src/spotify.rs).
   { id: "integration_spotify", name: "Spotify", color: "#1DB954", fields: [] },
 ];
@@ -1531,7 +1532,7 @@ async function render() {
   const keys = [
     "stripe-api-key", "github-token", "gitlab-url", "gitlab-token", "gitea-url", "gitea-token", "vercel-token",
     "n8n-url", "n8n-api-key", "resend-api-key", "notion-api-key", "calcom-api-key",
-    "msgraph-refresh-0",
+    "msgraph-refresh-0", "google-refresh",
   ];
   const present: Record<string, boolean> = {};
   for (const k of keys) present[k] = (await Bridge.secretPresent(k)) ?? false;
@@ -1543,6 +1544,11 @@ async function render() {
     if (def.connect.kind === "key") {
       connected[def.id] = present[def.connect.key] ?? (await Bridge.keyReady(def.connect.key)) ?? false;
     }
+  }
+  // To Do and Calendar run on a Google account as well as on Microsoft 365.
+  if (present["google-refresh"]) {
+    connected.integration_todo = true;
+    connected.integration_calendar = true;
   }
   /** A chat provider's key was saved or removed: its pill's row says so at once. */
   const keyChanged = (key: string, on: boolean) => {
@@ -1577,6 +1583,7 @@ async function render() {
           declaredChanged();
         },
       }),
+      googleSection(),
       calendarsSection({ settings: () => settings, save: () => void save() }),
       musicSection({
         get: () => settings.headerPills ?? [],

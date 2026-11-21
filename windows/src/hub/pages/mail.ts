@@ -62,14 +62,14 @@ export async function mailOverviewPage(page: HTMLElement, ctx: HubContext) {
 
   const sortCard = card(row(t("Sort new messages automatically"),
     view.graph
-      ? t("Only messages that arrive from now on, in your Microsoft 365 mailbox.")
+      ? t("Only messages that arrive from now on, in your Microsoft 365 or Gmail mailbox.")
       : t("Only messages that arrive from now on, in every Outlook account. The classic Outlook must be open."),
     toggle(view.settings.autoSort, (on) => {
       save({ ...view.settings, autoSort: on });
       view.settings.autoSort = on;
     })));
   if (!view.windows) {
-    sortCard.append(divider(), h("div", { class: "hub-note", text: t("Sign in to Microsoft 365 in Settings to see your mail here.") }));
+    sortCard.append(divider(), h("div", { class: "hub-note", text: t("Sign in to Microsoft 365 or Google in Settings to see your mail here.") }));
   } else if (!view.outlookOpen) {
     sortCard.append(divider(), h("div", { class: "hub-note", text: t("Outlook is closed: nothing is sorted until it is open.") }));
   }

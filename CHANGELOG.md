@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.10.0 — November 21, 2026
+
+- **Google accounts**: Settings → Integrations → **Google** signs in with your own Google Cloud project and feeds the Mail, Calendar and To Do tabs from **Gmail**, **Google Calendar** and **Google Tasks** — beside Microsoft 365 or instead of it. Signed in to both, the inboxes are merged (each message's actions go back to its own account), and the calendars and task lists sit side by side.
+- **Gmail in Ronron's words**: Important is the star, Junk is Spam, a rule's folder is a label, Delete goes to the Trash; replies and the chat's mails are saved in Gmail's Drafts, never sent by Ronron.
+
+## 0.9.4 — November 21, 2026
+
+- **The Music tab's volume is the player's own**: the slider and mute now set only the app playing (Spotify, the browser with YouTube Music, Amazon Music…) — its stream in the Windows mixer, or in PulseAudio / PipeWire on Linux — and no longer the computer's volume.
+- **The chat is as tall as To Do**: it opens at the size of the To Do space and the other header spaces, instead of growing with the conversation.
+
 ## 0.9.3 — November 21, 2026
 
 - **Pills go back to the right**: once nothing is waiting on you — a WhatsApp message read or replied to (from the island or the phone), a card answered, a turn finished — the pill leaves Ronron's place and goes back to sleep on the right. A "finished" badge no longer holds it on the left.

@@ -352,7 +352,7 @@ The pill refreshes every two minutes while it is turned on, and right after each
 
 **Several calendars and reminders:** Settings → Integrations → **Calendars** lists the Microsoft 365 account's calendars and your iCal ones (Google's secret address, Outlook's published calendar, iCloud… up to eight, `webcal://` or `https://`; the address is a secret and goes to the credential store, `ical-url-0` … `ical-url-7`). For each: **Shown in Ronron** and a **Reminder** (none, 5, 10, 15 or 30 min before). A reminder opens the island on the event a few minutes before, with **Join the meeting** for Teams, Meet or Zoom, **Open** and **OK**; it stays until you answer or the event starts. iCal recurring events (RRULE, EXDATE, moved occurrences) are expanded in their time zone, Outlook's Windows zone names included.
 
-**Music:** Settings → Integrations → **Music** → *Music tab in the header*. The tab shows what plays on this computer — the Spotify app, YouTube Music in a browser or as an app, Amazon Music, anything that shows in the system's media controls (Windows) or MPRIS (Linux) — with its cover, progress, **previous**, **play/pause** and **next**, a chip per player when there are several, and the **computer's volume** (a slider and mute, for the default output). No account: YouTube Music and Amazon Music have no public API to drive playback, and Spotify's needs Premium. Read every 1.5 s while the tab is on screen, never otherwise.
+**Music:** Settings → Integrations → **Music** → *Music tab in the header*. The tab shows what plays on this computer — the Spotify app, YouTube Music in a browser or as an app, Amazon Music, anything that shows in the system's media controls (Windows) or MPRIS (Linux) — with its cover, progress, **previous**, **play/pause** and **next**, a chip per player when there are several, and the **player's own volume** (a slider and mute for that app alone — its stream in the Windows mixer, or in PulseAudio / PipeWire through `pactl` on Linux — never the computer's volume). No account: YouTube Music and Amazon Music have no public API to drive playback, and Spotify's needs Premium. Read every 1.5 s while the tab is on screen, never otherwise.
 
 **The overview:** with no pill open, the four pills sit side by side, one space each (name, state, what it is doing); a free slot leads to Settings.
 
@@ -369,6 +369,21 @@ The pill refreshes every two minutes while it is turned on, and right after each
 | **Calendar** | Today's date and how long until the next event | A week at a time (‹ › from four weeks back to nine weeks ahead, **Today** to come back): pick a day, its events (Teams marked) | The next event, or the one you clicked: **Join the meeting**, **Open in Outlook** |
 | **Mail** | The unread count | Search (`from:`, `subject:`), All / Unread / Important / Today, the list. A click shows the message in its place: **Reply** (a draft, nothing is sent), **Open**, **Mark as read**, **Important**, **Delete** (to Deleted Items, where it can be got back); **‹ Inbox** (or Esc) goes back | — |
 | **To Do** | A ring: tasks ticked off from Ronron today out of those due today; what is late | Today's tasks (late and due today), or a list's, picked on the right of the title (« Tâches - 4 »); tick off with Undo; add a task (to that list); ↗ opens To Do | — |
+
+## Google: Gmail, Google Calendar and Google Tasks (Windows and Linux)
+
+The same three tabs as Microsoft 365 — Mail, Calendar, To Do — fed by a Google account, **beside Microsoft 365 or instead of it**. Signed in to both, each tab shows both accounts: the inboxes are merged (each message's actions go back to its own account), Google's calendars sit beside Microsoft's and the iCal ones, and Google Tasks' lists beside To Do's.
+
+**Your own Google project, once:** Google reviews any app that reads Gmail before it may open to everyone, so each user brings their own (free) Google Cloud project instead. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials):
+
+1. Create a project, then turn on the **Gmail API**, **Google Calendar API** and **Google Tasks API** (APIs & Services → Library).
+2. **OAuth consent screen:** user type *External*, your address as a test user, then **Publish app** (in *Testing*, Google ends the sign-in after seven days). Google shows *This app isn't verified* when you sign in: it is your own project, click *Continue*.
+3. **Credentials → Create credentials → OAuth client ID**, type **Desktop app**.
+4. In Ronron: Settings → Integrations → **Google** → **Your Google Cloud project**, paste the client ID and the client secret, then **Sign in with Google**.
+
+Google's page opens in your browser and comes back to Ronron by itself (authorization code with PKCE, to a one-shot server on `127.0.0.1`). The client ID, the secret and the refresh token go to the Windows Credential Manager or the Secret Service; **Sign out** removes the token. Ronron asks for Gmail (`gmail.modify`: read, star, label, archive, trash, drafts — never a permanent delete, never sending), the calendars (read only) and the tasks.
+
+**In Gmail's terms:** *Important* is the star, *Junk* is Spam, a rule's folder is a label of that name (the message leaves the inbox), **Delete** goes to the Trash. **Open** opens the message in Gmail on the web; a reply, and a plan's mails, are saved in Gmail's **Drafts** for you to send.
 
 ## Claude Code in a remote VS Code workspace (Remote Tunnels, SSH, containers)
 

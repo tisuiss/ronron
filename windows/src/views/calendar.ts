@@ -49,7 +49,7 @@ export function calendarDetail(data: Record<string, unknown>, close: () => void,
       }
       const links = h("div", { class: "int-actions", style: "gap:10px" });
       if (booking.joinUrl) links.append(h("button", { class: "link-btn accent cal-join", text: t("Join the meeting"), onclick: () => void Bridge.openUrl(booking.joinUrl!) }));
-      if (booking.webUrl) links.append(h("button", { class: "link-btn", text: t("Open {name}", { name: "Outlook" }), onclick: () => void Bridge.openUrl(booking.webUrl!) }));
+      if (booking.webUrl) links.append(h("button", { class: "link-btn", text: t("Open {name}", { name: booking.webUrl.startsWith("https://www.google.com/calendar") ? "Google Calendar" : "Outlook" }), onclick: () => void Bridge.openUrl(booking.webUrl!) }));
       if (links.childNodes.length) body.append(links);
     } else if (selectedDay) {
       const dayBookings = onDay(selectedDay);

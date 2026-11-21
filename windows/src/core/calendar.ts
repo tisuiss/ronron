@@ -1,7 +1,7 @@
 export interface Booking {
   id: string; title: string; start: Date; end: Date;
   attendeeName: string; attendeeEmail: string; attendeeNotes: string;
-  /** Microsoft 365: the Teams link, the event in Outlook on the web, and all-day events. */
+  /** Microsoft 365 or Google: the Teams / Meet link, the event on the web, and all-day events. */
   joinUrl?: string; webUrl?: string; allDay?: boolean;
   /** Which calendar it comes from (calendar365.rs: a Graph id or "ical-N"). */
   calendarId?: string;
@@ -12,7 +12,7 @@ export interface CalendarInfo {
   id: string;
   name: string;
   color: string;
-  kind: "microsoft" | "ical";
+  kind: "microsoft" | "google" | "ical";
   shown: boolean;
   /** Minutes before an event; 0 = no reminder. */
   remind: number;
@@ -24,7 +24,7 @@ export function readCalendars(value: unknown): CalendarInfo[] {
     id: c.id,
     name: typeof c.name === "string" ? c.name : "",
     color: typeof c.color === "string" && /^#[0-9a-fA-F]{6}$/.test(c.color) ? c.color : "#0F78D4",
-    kind: c.kind === "ical" ? "ical" : "microsoft",
+    kind: c.kind === "ical" ? "ical" : c.kind === "google" ? "google" : "microsoft",
     shown: c.shown !== false,
     remind: typeof c.remind === "number" && c.remind > 0 ? c.remind : 0,
   }));

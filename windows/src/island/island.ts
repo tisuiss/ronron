@@ -9,7 +9,7 @@ import {
 } from "../core/closed";
 import {
   EXPANDED_CORNER, EXPANDED_W, NOTCH_W, PANEL_H, PANEL_W,
-  ROUNDED_CORNER, botGlowColor, botGlowOpacity, botPosition, chatPromptHeight,
+  ROUNDED_CORNER, botGlowColor, botGlowOpacity, botPosition,
   islandSize,
   QUESTION_PICKER_H,
   type BotEmoteName, type BotStateName, type IslandMode, type IslandViewName,
@@ -574,7 +574,7 @@ export class Island {
       State.notify();
       return;
     }
-    const grew = islandSize("expanded", view, State.chatHistory.length).h >= this.height.value;
+    const grew = islandSize("expanded", view).h >= this.height.value;
     State.view = view;
     State.lastActivity = performance.now();
     this.animateGeometry(!grew);
@@ -907,7 +907,7 @@ export class Island {
     if (State.mode === "hidden" && this.closedShows) {
       return { w: this.closedW, h: CLOSED_H, r: 10 };
     }
-    let { w, h } = islandSize(State.mode, State.view, State.chatHistory.length, State.pillOpen);
+    let { w, h } = islandSize(State.mode, State.view, State.pillOpen);
     if (State.mode === "expanded" && State.view === "question" && State.pendingApproval?.questions) {
       h = QUESTION_PICKER_H;
     }
@@ -1670,9 +1670,5 @@ export class Island {
 
   get panelSize() {
     return { w: PANEL_W, h: PANEL_H };
-  }
-
-  get chatHeight() {
-    return chatPromptHeight(State.chatHistory.length);
   }
 }

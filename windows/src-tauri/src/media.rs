@@ -4,6 +4,9 @@
 //! (the overlay the media keys show). Linux: MPRIS, every `org.mpris.MediaPlayer2.*`
 //! on the session bus.
 //!
+//! The volume slider is the playing app's own volume (its stream in the system
+//! mixer), never the computer's.
+//!
 //! Nothing runs on its own: the Music space asks for the state while it is on
 //! screen (src/views/music.ts), and the controls are clicks.
 
@@ -39,7 +42,7 @@ pub struct NowPlaying {
 #[derive(Serialize, Clone, Copy, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct Volume {
-    /// The computer's output volume, 0 to 1.
+    /// The playing app's own volume (its place in the system mixer), 0 to 1.
     pub level: f64,
     pub muted: bool,
 }
@@ -49,7 +52,8 @@ pub struct Volume {
 pub struct MediaState {
     pub sources: Vec<Source>,
     pub now: Option<NowPlaying>,
-    /// The computer's volume (the default output), when it can be read.
+    /// The volume of the app shown (not the computer's), when it can be read:
+    /// None while that app has no sound stream yet.
     pub volume: Option<Volume>,
 }
 
@@ -112,32 +116,92 @@ const ART_LIMIT: u64 = 3 * 1024 * 1024;
 pub async fn media_state(source: Option<String>) -> MediaState {
     tauri::async_runtime::spawn_blocking(move || {
         let mut state = platform::state(source.as_deref());
-        state.volume = volume::get();
+        state.volume = state.now.as_ref().and_then(|now| volume::get(&now.source));
         state
     })
     .await
     .unwrap_or_default()
 }
 
-/// The computer's volume, 0 to 1 (the default output).
+/// The volume of the app playing as `source`, 0 to 1 — only that app, never the
+/// computer's.
 #[tauri::command]
-pub async fn media_set_volume(level: f64) -> bool {
+pub async fn media_set_volume(source: String, level: f64) -> bool {
     if !level.is_finite() {
         return false;
     }
-    tauri::async_runtime::spawn_blocking(move || volume::set(level.clamp(0.0, 1.0))).await.unwrap_or(false)
+    tauri::async_runtime::spawn_blocking(move || volume::set(&source, level.clamp(0.0, 1.0))).await.unwrap_or(false)
 }
 
 #[tauri::command]
-pub async fn media_set_mute(muted: bool) -> bool {
-    tauri::async_runtime::spawn_blocking(move || volume::mute(muted)).await.unwrap_or(false)
+pub async fn media_set_mute(source: String, muted: bool) -> bool {
+    tauri::async_runtime::spawn_blocking(move || volume::mute(&source, muted)).await.unwrap_or(false)
 }
 
-/// "Volume: 0.45 [MUTED]" (wpctl) → the level and whether it is muted.
-pub fn parse_wpctl(out: &str) -> Option<Volume> {
-    let rest = out.trim().strip_prefix("Volume:")?.trim();
-    let level: f64 = rest.split_whitespace().next()?.parse().ok()?;
-    Some(Volume { level: level.clamp(0.0, 1.0), muted: rest.contains("[MUTED]") })
+/// Words of a media session id that never name an app.
+const NOT_AN_APP: &[&str] = &["org", "mpris", "mediaplayer2", "exe", "crx", "instance"];
+
+/// The browsers that publish themselves on MPRIS as `chromium.instance…`.
+const CHROMIUM_FAMILY: &[&str] = &["chromium", "chrome", "msedge", "brave", "vivaldi", "opera"];
+
+fn letters(s: &str) -> String {
+    s.chars().filter(|c| c.is_ascii_alphanumeric()).collect::<String>().to_ascii_lowercase()
+}
+
+/// Whether the sound stream of the app `app` ("Spotify.exe", "Amazon Music.exe",
+/// "spotify", "chrome") belongs to the media session `source` (a Windows app id
+/// such as "SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify", or an MPRIS name such
+/// as "org.mpris.MediaPlayer2.chromium.instance123"): one word of the id names
+/// the app.
+pub fn app_matches(source: &str, app: &str) -> bool {
+    let file = app.rsplit(['\\', '/']).next().unwrap_or(app);
+    let file = if file.len() > 4 && file[file.len() - 4..].eq_ignore_ascii_case(".exe") { &file[..file.len() - 4] } else { file };
+    let app = letters(file);
+    if app.len() < 3 {
+        return false;
+    }
+    source
+        .split(|c: char| !c.is_ascii_alphanumeric())
+        .map(str::to_ascii_lowercase)
+        .filter(|w| w.len() >= 3 && !NOT_AN_APP.contains(&w.as_str()) && !w.starts_with("instance"))
+        .any(|w| w == app || (w == "chromium" && CHROMIUM_FAMILY.contains(&app.as_str())))
+}
+
+/// One app's sound stream in PulseAudio / PipeWire (`pactl list sink-inputs`).
+#[derive(Debug, Clone, PartialEq)]
+pub struct SinkInput {
+    pub index: u32,
+    /// application.process.binary, else application.name.
+    pub apps: Vec<String>,
+    pub volume: Volume,
+}
+
+/// `LC_ALL=C pactl list sink-inputs` → the streams with their app and volume.
+pub fn parse_sink_inputs(out: &str) -> Vec<SinkInput> {
+    let mut list = Vec::new();
+    let mut current: Option<SinkInput> = None;
+    for line in out.lines() {
+        let line = line.trim();
+        if let Some(n) = line.strip_prefix("Sink Input #") {
+            list.extend(current.take());
+            current = n.trim().parse().ok().map(|index| SinkInput { index, apps: Vec::new(), volume: Volume { level: 0.0, muted: false } });
+            continue;
+        }
+        let Some(c) = current.as_mut() else { continue };
+        if let Some(m) = line.strip_prefix("Mute:") {
+            c.volume.muted = m.trim() == "yes";
+        } else if line.starts_with("Volume:") {
+            if let Some(level) = parse_pactl_volume(line) {
+                c.volume.level = level;
+            }
+        } else if let Some((key, value)) = line.split_once(" = ") {
+            if key == "application.process.binary" || key == "application.name" {
+                c.apps.push(value.trim().trim_matches('"').to_string());
+            }
+        }
+    }
+    list.extend(current);
+    list
 }
 
 /// pactl's "Volume: front-left: 29491 /  45% / …" → 0.45.
@@ -146,99 +210,144 @@ pub fn parse_pactl_volume(out: &str) -> Option<f64> {
     pct.parse::<f64>().ok().map(|p| (p / 100.0).clamp(0.0, 1.0))
 }
 
-// ── Volume ────────────────────────────────────────────────────────────────────
+// ── Volume: the playing app in the system mixer ──────────────────────────────
 
 #[cfg(windows)]
 mod volume {
-    use super::Volume;
-    use windows::Win32::Media::Audio::Endpoints::IAudioEndpointVolume;
-    use windows::Win32::Media::Audio::{eMultimedia, eRender, IMMDeviceEnumerator, MMDeviceEnumerator};
+    use super::{app_matches, Volume};
+    use windows::core::Interface;
+    use windows::Win32::Foundation::CloseHandle;
+    use windows::Win32::Media::Audio::{
+        eMultimedia, eRender, IAudioSessionControl2, IAudioSessionManager2, IMMDeviceEnumerator, ISimpleAudioVolume,
+        MMDeviceEnumerator,
+    };
     use windows::Win32::System::Com::{CoCreateInstance, CoInitializeEx, CLSCTX_ALL, COINIT_MULTITHREADED};
+    use windows::Win32::System::Threading::{
+        OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32, PROCESS_QUERY_LIMITED_INFORMATION,
+    };
 
-    fn endpoint() -> Option<IAudioEndpointVolume> {
+    /// The audio sessions of the app playing as `source`, on the default output
+    /// (a browser has several: all of them).
+    fn sessions(source: &str) -> Vec<ISimpleAudioVolume> {
+        let mut out = Vec::new();
         unsafe {
             let _ = CoInitializeEx(None, COINIT_MULTITHREADED);
-            let devices: IMMDeviceEnumerator = CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL).ok()?;
-            let device = devices.GetDefaultAudioEndpoint(eRender, eMultimedia).ok()?;
-            device.Activate::<IAudioEndpointVolume>(CLSCTX_ALL, None).ok()
+            let Ok(devices) = CoCreateInstance::<_, IMMDeviceEnumerator>(&MMDeviceEnumerator, None, CLSCTX_ALL) else {
+                return out;
+            };
+            let Ok(device) = devices.GetDefaultAudioEndpoint(eRender, eMultimedia) else { return out };
+            let Ok(manager) = device.Activate::<IAudioSessionManager2>(CLSCTX_ALL, None) else { return out };
+            let Ok(list) = manager.GetSessionEnumerator() else { return out };
+            for i in 0..list.GetCount().unwrap_or(0) {
+                let Ok(control) = list.GetSession(i) else { continue };
+                let Ok(control) = control.cast::<IAudioSessionControl2>() else { continue };
+                let pid = control.GetProcessId().unwrap_or(0);
+                if pid == 0 || !exe_name(pid).is_some_and(|exe| app_matches(source, &exe)) {
+                    continue;
+                }
+                if let Ok(volume) = control.cast::<ISimpleAudioVolume>() {
+                    out.push(volume);
+                }
+            }
+        }
+        out
+    }
+
+    fn exe_name(pid: u32) -> Option<String> {
+        unsafe {
+            let process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid).ok()?;
+            let mut buf = [0u16; 1024];
+            let mut len = buf.len() as u32;
+            let named = QueryFullProcessImageNameW(process, PROCESS_NAME_WIN32, windows::core::PWSTR(buf.as_mut_ptr()), &mut len);
+            let _ = CloseHandle(process);
+            named.ok()?;
+            let path = String::from_utf16_lossy(&buf[..len as usize]);
+            path.rsplit(['\\', '/']).next().map(str::to_string)
         }
     }
 
-    pub fn get() -> Option<Volume> {
-        let e = endpoint()?;
+    pub fn get(source: &str) -> Option<Volume> {
+        let first = sessions(source).into_iter().next()?;
         unsafe {
             Some(Volume {
-                level: e.GetMasterVolumeLevelScalar().ok()? as f64,
-                muted: e.GetMute().map(|b| b.as_bool()).unwrap_or(false),
+                level: first.GetMasterVolume().ok()? as f64,
+                muted: first.GetMute().map(|b| b.as_bool()).unwrap_or(false),
             })
         }
     }
 
-    pub fn set(level: f64) -> bool {
-        let Some(e) = endpoint() else { return false };
-        unsafe {
-            // Moving the slider also brings the sound back, as the Windows one does.
-            let _ = e.SetMute(false, std::ptr::null());
-            e.SetMasterVolumeLevelScalar(level as f32, std::ptr::null()).is_ok()
+    pub fn set(source: &str, level: f64) -> bool {
+        let mut done = false;
+        for v in sessions(source) {
+            unsafe {
+                // Moving the slider also brings the sound back, as the mixer does.
+                let _ = v.SetMute(false, std::ptr::null());
+                done |= v.SetMasterVolume(level as f32, std::ptr::null()).is_ok();
+            }
         }
+        done
     }
 
-    pub fn mute(muted: bool) -> bool {
-        endpoint().is_some_and(|e| unsafe { e.SetMute(muted, std::ptr::null()).is_ok() })
+    pub fn mute(source: &str, muted: bool) -> bool {
+        let mut done = false;
+        for v in sessions(source) {
+            done |= unsafe { v.SetMute(muted, std::ptr::null()).is_ok() };
+        }
+        done
     }
 }
 
 #[cfg(target_os = "linux")]
 mod volume {
-    use super::{parse_pactl_volume, parse_wpctl, Volume};
+    use super::{app_matches, parse_sink_inputs, SinkInput, Volume};
     use std::process::{Command, Stdio};
 
-    fn run(cmd: &str, args: &[&str]) -> Option<String> {
-        let out = Command::new(cmd).args(args).stdin(Stdio::null()).stderr(Stdio::null()).output().ok()?;
+    fn pactl(args: &[&str]) -> Option<String> {
+        let out = Command::new("pactl").args(args).env("LC_ALL", "C").stdin(Stdio::null()).stderr(Stdio::null()).output().ok()?;
         out.status.success().then(|| String::from_utf8_lossy(&out.stdout).into_owned())
     }
 
-    /// PipeWire's wpctl first, else PulseAudio's pactl.
-    pub fn get() -> Option<Volume> {
-        if let Some(v) = run("wpctl", &["get-volume", "@DEFAULT_AUDIO_SINK@"]).as_deref().and_then(parse_wpctl) {
-            return Some(v);
-        }
-        let level = parse_pactl_volume(&run("pactl", &["get-sink-volume", "@DEFAULT_SINK@"])?)?;
-        let muted = run("pactl", &["get-sink-mute", "@DEFAULT_SINK@"]).is_some_and(|m| m.contains("yes"));
-        Some(Volume { level, muted })
+    /// The sound streams of the app playing as `source` (PulseAudio, or PipeWire's pipewire-pulse).
+    fn streams(source: &str) -> Vec<SinkInput> {
+        let Some(out) = pactl(&["list", "sink-inputs"]) else { return Vec::new() };
+        parse_sink_inputs(&out).into_iter().filter(|s| s.apps.iter().any(|a| app_matches(source, a))).collect()
     }
 
-    pub fn set(level: f64) -> bool {
-        let text = format!("{level:.2}");
-        if run("wpctl", &["set-volume", "@DEFAULT_AUDIO_SINK@", &text]).is_some() {
-            let _ = run("wpctl", &["set-mute", "@DEFAULT_AUDIO_SINK@", "0"]);
-            return true;
-        }
+    pub fn get(source: &str) -> Option<Volume> {
+        streams(source).first().map(|s| s.volume)
+    }
+
+    pub fn set(source: &str, level: f64) -> bool {
         let pct = format!("{}%", (level * 100.0).round() as i64);
-        let ok = run("pactl", &["set-sink-volume", "@DEFAULT_SINK@", &pct]).is_some();
-        if ok {
-            let _ = run("pactl", &["set-sink-mute", "@DEFAULT_SINK@", "0"]);
+        let mut done = false;
+        for s in streams(source) {
+            let index = s.index.to_string();
+            let _ = pactl(&["set-sink-input-mute", &index, "0"]);
+            done |= pactl(&["set-sink-input-volume", &index, &pct]).is_some();
         }
-        ok
+        done
     }
 
-    pub fn mute(muted: bool) -> bool {
+    pub fn mute(source: &str, muted: bool) -> bool {
         let flag = if muted { "1" } else { "0" };
-        run("wpctl", &["set-mute", "@DEFAULT_AUDIO_SINK@", flag]).is_some()
-            || run("pactl", &["set-sink-mute", "@DEFAULT_SINK@", flag]).is_some()
+        let mut done = false;
+        for s in streams(source) {
+            done |= pactl(&["set-sink-input-mute", &s.index.to_string(), flag]).is_some();
+        }
+        done
     }
 }
 
 #[cfg(not(any(windows, target_os = "linux")))]
 mod volume {
     use super::Volume;
-    pub fn get() -> Option<Volume> {
+    pub fn get(_: &str) -> Option<Volume> {
         None
     }
-    pub fn set(_: f64) -> bool {
+    pub fn set(_: &str, _: f64) -> bool {
         false
     }
-    pub fn mute(_: bool) -> bool {
+    pub fn mute(_: &str, _: bool) -> bool {
         false
     }
 }
@@ -548,11 +657,42 @@ mod tests {
     }
 
     #[test]
-    fn linux_volumes_are_read() {
-        assert_eq!(parse_wpctl("Volume: 0.45\n"), Some(Volume { level: 0.45, muted: false }));
-        assert_eq!(parse_wpctl("Volume: 0.30 [MUTED]"), Some(Volume { level: 0.30, muted: true }));
-        assert_eq!(parse_wpctl("nope"), None);
+    fn pactl_volumes_are_read() {
         assert_eq!(parse_pactl_volume("Volume: front-left: 29491 /  45% / -20.81 dB,   front-right: 29491 /  45% / -20.81 dB"), Some(0.45));
+    }
+
+    #[test]
+    fn the_playing_app_is_found_in_the_mixer() {
+        // Windows: the media session's app id against the process's exe.
+        assert!(app_matches("Spotify.exe", "Spotify.exe"));
+        assert!(app_matches("SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify", "Spotify.exe"));
+        assert!(app_matches("AmazonMobileLLC.AmazonMusic_kc6t79cpj4tp0!AmazonMobileLLC.AmazonMusic", "Amazon Music.exe"));
+        assert!(app_matches("Chrome._crx_cinhimbnkkaeohfgghhklpknlkffjgod", "chrome.exe"));
+        assert!(app_matches("MSEdge", "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"));
+        assert!(!app_matches("Spotify.exe", "chrome.exe"));
+        assert!(!app_matches("MSEdge", "Spotify.exe"));
+        // Linux: the MPRIS name against the stream's binary.
+        assert!(app_matches("org.mpris.MediaPlayer2.spotify", "spotify"));
+        assert!(app_matches("org.mpris.MediaPlayer2.firefox.instance_1_42", "firefox"));
+        assert!(app_matches("org.mpris.MediaPlayer2.chromium.instance123", "chrome"));
+        assert!(app_matches("org.mpris.MediaPlayer2.chromium.instance123", "chromium"));
+        assert!(!app_matches("org.mpris.MediaPlayer2.spotify", "firefox"));
+        // Words that name no app never match.
+        assert!(!app_matches("org.mpris.MediaPlayer2.vlc", "org"));
+        assert!(!app_matches("org.mpris.MediaPlayer2.vlc", "mpris"));
+        assert!(!app_matches("Foo.exe", "exe"));
+    }
+
+    #[test]
+    fn pactl_sink_inputs_are_read() {
+        let out = "Sink Input #42\n\tDriver: protocol-native.c\n\tMute: no\n\tVolume: front-left: 29491 /  45% / -20.81 dB,   front-right: 29491 /  45% / -20.81 dB\n\t        balance 0.00\n\tProperties:\n\t\tapplication.name = \"Spotify\"\n\t\tapplication.process.binary = \"spotify\"\n\nSink Input #57\n\tMute: yes\n\tVolume: mono: 65536 / 100% / 0.00 dB\n\tProperties:\n\t\tapplication.name = \"Firefox\"\n";
+        let list = parse_sink_inputs(out);
+        assert_eq!(list.len(), 2);
+        assert_eq!(list[0], SinkInput { index: 42, apps: vec!["Spotify".into(), "spotify".into()], volume: Volume { level: 0.45, muted: false } });
+        assert_eq!(list[1].index, 57);
+        assert_eq!(list[1].volume, Volume { level: 1.0, muted: true });
+        assert_eq!(list[1].apps, vec!["Firefox".to_string()]);
+        assert!(parse_sink_inputs("").is_empty());
     }
 
     #[test]

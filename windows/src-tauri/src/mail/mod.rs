@@ -11,8 +11,12 @@
 //
 // Outlook is read every 60 s only while the pill is on or the sorting is, and only when
 // OUTLOOK.EXE runs: Ronron never starts Outlook, and a closed Outlook costs nothing.
+// Signed in to Microsoft 365 (graph.rs), Google (gmail.rs) or both, the accounts' inboxes
+// are read instead, merged; each message remembers its account (`store_id`), and every
+// action on it goes back there.
 // Ronron never deletes a message.
 
+pub mod gmail;
 pub mod graph;
 mod outlook;
 pub mod pdf;
@@ -124,8 +128,46 @@ fn is_graph(m: &Message) -> bool {
     m.store_id == graph::STORE
 }
 
+/// Signed in to Google: Gmail is read, beside Microsoft 365 when both are.
+fn via_gmail() -> bool {
+    crate::google::signed_in()
+}
+
+fn is_gmail(m: &Message) -> bool {
+    m.store_id == gmail::STORE
+}
+
+/// An account is signed in: its mailbox is read, Outlook or not.
+fn online() -> bool {
+    via_graph() || via_gmail()
+}
+
 fn reachable() -> bool {
-    via_graph() || outlook_open()
+    online() || outlook_open()
+}
+
+/// The signed-in accounts' inboxes, merged: {"unread", "messages"}. One account
+/// failing leaves the other's messages; all of them failing is an error.
+async fn list_online(count: usize) -> Result<Value, String> {
+    let (mut unread, mut messages, mut errors, mut tried) = (0, Vec::new(), Vec::new(), 0);
+    for (on, google) in [(via_graph(), false), (via_gmail(), true)] {
+        if !on {
+            continue;
+        }
+        tried += 1;
+        let listing = if google { gmail::list(count).await } else { graph::list(count).await };
+        match listing {
+            Ok(v) => {
+                unread += v["unread"].as_i64().unwrap_or(0);
+                messages.extend(v["messages"].as_array().cloned().unwrap_or_default());
+            }
+            Err(e) => errors.push(e),
+        }
+    }
+    if tried > 0 && errors.len() == tried {
+        return Err(errors.remove(0));
+    }
+    Ok(json!({ "unread": unread, "messages": messages }))
 }
 
 fn start_of_today() -> i64 {
@@ -138,8 +180,9 @@ fn emit_card(app: &AppHandle, running: bool) {
         let r = rt();
         json!({
             "running": running,
-            "windows": cfg!(windows) || via_graph(),
+            "windows": cfg!(windows) || online(),
             "graph": via_graph(),
+            "gmail": via_gmail(),
             "unread": r.last_unread,
             "messages": r.last,
             "shown": r.shown,
@@ -186,8 +229,8 @@ pub async fn poll(app: &AppHandle) {
     }
     let _busy_guard = BusyGuard(&BUSY);
     let per_inbox = { rt().shown.max(if auto { 30 } else { 0 }) };
-    let result = if via_graph() {
-        graph::list(per_inbox.max(KEEP)).await.map_err(RunError::Failed)
+    let result = if online() {
+        list_online(per_inbox.max(KEEP)).await.map_err(RunError::Failed)
     } else {
         outlook::run(outlook::list_script(per_inbox), TIMEOUT).await
     };
@@ -252,6 +295,8 @@ async fn triage(app: &AppHandle, list: &[Message]) {
 async fn perform(action: &Action, m: &Message, reason: Reason) -> Result<(), String> {
     let v = if is_graph(m) {
         graph::apply(&m.entry_id, action).await?
+    } else if is_gmail(m) {
+        gmail::apply(&m.entry_id, action).await?
     } else {
         outlook::run(outlook::apply_script(&m.entry_id, &m.store_id, action), TIMEOUT)
             .await
@@ -296,6 +341,8 @@ pub struct Detail {
 async fn detail(m: &Message, limit: usize) -> Option<Detail> {
     let v = if is_graph(m) {
         graph::detail(&m.entry_id, limit).await.ok()?
+    } else if is_gmail(m) {
+        gmail::detail(&m.entry_id, limit).await.ok()?
     } else {
         outlook::run(outlook::detail_script(&m.entry_id, &m.store_id, limit), TIMEOUT).await.ok()?
     };
@@ -323,12 +370,19 @@ pub async fn mail_more(app: AppHandle) {
 /// Searches every inbox; nothing to search: the card's list.
 #[tauri::command]
 pub async fn mail_search(query: String, filter: Filter) -> Result<Vec<Message>, String> {
-    if via_graph() {
+    if online() {
         let q = Query::parse(&query);
         if graph::kql(&q).is_none() && matches!(filter, Filter::All) {
             return Ok(rt().last.clone());
         }
-        let mut list = graph::search(&q, filter, MAX_SHOWN, start_of_today()).await?;
+        let mut list = Vec::new();
+        if via_graph() {
+            list.extend(graph::search(&q, filter, MAX_SHOWN, start_of_today()).await?);
+        }
+        if via_gmail() {
+            list.extend(gmail::search(&q, filter, MAX_SHOWN, start_of_today()).await?);
+        }
+        list.sort_by(|a, b| b.date.cmp(&a.date));
         list.truncate(MAX_SHOWN);
         return Ok(list);
     }
@@ -353,6 +407,9 @@ pub async fn mail_open(message: Message, reply: bool) -> Result<(), String> {
     if is_graph(&message) {
         return graph::open(&message.entry_id, body).await;
     }
+    if is_gmail(&message) {
+        return gmail::open(&message.entry_id, body).await;
+    }
     outlook::run(outlook::open_script(&message.entry_id, &message.store_id, body), TIMEOUT)
         .await
         .map(|_| ())
@@ -368,6 +425,8 @@ pub async fn mail_act(app: AppHandle, message: Message, kind: String) -> Result<
         "unflag" => {
             if is_graph(&message) {
                 graph::unflag(&message.entry_id).await?;
+            } else if is_gmail(&message) {
+                gmail::unflag(&message.entry_id).await?;
             } else {
                 outlook::run(outlook::unflag_script(&message.entry_id, &message.store_id), TIMEOUT)
                     .await
@@ -380,6 +439,8 @@ pub async fn mail_act(app: AppHandle, message: Message, kind: String) -> Result<
         "delete" => {
             if is_graph(&message) {
                 graph::delete(&message.entry_id).await?;
+            } else if is_gmail(&message) {
+                gmail::delete(&message.entry_id).await?;
             } else {
                 outlook::run(outlook::delete_script(&message.entry_id, &message.store_id), TIMEOUT)
                     .await
@@ -440,9 +501,9 @@ pub fn mail_triage() -> TriageView {
             "junk": today.iter().filter(|e| e.action == Action::Junk).count(),
             "important": today.iter().filter(|e| e.action == Action::Important).count(),
         }),
-        windows: cfg!(windows) || via_graph(),
+        windows: cfg!(windows) || online(),
         outlook_open: reachable(),
-        graph: via_graph(),
+        graph: online(),
     }
 }
 
@@ -463,6 +524,8 @@ pub async fn mail_undo(app: AppHandle, id: String) -> Result<(), String> {
     let entry = rt().store.journal.iter().find(|e| e.id == id && !e.undone).cloned().ok_or("not found")?;
     if entry.store_id == graph::STORE {
         graph::undo(&entry.entry_id, &entry.action).await?;
+    } else if entry.store_id == gmail::STORE {
+        gmail::undo(&entry.entry_id, &entry.action).await?;
     } else {
         outlook::run(outlook::undo_script(&entry.entry_id, &entry.store_id, &entry.action), TIMEOUT)
             .await
@@ -477,14 +540,21 @@ pub async fn mail_undo(app: AppHandle, id: String) -> Result<(), String> {
 
 /// The user's request with the latest messages under it, for the AI.
 pub async fn decorate(query: &str) -> String {
-    if !via_graph() && !cfg!(windows) {
+    if !online() && !cfg!(windows) {
         return format!("{query}\n\n<mail>Outlook is only reached on Windows: say so.</mail>");
     }
     if !reachable() {
         return format!("{query}\n\n<mail>Outlook is closed: ask the user to open the classic Outlook, then to ask again.</mail>");
     }
-    let accounts = if via_graph() {
-        graph::accounts().await.ok()
+    let accounts = if online() {
+        let mut all = Vec::new();
+        if via_graph() {
+            all.extend(graph::accounts().await.ok().and_then(|v| v["accounts"].as_array().cloned()).unwrap_or_default());
+        }
+        if via_gmail() {
+            all.extend(gmail::accounts().await.ok().and_then(|v| v["accounts"].as_array().cloned()).unwrap_or_default());
+        }
+        Some(json!({ "accounts": all }))
     } else {
         outlook::run(outlook::accounts_script(), TIMEOUT).await.ok()
     };
@@ -499,8 +569,8 @@ pub async fn decorate(query: &str) -> String {
             .unwrap_or_default();
         rt().accounts = accounts;
     }
-    let listing = if via_graph() {
-        graph::list(40).await.map_err(RunError::Failed)
+    let listing = if online() {
+        list_online(40).await.map_err(RunError::Failed)
     } else {
         outlook::run(outlook::list_script(20), TIMEOUT).await
     };
@@ -668,6 +738,8 @@ async fn save_attachments(m: &Message, only: Option<&str>) -> Vec<String> {
     let folder = dir.to_string_lossy().to_string();
     let saved = if is_graph(m) {
         graph::save_attachments(&m.entry_id, &folder, only).await.map_err(RunError::Failed)
+    } else if is_gmail(m) {
+        gmail::save_attachments(&m.entry_id, &folder, only).await.map_err(RunError::Failed)
     } else {
         outlook::run(outlook::save_attachments_script(&m.entry_id, &m.store_id, &folder, only), TIMEOUT).await
     };
@@ -878,11 +950,15 @@ pub fn mail_plan_cancel(app: AppHandle, id: String) {
 }
 
 /// Sends a mail through the classic Outlook when it is open; signed in to Microsoft 365
-/// without it, saves the mail in Drafts (Ronron has no permission to send through
-/// Graph). Ok(true) means "saved as a draft".
+/// or Google without it, saves the mail in that account's Drafts (Ronron never sends
+/// through either). Ok(true) means "saved as a draft".
 async fn send(to: &[String], cc: &[String], subject: &str, body: &str, attachments: &[String]) -> Result<bool, String> {
     if via_graph() && !outlook_open() {
         graph::draft(to, cc, subject, body, attachments).await?;
+        return Ok(true);
+    }
+    if via_gmail() && !outlook_open() {
+        gmail::draft(to, cc, subject, body, attachments).await?;
         return Ok(true);
     }
     outlook::run(outlook::send_script(to, cc, subject, body, attachments), TIMEOUT).await.map_err(|e| e.to_string())?;
@@ -909,6 +985,8 @@ async fn execute(app: &AppHandle, id: &str, run: PlanRun) {
     for (m, body) in &run.replies {
         let r = if is_graph(m) {
             graph::open(&m.entry_id, Some(body)).await.is_ok()
+        } else if is_gmail(m) {
+            gmail::open(&m.entry_id, Some(body)).await.is_ok()
         } else {
             outlook::run(outlook::open_script(&m.entry_id, &m.store_id, Some(body)), TIMEOUT).await.is_ok()
         };
@@ -917,6 +995,8 @@ async fn execute(app: &AppHandle, id: &str, run: PlanRun) {
     for (m, folder) in &run.saves {
         let r = if is_graph(m) {
             graph::save_attachments(&m.entry_id, folder, None).await.is_ok()
+        } else if is_gmail(m) {
+            gmail::save_attachments(&m.entry_id, folder, None).await.is_ok()
         } else {
             outlook::run(outlook::save_attachments_script(&m.entry_id, &m.store_id, folder, None), TIMEOUT).await.is_ok()
         };
