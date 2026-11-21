@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.11.0",
+      "items": [
+        {
+          "icon": "checklist",
+          "title": {
+            "en": "Settings rearranged",
+            "zh-Hans": "设置重新整理",
+            "hi": "सेटिंग्स नए सिरे से",
+            "es": "Ajustes reorganizados",
+            "ar": "إعادة ترتيب الإعدادات",
+            "fr": "Réglages réorganisés",
+            "bn": "সেটিংস নতুন করে সাজানো",
+            "pt-BR": "Ajustes reorganizados",
+            "ru": "Настройки по-новому",
+            "id": "Pengaturan ditata ulang",
+            "de": "Einstellungen neu geordnet",
+            "tr": "Ayarlar yeniden düzenlendi",
+            "ko": "새로 정리된 설정",
+            "ja": "設定を整理しました"
+          },
+          "detail": {
+            "en": "Ronron, Island, AI agents, Accounts, Voice, Mail, System: each setting in one place.",
+            "zh-Hans": "Ronron、岛、AI 代理、账户、语音、邮件、系统：每项设置只在一个地方。",
+            "hi": "Ronron, आइलैंड, AI एजेंट, खाते, आवाज़, मेल, सिस्टम: हर सेटिंग एक ही जगह।",
+            "es": "Ronron, Isla, Agentes de IA, Cuentas, Voz, Correo, Sistema: cada ajuste en un solo sitio.",
+            "ar": "Ronron والجزيرة ووكلاء الذكاء الاصطناعي والحسابات والصوت والبريد والنظام: كل إعداد في مكان واحد.",
+            "fr": "Ronron, Îlot, Agents IA, Comptes, Voix, Mail, Système : chaque réglage à un seul endroit.",
+            "bn": "Ronron, আইল্যান্ড, AI এজেন্ট, অ্যাকাউন্ট, ভয়েস, মেল, সিস্টেম: প্রতিটি সেটিং এক জায়গায়।",
+            "pt-BR": "Ronron, Ilha, Agentes de IA, Contas, Voz, E-mail, Sistema: cada ajuste num só lugar.",
+            "ru": "Ronron, Остров, ИИ-агенты, Аккаунты, Голос, Почта, Система: каждая настройка в одном месте.",
+            "id": "Ronron, Pulau, Agen AI, Akun, Suara, Email, Sistem: setiap pengaturan di satu tempat.",
+            "de": "Ronron, Insel, KI-Agenten, Konten, Stimme, Mail, System: jede Einstellung an einem Ort.",
+            "tr": "Ronron, Ada, Yapay zekâ ajanları, Hesaplar, Ses, Posta, Sistem: her ayar tek yerde.",
+            "ko": "Ronron, 아일랜드, AI 에이전트, 계정, 음성, 메일, 시스템: 설정마다 한 곳에.",
+            "ja": "Ronron・アイランド・AI エージェント・アカウント・音声・メール・システム：設定はそれぞれ一か所に。"
+          }
+        },
+        {
+          "icon": "heart",
+          "title": {
+            "en": "Ronron on every tab",
+            "zh-Hans": "每个标签页都有 Ronron",
+            "hi": "हर टैब पर Ronron",
+            "es": "Ronron en cada pestaña",
+            "ar": "Ronron في كل تبويب",
+            "fr": "Ronron sur chaque onglet",
+            "bn": "প্রতিটি ট্যাবে Ronron",
+            "pt-BR": "Ronron em cada aba",
+            "ru": "Ronron на каждой вкладке",
+            "id": "Ronron di setiap tab",
+            "de": "Ronron auf jedem Tab",
+            "tr": "Her sekmede Ronron",
+            "ko": "모든 탭에 Ronron",
+            "ja": "すべてのタブに Ronron"
+          },
+          "detail": {
+            "en": "The open island shows Ronron himself, whatever pill is shown.",
+            "zh-Hans": "无论显示哪个药丸，打开的岛上都是 Ronron 本人。",
+            "hi": "कोई भी पिल दिखे, खुले आइलैंड में Ronron खुद दिखता है।",
+            "es": "La isla abierta muestra a Ronron en persona, sea cual sea la píldora.",
+            "ar": "تعرض الجزيرة المفتوحة Ronron نفسه أيًا كانت الحبة المعروضة.",
+            "fr": "L'îlot ouvert montre Ronron lui-même, quelle que soit la pastille.",
+            "bn": "যে পিলই দেখানো হোক, খোলা আইল্যান্ডে Ronron নিজেই থাকে।",
+            "pt-BR": "A ilha aberta mostra o próprio Ronron, seja qual for a pílula.",
+            "ru": "Открытый остров показывает самого Ronron, какая бы пилюля ни была выбрана.",
+            "id": "Pulau yang terbuka menampilkan Ronron sendiri, apa pun pilnya.",
+            "de": "Die offene Insel zeigt Ronron selbst, egal welche Pille gezeigt wird.",
+            "tr": "Hangi hap gösterilirse gösterilsin açık ada Ronron'un kendisini gösterir.",
+            "ko": "어떤 필이든 열린 아일랜드에는 Ronron 자신이 나와요.",
+            "ja": "どのピルを表示していても、開いたアイランドには Ronron 本人が登場します。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.10.0",
       "items": [
         {

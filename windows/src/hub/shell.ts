@@ -14,7 +14,8 @@ import { searchSettings, type SettingsSearchHit } from "./search";
 
 export type PageId =
   | "dictation" | "notes" | "insights" | "dictionary" | "snippets" | "styles" | "flowsettings"
-  | "general" | "pills" | "agents" | "chat" | "voice" | "integrations" | "phone" | "shortcuts"
+  | "appearance" | "general" | "pills" | "agents" | "chat" | "voice" | "accounts" | "integrations" | "phone" | "shortcuts"
+  | "system"
   | "mailOverview" | "mailRules" | "mailBanned" | "mailVIP";
 
 interface PageDef {
@@ -25,6 +26,38 @@ interface PageDef {
   subtitle?: () => string;
 }
 
+/** A heading of the sidebar and its pages. */
+interface PageGroup {
+  title: () => string;
+  pages: PageDef[];
+}
+
+// The sidebar follows what you want to set, not the app's history: Ronron himself,
+// the island, the AI agents, your accounts and services, your voice, the mail and
+// the system. Page ids are internal (Rust opens "general" and "settings"), so they
+// stay as they were where a page kept its job.
+
+export const RONRON_PAGES: PageDef[] = [
+  { id: "appearance", icon: "palette", title: () => t("Appearance & sounds"), subtitle: () => t("Ronron's sounds, and your own in their place.") },
+];
+
+export const ISLAND_PAGES: PageDef[] = [
+  { id: "general", icon: "gear", title: () => t("Behavior"), subtitle: () => t("When the island opens, what it shows once closed, and on which screen.") },
+  { id: "pills", icon: "grid", title: () => t("Active pills"), subtitle: () => t("The pills shown in the island, their order and their colours.") },
+  { id: "shortcuts", icon: "keyboard", title: () => t("Shortcuts"), subtitle: () => t("The keys that open the island and its actions.") },
+];
+
+export const AI_PAGES: PageDef[] = [
+  { id: "agents", icon: "terminal", title: () => t("Agents"), subtitle: () => t("Claude Code, Codex and the other agents Ronron follows.") },
+  { id: "chat", icon: "chat", title: () => t("Chat"), subtitle: () => t("The AI of the island's chat, with your own keys.") },
+];
+
+export const ACCOUNT_PAGES: PageDef[] = [
+  { id: "accounts", icon: "user", title: () => t("Accounts"), subtitle: () => t("Microsoft 365 and Google: your mail, calendars and tasks.") },
+  { id: "integrations", icon: "puzzle", title: () => t("Integrations"), subtitle: () => t("Stripe, GitHub, Vercel, n8n, Notion and the rest.") },
+  { id: "phone", icon: "phone", title: () => t("Android phone"), subtitle: () => t("Your agents and their approvals on your Android phone, over your Wi-Fi.") },
+];
+
 export const FLOW_PAGES: PageDef[] = [
   { id: "dictation", icon: "mic", title: () => t("Dictation") },
   { id: "notes", icon: "record", title: () => t("Notetaker") },
@@ -32,21 +65,11 @@ export const FLOW_PAGES: PageDef[] = [
   { id: "dictionary", icon: "book", title: () => t("Dictionary") },
   { id: "snippets", icon: "bolt", title: () => t("Snippets") },
   { id: "styles", icon: "text", title: () => t("Styles") },
-  { id: "flowsettings", icon: "sliders", title: () => t("Settings") },
-];
-
-export const NOTCH_PAGES: PageDef[] = [
-  { id: "general", icon: "gear", title: () => t("General"), subtitle: () => t("Ronron, his sounds and how the island behaves.") },
-  { id: "pills", icon: "grid", title: () => t("Active pills"), subtitle: () => t("The pills shown in the island, their order and their colours.") },
-  { id: "agents", icon: "terminal", title: () => t("Agents"), subtitle: () => t("Claude Code, Codex and the other agents Ronron follows.") },
-  { id: "chat", icon: "chat", title: () => t("Chat"), subtitle: () => t("The AI of the island's chat, with your own keys.") },
   { id: "voice", icon: "wave", title: () => "OK Ronron" },
-  { id: "integrations", icon: "puzzle", title: () => t("Integrations"), subtitle: () => t("Stripe, GitHub, Vercel, n8n, Notion and the rest.") },
-  { id: "phone", icon: "phone", title: () => t("Android phone"), subtitle: () => t("Your agents and their approvals on your Android phone, over your Wi-Fi.") },
-  { id: "shortcuts", icon: "keyboard", title: () => t("Shortcuts"), subtitle: () => t("The keys that open the island and its actions.") },
+  { id: "flowsettings", icon: "sliders", title: () => t("Dictation settings") },
 ];
 
-/** Mail (classic Outlook): Windows only, Linux has no Outlook. */
+/** Mail (classic Outlook, Microsoft 365 or Gmail): sorting, rules, banned words, VIPs. */
 export const MAIL_PAGES: PageDef[] = [
   { id: "mailOverview", icon: "tray", title: () => t("Overview") },
   { id: "mailRules", icon: "filter", title: () => t("Rules") },
@@ -54,7 +77,23 @@ export const MAIL_PAGES: PageDef[] = [
   { id: "mailVIP", icon: "star", title: () => t("VIP") },
 ];
 
-const ALL = [...FLOW_PAGES, ...NOTCH_PAGES, ...MAIL_PAGES];
+export const SYSTEM_PAGES: PageDef[] = [
+  { id: "system", icon: "power", title: () => t("Startup, language & updates"), subtitle: () => t("Launch at startup, the language, new versions and your history.") },
+];
+
+const GROUPS: PageGroup[] = [
+  { title: () => "Ronron", pages: RONRON_PAGES },
+  { title: () => t("Island"), pages: ISLAND_PAGES },
+  { title: () => t("AI agents"), pages: AI_PAGES },
+  { title: () => t("Accounts & services"), pages: ACCOUNT_PAGES },
+  { title: () => t("Voice"), pages: FLOW_PAGES },
+  { title: () => "Mail", pages: MAIL_PAGES },
+  { title: () => t("System"), pages: SYSTEM_PAGES },
+];
+
+/** Every page, in the sidebar's order. */
+export const HUB_PAGES = GROUPS.flatMap((g) => g.pages);
+const ALL = HUB_PAGES;
 
 /** What a page gets to draw itself and reach the rest of the window. */
 export interface HubContext {
@@ -241,9 +280,7 @@ export async function startHub(root: HTMLElement, opts: HubOptions) {
     }
     return heading;
   };
-  group("Flow", FLOW_PAGES);
-  const notchGroup = group(t("Notch"), NOTCH_PAGES);
-  group("Mail", MAIL_PAGES);
+  const headings = GROUPS.map((g) => ({ g, heading: group(g.title(), g.pages) }));
 
   function renderSearchResults() {
     clear(resultsContainer);
@@ -337,7 +374,7 @@ export async function startHub(root: HTMLElement, opts: HubOptions) {
         const label = labels.get(p.id);
         if (label) label.textContent = p.title();
       }
-      notchGroup.textContent = t("Notch");
+      for (const { g, heading } of headings) heading.textContent = g.title();
       drawStatus();
       void show(current);
     },

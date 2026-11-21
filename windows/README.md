@@ -45,10 +45,10 @@ You can also [build it yourself](#build-it-yourself).
 
 | What you do | What happens |
 |---|---|
-| Look at the top-centre of the screen | The closed island: a small black island that stays there while Ronron runs, where a Mac has its notch. It shows Ronron, as on a Mac without a notch, or the time, the date and the time, your Claude usage or what's playing (**Settings → General → Closed island shows**). **Hide the island** keeps nothing there: move the pointer to the very top-centre of the screen instead |
+| Look at the top-centre of the screen | The closed island: a small black island that stays there while Ronron runs, where a Mac has its notch. It shows Ronron, as on a Mac without a notch, or the time, the date and the time, your Claude usage or what's playing (**Settings → Island → Behavior → Closed island shows**). **Hide the island** keeps nothing there: move the pointer to the very top-centre of the screen instead |
 | Move the pointer onto the closed island | Ronron peeks out: the compact island |
 | A permission, a question or a WhatsApp message comes in | The closed island comes back on its own. Work starting or finishing, a deploy, music playing don't bring it back: it keeps what **Closed island shows**, and the pill keeps a badge |
-| Click the small island | It opens. With **Settings → General → Open on hover**, resting the pointer on it is enough, and it folds again shortly after the pointer leaves (click inside to keep it open) |
+| Click the small island | It opens. With **Settings → Island → Behavior → Open on hover**, resting the pointer on it is enough, and it folds again shortly after the pointer leaves (click inside to keep it open) |
 | The **✕** at the top right of the open island | Folds it back to the compact island now, without waiting for the auto-close |
 | Click Ronron | It gets annoyed. Three times in a row and it goes dizzy |
 | Rest the pointer on Ronron for two seconds | Hearts |
@@ -60,7 +60,7 @@ You can also [build it yourself](#build-it-yourself).
 | The terminal tab in the island's header | **New Claude Code session**: pick a project (the folders your sessions ran in, or **Choose a folder…**), type what Claude should do, and your terminal opens there running `claude` with it |
 | Click a file in the session ticker | Its diff opens in the island; ↗ opens the file in VS Code, ‹ or `Esc` goes back |
 | `Esc` | Closes the island |
-| Put a file named like one of Ronron's sounds (`finish.wav`, `approval.mp3`, `greet.m4a`…) in the sounds folder | It replaces that sound after **Settings → General → Reload sounds**. **Open sounds folder** shows the folder: `~/.config/ronron/sounds` on Linux, `%APPDATA%\Ronron\sounds` on Windows |
+| Put a file named like one of Ronron's sounds (`finish.wav`, `approval.mp3`, `greet.m4a`…) in the sounds folder | It replaces that sound after **Settings → Ronron → Appearance & sounds → Reload sounds**. **Open sounds folder** shows the folder: `~/.config/ronron/sounds` on Linux, `%APPDATA%\Ronron\sounds` on Windows |
 | Tray icon | Open, Weekly recap, Wardrobe…, Settings…, Pause, Quit — and **Update Ronron to X…** while a new version is out |
 | `Ctrl+Alt+Space` | Opens the chat, from any app |
 | `Ctrl+Alt+A` | Jumps to the waiting permission or question |
@@ -139,13 +139,13 @@ against its SHA-256, kept in Ronron's data folder under `Models`).
 
 | What you do | What happens |
 |---|---|
-| Hold **right Ctrl** anywhere, speak, let go | Your words are pasted where you type. Pick another key in Flow → Settings: right Alt, right Shift, Ctrl + Win (Ctrl + Super on Linux) |
-| Tap the key twice (once with **Hands-free with one press** on, in Flow → Settings) | Hands-free: speak as long as you like, tap once to paste. `Esc` cancels |
-| Hover the pill at the bottom of the screen | Dictate, record a call, open Ronron. Put the pill on the left or right edge in Flow → Settings |
+| Hold **right Ctrl** anywhere, speak, let go | Your words are pasted where you type. Pick another key in Voice → Dictation settings: right Alt, right Shift, Ctrl + Win (Ctrl + Super on Linux) |
+| Tap the key twice (once with **Hands-free with one press** on, in Voice → Dictation settings) | Hands-free: speak as long as you like, tap once to paste. `Esc` cancels |
+| Hover the pill at the bottom of the screen | Dictate, record a call, open Ronron. Put the pill on the left or right edge in Voice → Dictation settings |
 | Click **Record a call** | Your microphone and what the computer plays, transcribed live, then written person by person with a summary and to-dos by Claude (your key). The audio is deleted once the transcript is written |
-| Say **« OK Ronron »**, then ask | Claude (your key) answers in the pill and out loud: pills, Spotify, your services' numbers, your agents, web search, open an app, an email prepared in your mail app. Turn it on in Notch → OK Ronron |
+| Say **« OK Ronron »**, then ask | Claude (your key) answers in the pill and out loud: pills, Spotify, your services' numbers, your agents, web search, open an app, an email prepared in your mail app. Turn it on in Voice → OK Ronron |
 
-Your voice never leaves the computer. With Claude's clean-up (Flow → Styles),
+Your voice never leaves the computer. With Claude's clean-up (Voice → Styles),
 a call's summary or « OK Ronron », the text — never the audio — goes to
 Anthropic with your key; an ElevenLabs voice for the answers sends them to
 ElevenLabs with yours.
@@ -217,7 +217,7 @@ it on the clipboard. **Hide project names** leaves the project out of the image.
 
 The history is `recap.json` next to the log, a 12-week rolling window: counts,
 the agent and the project folder's name — never a command, a file path, file
-contents or a prompt. It never leaves your machine. **Settings → General →
+contents or a prompt. It never leaves your machine. **Settings → System →
 Weekly recap** turns it off or clears it.
 
 ## Languages
@@ -322,7 +322,7 @@ is off or Ronron is paused.
 
 One sign-in gives three pills their data through Microsoft Graph: **To Do** (your tasks), **Calendar** (your Outlook calendar, read only) and **Mail** (your mailbox, instead of the classic Outlook). Nothing goes through a Ronron server: Ronron only ever talks to `login.microsoftonline.com` and `graph.microsoft.com`.
 
-**Sign in:** Settings → Integrations → **Microsoft 365** → **Sign in with Microsoft**. Microsoft's page opens in your browser; once you have signed in and accepted, it comes back to Ronron by itself (authorization code with PKCE, to a one-shot server on `localhost`). **Use a code instead** shows a code to enter at microsoft.com/devicelogin, from any device. The refresh token goes to the Windows Credential Manager or the Secret Service, in up to four pieces (Windows holds 1280 characters per entry); **Sign out** removes it. Then turn on the pills you want.
+**Sign in:** Settings → Accounts → **Microsoft 365** → **Sign in with Microsoft**. Microsoft's page opens in your browser; once you have signed in and accepted, it comes back to Ronron by itself (authorization code with PKCE, to a one-shot server on `localhost`). **Use a code instead** shows a code to enter at microsoft.com/devicelogin, from any device. The refresh token goes to the Windows Credential Manager or the Secret Service, in up to four pieces (Windows holds 1280 characters per entry); **Sign out** removes it. Then turn on the pills you want.
 
 **Permissions** (delegated, for the signed-in user only): `Tasks.ReadWrite` (tick tasks off, add some), `Calendars.Read`, `Mail.ReadWrite` (read, flag, move; Ronron never sends: there is no `Mail.Send`) and `User.Read`.
 
@@ -350,19 +350,19 @@ The pill refreshes every two minutes while it is turned on, and right after each
 
 **Without a Microsoft 365 account**, To Do keeps its tasks on this computer (`todo-local.json` next to the settings): add, tick off with Undo, in a list called *On this computer*. Once you sign in, that list stays beside your account's lists while it still holds tasks.
 
-**Several calendars and reminders:** Settings → Integrations → **Calendars** lists the Microsoft 365 account's calendars and your iCal ones (Google's secret address, Outlook's published calendar, iCloud… up to eight, `webcal://` or `https://`; the address is a secret and goes to the credential store, `ical-url-0` … `ical-url-7`). For each: **Shown in Ronron** and a **Reminder** (none, 5, 10, 15 or 30 min before). A reminder opens the island on the event a few minutes before, with **Join the meeting** for Teams, Meet or Zoom, **Open** and **OK**; it stays until you answer or the event starts. iCal recurring events (RRULE, EXDATE, moved occurrences) are expanded in their time zone, Outlook's Windows zone names included.
+**Several calendars and reminders:** Settings → Accounts → **Calendars** lists the Microsoft 365 account's calendars and your iCal ones (Google's secret address, Outlook's published calendar, iCloud… up to eight, `webcal://` or `https://`; the address is a secret and goes to the credential store, `ical-url-0` … `ical-url-7`). For each: **Shown in Ronron** and a **Reminder** (none, 5, 10, 15 or 30 min before). A reminder opens the island on the event a few minutes before, with **Join the meeting** for Teams, Meet or Zoom, **Open** and **OK**; it stays until you answer or the event starts. iCal recurring events (RRULE, EXDATE, moved occurrences) are expanded in their time zone, Outlook's Windows zone names included.
 
 **Music:** Settings → Integrations → **Music** → *Music tab in the header*. The tab shows what plays on this computer — the Spotify app, YouTube Music in a browser or as an app, Amazon Music, anything that shows in the system's media controls (Windows) or MPRIS (Linux) — with its cover, progress, **previous**, **play/pause** and **next**, a chip per player when there are several, and the **player's own volume** (a slider and mute for that app alone — its stream in the Windows mixer, or in PulseAudio / PipeWire through `pactl` on Linux — never the computer's volume). No account: YouTube Music and Amazon Music have no public API to drive playback, and Spotify's needs Premium. Read every 1.5 s while the tab is on screen, never otherwise.
 
 **The overview:** with no pill open, the four pills sit side by side, one space each (name, state, what it is doing); a free slot leads to Settings.
 
-**Fold when the pointer leaves** (Settings → General, on by default): the open island folds a moment after the pointer leaves it — not while the Ronron window is on screen, a card waits for an answer (permission, question, reminder) or something is being typed. Off, it waits for the auto-close delay as before.
+**Fold when the pointer leaves** (Settings → Island → Behavior, on by default): the open island folds a moment after the pointer leaves it — not while the Ronron window is on screen, a card waits for an answer (permission, question, reminder) or something is being typed. Off, it waits for the auto-close delay as before.
 
 **The compact island:** at rest, Ronron alone on the left — himself, ginger, as at launch — and your four pills on the right. A pill doing something (a session at work or waiting on you, an approval or error badge, unread WhatsApp) leaves the right and takes Ronron's place on the left; once you've answered, read or replied, or the turn is over, it goes back to the right.
 
 **A pill open:** clicking a pill in the overview gives its card the whole island, taller (as tall as a space), with every pill stacked in a column on the right, the open one lit. Click it again, or the overview's tab, to go back.
 
-**In the header, a space each:** Settings → Integrations → Microsoft 365 → **In the header** puts Calendar, Mail and To Do as tabs after the overview's (they take no pill slot; the pills stay in the overview). Each tab opens a space of three tiles, with Ronron at the foot of the left one:
+**In the header, a space each:** Settings → Accounts → Microsoft 365 → **In the header** puts Calendar, Mail and To Do as tabs after the overview's (they take no pill slot; the pills stay in the overview). Each tab opens a space of three tiles, with Ronron at the foot of the left one:
 
 | Space | Left | Middle | Right |
 |---|---|---|---|
@@ -379,7 +379,7 @@ The same three tabs as Microsoft 365 — Mail, Calendar, To Do — fed by a Goog
 1. Create a project, then turn on the **Gmail API**, **Google Calendar API** and **Google Tasks API** (APIs & Services → Library).
 2. **OAuth consent screen:** user type *External*, your address as a test user, then **Publish app** (in *Testing*, Google ends the sign-in after seven days). Google shows *This app isn't verified* when you sign in: it is your own project, click *Continue*.
 3. **Credentials → Create credentials → OAuth client ID**, type **Desktop app**.
-4. In Ronron: Settings → Integrations → **Google** → **Your Google Cloud project**, paste the client ID and the client secret, then **Sign in with Google**.
+4. In Ronron: Settings → Accounts → **Google** → **Your Google Cloud project**, paste the client ID and the client secret, then **Sign in with Google**.
 
 Google's page opens in your browser and comes back to Ronron by itself (authorization code with PKCE, to a one-shot server on `127.0.0.1`). The client ID, the secret and the refresh token go to the Windows Credential Manager or the Secret Service; **Sign out** removes the token. Ronron asks for Gmail (`gmail.modify`: read, star, label, archive, trash, drafts — never a permanent delete, never sending), the calendars (read only) and the tasks.
 
@@ -408,7 +408,7 @@ connection: nothing listens on the network, nothing to host.
 
 ## Mail (classic Outlook, Windows)
 
-Turn the **Mail** pill on in Notch → Active pills. Ronron reads the Outlook already open on
+Turn the **Mail** pill on in Island → Active pills. Ronron reads the Outlook already open on
 your PC — the classic Outlook of Microsoft 365, through its own COM objects — with no sign-in,
 no app to register at Microsoft and no admin consent. It never starts Outlook, and a closed
 Outlook costs nothing. The new Outlook for Windows has no COM objects, so it is not reached
@@ -493,7 +493,7 @@ Ronron can tell you when a new version is out, and on Windows install it in one
 click. Nothing goes to GitHub before you agree: about 30 seconds after launch the
 island asks once, **Get new versions from the island?** (asked again a day later
 at most if you leave the card unanswered, never over a permission or a question).
-**Settings → General → Updates** has the same switch, and **Check now**, which
+**Settings → System → Updates** has the same switch, and **Check now**, which
 looks once even with the switch off.
 
 Once allowed, Ronron asks GitHub at launch and every 6 hours:
@@ -791,7 +791,7 @@ on; other agents and Claude Desktop ask in their own window.
     busiest day, longest session, permissions and questions, which the Mac
     leaves to the image. A turn cut short by the session ending still counts.
   - Tray → Pause doesn't stop the history (it stays on the machine anyway);
-    switch it off in Settings → General.
+    switch it off in Settings → System.
 - The wardrobe opens with a right-click on Ronron, from the tray menu, or with
   its global shortcut (`Ctrl+Alt+G` by default). In the compact island a tall hat
   is cut by the top edge of the screen, as it is by the notch on a Mac.
