@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.2 — November 21, 2026
+
+- **To Do's ring counts the tasks you see**: with nothing due, Today shows every open task — its ring now counts them too (ticked off today, out of that plus the open ones), and the picker's *Today* number matches the list. It used to read 2/2 with two tasks still waiting.
+
 ## 0.11.1 — November 21, 2026
 
 - **The closed island you picked, at once**: once the pointer leaves the compact island — after a fold, a hover or the launch — what Settings → Behavior → *Closed island shows* asks for comes back after a second, instead of the compact island staying for a minute. A request or a message that brings the island back still keeps it out for a minute.

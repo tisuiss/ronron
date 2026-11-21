@@ -185,3 +185,24 @@ test("To Do: today's tasks, ticking one off, and the list picker", () => {
   assert.equal(view.el.querySelector(".sp-picker").textContent, "Maison - 1");
   assert.equal(view.el.find(".sp-menu-row").length, 0);
 });
+
+test("To Do: with nothing due, Today counts the open tasks it shows", () => {
+  State.view = "tasks";
+  State.integrations.integration_todo = {
+    data: {
+      lists: [{ id: "P", name: "Pro", default: true }],
+      tasks: [
+        { id: "a", listId: "P", list: "Pro", title: "Menu chat", importance: "normal", due: null },
+        { id: "b", listId: "P", list: "Pro", title: "Volume média", importance: "normal", due: null },
+      ],
+    },
+    error: null, loaded: true, configured: true,
+  };
+  const view = buildTodoSpace(actions());
+  view.sync();
+  assert.deepEqual(view.el.find(".sp-task").map((r) => r.getAttribute("data-task")), ["a", "b"]);
+  // Ticked off today, out of that plus the two still open: never done / done.
+  const [, done, total] = view.el.querySelector(".sp-ring-text").textContent.match(/(\d+)\/(\d+)/).map(Number);
+  assert.equal(total, done + 2);
+  assert.equal(view.el.querySelector(".sp-picker").textContent, "Today - 2");
+});
