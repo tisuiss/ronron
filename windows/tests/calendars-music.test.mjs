@@ -103,3 +103,16 @@ test("the Music space shows the track and drives the player", async () => {
   State.settings.headerPills = [];
   await new Promise((r) => setTimeout(r, 1600));
 });
+
+test("a pill is busy at work, with a badge, or with unread WhatsApp; asleep otherwise", async () => {
+  const { pillBusy } = await import("../src/core/state.ts");
+  const pill = (over) => ({ id: "agent_claude", state: "idle", pillBadge: null, ...over });
+  assert.equal(pillBusy(pill({ state: "working" })), true);
+  assert.equal(pillBusy(pill({ state: "approval" })), true);
+  assert.equal(pillBusy(pill({ pillBadge: "finished" })), true);
+  assert.equal(pillBusy(pill({})), false);
+  assert.equal(pillBusy(pill({ state: "finished" })), false);
+  assert.equal(pillBusy(pill({ id: "integration_whatsapp" }), 3), true);
+  assert.equal(pillBusy(pill({ id: "integration_whatsapp" }), 0), false);
+  assert.equal(pillBusy(pill({ id: "integration_github" })), false);
+});

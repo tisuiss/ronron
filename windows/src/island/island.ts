@@ -20,6 +20,8 @@ import { SPOTIFY_ID, Spotify, islandDances } from "../core/spotify";
 import { BotEngine, hexToRGB } from "../cat/engine";
 import { Greeting } from "../cat/greeting";
 import { createMiniBot, pruneMiniBots, syncMiniBotStates, tickMiniBots } from "../cat/minibots";
+import { pillBusy } from "../core/state";
+import { WhatsApp } from "../core/whatsapp";
 import { SeasonCache, parseOutfit } from "../cat/wardrobe";
 import { UploadCanvas } from "../upload/canvas";
 import { USC, UploadSeq, uploadProgressCurve } from "../upload/sequence";
@@ -78,6 +80,8 @@ export class Island {
   private botGlow!: HTMLElement;
   private greetingCanvas!: HTMLCanvasElement;
   private miniGrid!: HTMLElement;
+  /** The compact island's busy pills, left beside Ronron. */
+  private miniGridBusy!: HTMLElement;
   private clockEl!: HTMLElement;
   private clockTimer?: number;
   /** The closed island's one line (core/closed.ts), and what it last showed. */
@@ -358,6 +362,7 @@ export class Island {
     this.botCanvas = h("canvas", { id: "bot-canvas" });
     this.greetingCanvas = h("canvas", { id: "greeting-canvas" });
     this.miniGrid = h("div", { id: "mini-grid" });
+    this.miniGridBusy = h("div", { id: "mini-grid-busy" });
     this.clockEl = h("div", { id: "island-clock" });
     this.countdown = h("div", { id: "countdown" });
     this.compactPlanDot = h("i", { class: "compact-plan-dot" });
@@ -422,6 +427,7 @@ export class Island {
       this.botGlow,
       this.botCanvas,
       this.miniGrid,
+      this.miniGridBusy,
       this.compactPlan,
       this.clockEl,
       this.closedEl,
@@ -943,6 +949,9 @@ export class Island {
     // the state-driven DOM sync.
     this.miniGrid.style.left = `${w - 40 - 14.5}px`;
     this.miniGrid.style.top = `${hh / 2 - 14.5}px`;
+    // Just right of Ronron (compact: centre 40, 20 across).
+    this.miniGridBusy.style.left = "56px";
+    this.miniGridBusy.style.top = `${hh / 2 - 14.5}px`;
     this.clockEl.style.height = `${hh}px`;
     this.greetingCanvas.style.left = `${(w - EXPANDED_W) / 2}px`;
     this.uploadCanvas.el.style.left = `${(w - EXPANDED_W) / 2}px`;
@@ -1567,18 +1576,21 @@ export class Island {
       }
     }
 
-    // Compact mini grid
+    // Compact mini grids: the pills doing something (a session at work, a card waiting,
+    // unread WhatsApp) beside Ronron on the left; the others asleep on the right.
     const showGrid = State.mode === "compact";
-    this.miniGrid.style.opacity = showGrid ? "1" : "0";
+    const others = State.otherTasks.slice(0, 4);
+    const busy = others.filter((t) => pillBusy(t, WhatsApp.view.unread));
+    const quiet = others.filter((t) => !busy.includes(t));
+    this.miniGrid.style.opacity = showGrid && quiet.length ? "1" : "0";
+    this.miniGridBusy.style.opacity = showGrid && busy.length ? "1" : "0";
     if (showGrid) {
-      const others = State.otherTasks.slice(0, 4);
-      const key = others.map((t) => t.id).join("|");
-      if (this.miniGrid.dataset.key !== key) {
-        this.miniGrid.dataset.key = key;
-        this.miniGrid.replaceChildren();
-        for (const t of others) {
-          this.miniGrid.append(createMiniBot(t, 13));
-        }
+      for (const [grid, list] of [[this.miniGrid, quiet], [this.miniGridBusy, busy]] as const) {
+        const key = list.map((t) => t.id).join("|");
+        if (grid.dataset.key === key) continue;
+        grid.dataset.key = key;
+        grid.replaceChildren();
+        for (const t of list) grid.append(createMiniBot(t, 13));
         pruneMiniBots();
       }
     }

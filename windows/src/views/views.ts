@@ -5,6 +5,7 @@
 import { h, svg, clear, dot } from "./dom";
 import { ICONS } from "./icons";
 import { Ticker } from "./ticker";
+import { parseDiffStep } from "../core/diff";
 import { State, type AgentTask } from "../core/state";
 import { washRGBA, type IslandViewName, type Wash } from "../core/layout";
 import { createMiniBot, pruneMiniBots } from "../cat/minibots";
@@ -226,6 +227,8 @@ export function buildHeader(actions: ViewActions): ViewHost {
 
 /** The column of pills beside an open pill: as many as the taller island holds. */
 const TALL_PILLS = 7;
+/** Earlier steps shown above the ticker when a session's pill is open. */
+const HISTORY_LINES = 7;
 /** The overview's slots, side by side. */
 const SLOTS = 4;
 
@@ -264,7 +267,10 @@ function buildOverview(actions: ViewActions): ViewHost {
     State.notify();
   });
   const who = h("div", { class: "who" });
-  const tickerBody = h("div", { class: "card-body" }, who, ticker.el);
+  // A pill open (taller island): the session's earlier steps above the two the ticker scrolls.
+  const history = h("div", { class: "ticker-history" });
+  let historyKey = "";
+  const tickerBody = h("div", { class: "card-body" }, who, history, ticker.el);
   const leftBody = h("div", { class: "left-body" });
   const jump = h(
     "button",
@@ -469,6 +475,19 @@ function buildOverview(actions: ViewActions): ViewHost {
           }));
         }
         ticker.sync(task);
+        const earlier = State.pillOpen ? task.steps.slice(0, -2).slice(-HISTORY_LINES) : [];
+        const hk = JSON.stringify(earlier);
+        if (hk !== historyKey) {
+          historyKey = hk;
+          clear(history);
+          for (const step of earlier) {
+            const d = parseDiffStep(step);
+            history.append(h("div", { class: "history-row" },
+              svg(ICONS.check, 8, { stroke: 2.2 }),
+              h("span", { text: d ? d.filename : step }),
+              d ? h("span", { class: "tick-count" }, h("span", { class: "plus", text: `+${d.added}` }), h("span", { class: "minus", text: `−${d.removed}` })) : null));
+          }
+        }
       } else if (task && task.id === SPOTIFY_ID) {
         // Its own card for every state: playing, idle, not installed.
         if (mode !== "spotify") {
