@@ -159,7 +159,6 @@ export class Island {
   private botPress: { x: number; y: number } | null = null;
 
   /** The next reveal from hidden makes no peek (music starting, as on macOS). */
-  private silentReveal = false;
 
   /** Drop sequence bookkeeping: last tick played, and whether the ✓ has fired. */
   private uploadTens = 0;
@@ -473,7 +472,7 @@ export class Island {
           break;
         case "petit":
           if (from === "ronron") this.greeting.interrupt();
-          else if (from === "hidden" && !this.silentReveal) Sound.play("peek");
+          else if (from === "hidden") Sound.play("peek");
           this.setMode("compact");
           if (from === "ronron") State.view = State.defaultView();
           if (!this.wasInIsland) this.fsm.mouseLeft();
@@ -619,13 +618,6 @@ export class Island {
 
   reveal() {
     this.fsm.reveal();
-  }
-
-  /** Music started playing: the compact island, without the peek sound (musicReveal). */
-  revealSilently() {
-    this.silentReveal = true;
-    this.fsm.reveal();
-    this.silentReveal = false;
   }
 
   /** Right-click on Ronron: wardrobe open ↔ back to the usual view. */

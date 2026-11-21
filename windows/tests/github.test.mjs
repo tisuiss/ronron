@@ -166,8 +166,7 @@ test("the loudest event decides the badge and the sound", () => {
   assert.deepEqual(gitHubAlert([{ kind: "ciFailed", prId: "a" }]), { badge: "error", sound: "error" });
 });
 
-const island = { reveal: () => {} };
-registerIntegrationHandlers(island);
+registerIntegrationHandlers();
 
 const github = () => State.tasks.find((t) => t.id === GITHUB);
 

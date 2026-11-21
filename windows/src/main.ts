@@ -163,16 +163,16 @@ async function main() {
 
   registerHookHandlers(island);
   registerPhoneLink(island);
-  registerIntegrationHandlers(island);
+  registerIntegrationHandlers();
   registerShortcutHandlers(island, () => setPaused(false));
   registerVoiceHandlers();
-  registerSpotifyHandlers(island);
+  registerSpotifyHandlers();
   registerWhatsAppHandlers(island);
   // New versions: Rust offers the card, the island opens it when nothing else waits.
   await Updates.register(island);
   // Rust may have read Spotify before this page listened: ask once.
   if (State.settings.activeIntegrations.includes(SPOTIFY_ID)) {
-    void Bridge.spotifyRefresh().then((s) => s && applySpotify(island, s));
+    void Bridge.spotifyRefresh().then((s) => s && applySpotify(s));
   }
 
   // Monday recap: app start (greeting over), an agent starting work, waking up.

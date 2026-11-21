@@ -40,13 +40,11 @@ test("n8n card: shows workflow from initial seed and after 60s auto-clear", () =
   State.tasks = [task];
   State.focusId = "integration_claude";
 
-  let revealed = 0;
-  const island = { reveal() { revealed += 1; } };
   const hooks = { detailOpen: false, openDetail() {}, closeDetail() {}, openSettings() {} };
 
   try {
     // 1. Initial seed at launch (event: null) populates the card without triggering reveal/badge.
-    handleIntegrationUpdate(island, {
+    handleIntegrationUpdate({
       id: "integration_n8n",
       data: { id: "41", workflow: "Nightly sync", status: "success", detail: "→ HTTP · 1 item" },
       error: null,
@@ -55,7 +53,6 @@ test("n8n card: shows workflow from initial seed and after 60s auto-clear", () =
     assert.equal(State.integrations.integration_n8n.configured, true);
     assert.equal(State.integrations.integration_n8n.loaded, true);
     assert.equal(hasIntegrationData("integration_n8n"), true);
-    assert.equal(revealed, 0);
     assert.equal(task.pillBadge, undefined);
 
     const seededCard = renderIntegrationCard(task, hooks);
@@ -68,7 +65,7 @@ test("n8n card: shows workflow from initial seed and after 60s auto-clear", () =
     assert.ok(seededDetail.textContent.includes("Success"));
 
     // 2. Empty zone/workspace with 0 executions transitions idleStatus cleanly to "Connected".
-    handleIntegrationUpdate(island, {
+    handleIntegrationUpdate({
       id: "integration_n8n",
       data: {},
       error: null,
@@ -79,14 +76,13 @@ test("n8n card: shows workflow from initial seed and after 60s auto-clear", () =
     assert.ok(connectedIdle.textContent.includes("Connected"));
     assert.ok(!connectedIdle.textContent.includes("loading"));
 
-    // 3. New failed execution emits event -> sets badge/steps/state, calls reveal, and keeps card after 60s clear.
-    handleIntegrationUpdate(island, {
+    // 3. New failed execution emits event -> sets badge/steps/state, leaves a closed island closed, and keeps card after 60s clear.
+    handleIntegrationUpdate({
       id: "integration_n8n",
       data: { id: "42", workflow: "Deploy webhook", status: "error", detail: "HTTP Request\nECONNREFUSED" },
       error: null,
       event: { success: false, label: "Deploy webhook", detail: "HTTP Request\nECONNREFUSED" },
     });
-    assert.equal(revealed, 1);
     assert.equal(task.state, "error");
     assert.equal(task.pillBadge, "error");
     assert.deepEqual(task.steps, ["Deploy webhook", "HTTP Request\nECONNREFUSED"]);

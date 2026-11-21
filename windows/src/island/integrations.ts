@@ -7,14 +7,13 @@ import { gitHubAlert, type GitHubEvent } from "../core/github";
 import { availablePills } from "../core/pills";
 import { Sound } from "../core/sound";
 import { State } from "../core/state";
-import type { Island } from "./island";
 
 const GITHUB = "integration_github";
 
 const clearTimers = new Map<string, number>();
 
-export function registerIntegrationHandlers(island: Island) {
-  void onEvent<IntegrationUpdate>("integration", (update) => handleIntegrationUpdate(island, update));
+export function registerIntegrationHandlers() {
+  void onEvent<IntegrationUpdate>("integration", handleIntegrationUpdate);
   void onEvent<GitHubEvent[]>("github-alerts", handleGitHubAlerts);
   void onEvent<string>("secrets-changed", () => void refreshConfigured());
   void refreshConfigured();
@@ -91,7 +90,7 @@ export async function refreshHookPills() {
   State.notify();
 }
 
-export function handleIntegrationUpdate(island: Pick<Island, "reveal">, update: IntegrationUpdate) {
+export function handleIntegrationUpdate(update: IntegrationUpdate) {
   if (State.paused) return;
 
   const previous = State.integrations[update.id];
@@ -113,9 +112,8 @@ export function handleIntegrationUpdate(island: Pick<Island, "reveal">, update: 
         task.pillBadge = event.success ? "finished" : "error";
       }
       Sound.play(event.success ? "finish" : "error");
-      // Same as the Swift pollers: show the compact island so the badge is seen,
-      // but never steal the screen for a successful deploy.
-      island.reveal();
+      // The badge waits on the pill: a closed island stays closed (only a
+      // request or a message brings it back).
 
       const existing = clearTimers.get(update.id);
       if (existing != null) window.clearTimeout(existing);

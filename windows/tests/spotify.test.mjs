@@ -162,8 +162,7 @@ test("the engine dances only once asked, and keeps its frames going meanwhile", 
 
 // ── Reports from Rust ─────────────────────────────────────────────────────────
 
-const island = { reveals: 0, revealSilently() { this.reveals += 1; } };
-registerSpotifyHandlers(island);
+registerSpotifyHandlers();
 
 beforeEach(() => {
   setLanguage("en");
@@ -177,7 +176,6 @@ beforeEach(() => {
   State.loadIntegrationTasks();
   Spotify.state = { ...IDLE_SPOTIFY };
   Spotify.artwork = null;
-  island.reveals = 0;
 });
 
 const spotifyTask = () => State.tasks.find((t) => t.id === SPOTIFY_ID);
@@ -193,20 +191,16 @@ test("the pill wears the track's title, and its own name when nothing plays", ()
   assert.equal(spotifyTask().name, "Spotify");
 });
 
-test("music starting shows the hidden island once, silently; nothing on Windows-like setups", () => {
+test("music starting leaves a closed island closed: only a request or a message brings it back", () => {
   emit("spotify", playing({ playing: false }));
-  assert.equal(island.reveals, 0);
   emit("spotify", playing());
-  assert.equal(island.reveals, 1);
-  emit("spotify", playing({ position: 30 }));
-  assert.equal(island.reveals, 1, "only on not playing → playing");
   assert.ok(State.spotifyPlaying);
+  assert.equal(State.mode, "hidden");
 
-  // Not declared: nothing dances, nothing shows.
+  // Not declared: nothing dances.
   emit("spotify", { ...IDLE_SPOTIFY });
   State.settings.activeIntegrations = [];
   emit("spotify", playing());
-  assert.equal(island.reveals, 1);
   assert.ok(!State.spotifyPlaying);
 });
 

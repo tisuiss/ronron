@@ -108,6 +108,41 @@
             "ko": "Flow → 설정: 새 버전을 확인하고 한 번에 설치하세요.",
             "ja": "Flow → 設定：新しいバージョンを確認し、ワンクリックで導入。"
           }
+        },
+        {
+          "icon": "bell",
+          "title": {
+            "en": "A closed island stays closed",
+            "zh-Hans": "关闭的岛保持关闭",
+            "hi": "बंद आइलैंड बंद रहता है",
+            "es": "La isla cerrada sigue cerrada",
+            "ar": "الجزيرة المغلقة تبقى مغلقة",
+            "fr": "L'îlot fermé reste fermé",
+            "bn": "বন্ধ আইল্যান্ড বন্ধই থাকে",
+            "pt-BR": "A ilha fechada continua fechada",
+            "ru": "Закрытый остров остаётся закрытым",
+            "id": "Pulau tertutup tetap tertutup",
+            "de": "Die geschlossene Insel bleibt zu",
+            "tr": "Kapalı ada kapalı kalır",
+            "ko": "닫힌 아일랜드는 닫힌 채로",
+            "ja": "閉じたアイランドは閉じたまま"
+          },
+          "detail": {
+            "en": "Only a request or a WhatsApp message brings it back.",
+            "zh-Hans": "只有请求或 WhatsApp 消息才会让它重新出现。",
+            "hi": "केवल कोई अनुरोध या WhatsApp संदेश ही उसे वापस लाता है।",
+            "es": "Solo una solicitud o un mensaje de WhatsApp la hace volver.",
+            "ar": "لا يعيدها إلا طلب أو رسالة WhatsApp.",
+            "fr": "Seule une demande ou un message WhatsApp le fait revenir.",
+            "bn": "শুধু একটি অনুরোধ বা WhatsApp বার্তাই একে ফিরিয়ে আনে।",
+            "pt-BR": "Só um pedido ou uma mensagem do WhatsApp a traz de volta.",
+            "ru": "Вернуть его может только запрос или сообщение WhatsApp.",
+            "id": "Hanya permintaan atau pesan WhatsApp yang memunculkannya lagi.",
+            "de": "Nur eine Anfrage oder eine WhatsApp-Nachricht holt sie zurück.",
+            "tr": "Onu yalnızca bir istek ya da WhatsApp mesajı geri getirir.",
+            "ko": "요청이나 WhatsApp 메시지만 다시 불러옵니다.",
+            "ja": "戻ってくるのはリクエストか WhatsApp のメッセージだけ。"
+          }
         }
       ]
     },

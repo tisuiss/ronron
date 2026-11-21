@@ -47,6 +47,7 @@ You can also [build it yourself](#build-it-yourself).
 |---|---|
 | Look at the top-centre of the screen | The closed island: a small black island that stays there while Ronron runs, where a Mac has its notch. It shows Ronron, as on a Mac without a notch, or the time, the date and the time, your Claude usage or what's playing (**Settings → General → Closed island shows**). **Hide the island** keeps nothing there: move the pointer to the very top-centre of the screen instead |
 | Move the pointer onto the closed island | Ronron peeks out: the compact island |
+| A permission, a question or a WhatsApp message comes in | The closed island comes back on its own. Work starting or finishing, a deploy, music playing don't bring it back: it keeps what **Closed island shows**, and the pill keeps a badge |
 | Click the small island | It opens. With **Settings → General → Open on hover**, resting the pointer on it is enough, and it folds again shortly after the pointer leaves (click inside to keep it open) |
 | The **✕** at the top right of the open island | Folds it back to the compact island now, without waiting for the auto-close |
 | Click Ronron | It gets annoyed. Three times in a row and it goes dizzy |

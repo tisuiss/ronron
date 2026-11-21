@@ -4,6 +4,7 @@
 
 - **Pills go back to the right**: once nothing is waiting on you — a WhatsApp message read or replied to (from the island or the phone), a card answered, a turn finished — the pill leaves Ronron's place and goes back to sleep on the right. A "finished" badge no longer holds it on the left.
 - **Ronron at rest is Ronron**: in the compact island with no pill at work, the cat on the left is Ronron as he comes in at launch — his own ginger coat and at rest — not the colour of the pill you had open last.
+- **A closed island stays closed**: only a request (a permission, a question) or a WhatsApp message brings it back. A session at work or finishing, a deploy, music starting no longer do — the island keeps what Settings → Closed island shows, and the pill keeps its badge.
 - **Updates in the Ronron window**: Flow → Settings now has the update check too — your version, Check now, Install once a new one is out, and the switch to be told about new versions.
 - **The Ronron window's Ronron**: the cat by the name in the sidebar, and the ones walking in the page bands, are now Ronron in his ginger coat with his tail, as at launch, instead of white.
 
