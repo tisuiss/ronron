@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.11.2",
+      "items": [
+        {
+          "icon": "checklist",
+          "title": {
+            "en": "A To Do ring that adds up",
+            "zh-Hans": "To Do 圆环计数更准确",
+            "hi": "To Do की रिंग अब सही गिनती दिखाती है",
+            "es": "Un anillo de To Do que cuadra",
+            "ar": "حلقة To Do تحسب بشكل صحيح",
+            "fr": "Un anneau To Do qui tombe juste",
+            "bn": "To Do-র রিং এখন ঠিক গোনে",
+            "pt-BR": "Um anel do To Do que fecha a conta",
+            "ru": "Кольцо To Do считает верно",
+            "id": "Cincin To Do yang hitungannya pas",
+            "de": "Ein To-Do-Ring, der aufgeht",
+            "tr": "Doğru sayan To Do halkası",
+            "ko": "정확해진 To Do 링",
+            "ja": "To Do のリングが正しく数えます"
+          },
+          "detail": {
+            "en": "Done today, out of done plus the tasks Today still shows.",
+            "zh-Hans": "今天完成的任务数，占已完成加上“今天”仍显示的任务总数。",
+            "hi": "आज पूरे हुए, कुल में से: पूरे हुए और Today में बाकी दिखते काम।",
+            "es": "Hechas hoy, sobre las hechas más las que Hoy aún muestra.",
+            "ar": "المنجز اليوم، من مجموع المنجز والمهام التي ما زال «اليوم» يعرضها.",
+            "fr": "Faites aujourd'hui, sur les faites plus celles qu'Aujourd'hui affiche encore.",
+            "bn": "আজ শেষ হওয়া, মোট শেষ হওয়া আর Today-তে এখনও দেখানো কাজের মধ্যে।",
+            "pt-BR": "Feitas hoje, do total de feitas mais as que Hoje ainda mostra.",
+            "ru": "Сделано сегодня — из сделанных плюс тех, что ещё показывает «Сегодня».",
+            "id": "Selesai hari ini, dari yang selesai ditambah tugas yang masih tampil di Hari ini.",
+            "de": "Heute erledigt, von erledigten plus denen, die Heute noch zeigt.",
+            "tr": "Bugün bitenler; bitenler ile Bugün'de hâlâ görünen görevlerin toplamı içinden.",
+            "ko": "오늘 완료한 수 / 완료한 것과 오늘에 아직 보이는 할 일의 합.",
+            "ja": "今日終えた数 / 終えた数と「今日」にまだ表示されているタスクの合計。"
+          }
+        },
+        {
+          "icon": "terminal",
+          "title": {
+            "en": "Remote VS Code, heard again",
+            "zh-Hans": "远程 VS Code 重新连上",
+            "hi": "रिमोट VS Code फिर से जुड़ा",
+            "es": "VS Code remoto, conectado de nuevo",
+            "ar": "VS Code البعيد متصل من جديد",
+            "fr": "VS Code distant, de nouveau entendu",
+            "bn": "রিমোট VS Code আবার সংযুক্ত",
+            "pt-BR": "VS Code remoto, conectado de novo",
+            "ru": "Удалённый VS Code снова на связи",
+            "id": "VS Code jarak jauh, terhubung lagi",
+            "de": "Entferntes VS Code wieder verbunden",
+            "tr": "Uzak VS Code yeniden bağlı",
+            "ko": "원격 VS Code 다시 연결",
+            "ja": "リモート VS Code が再びつながる"
+          },
+          "detail": {
+            "en": "With two windows on one folder, the hook now talks to the newest.",
+            "zh-Hans": "同一文件夹开着两个窗口时，钩子现在会连到最新的那个。",
+            "hi": "एक फ़ोल्डर पर दो विंडो हों, तो हुक अब सबसे नई से बात करता है।",
+            "es": "Con dos ventanas en una carpeta, el hook habla ahora con la más reciente.",
+            "ar": "عند فتح نافذتين على مجلد واحد، يتواصل الخطاف الآن مع الأحدث.",
+            "fr": "Avec deux fenêtres sur un dossier, le hook parle maintenant à la plus récente.",
+            "bn": "একই ফোল্ডারে দুটি উইন্ডো থাকলে, হুক এখন সবচেয়ে নতুনটির সঙ্গে কথা বলে।",
+            "pt-BR": "Com duas janelas na mesma pasta, o hook agora fala com a mais recente.",
+            "ru": "Если на одну папку открыто два окна, хук теперь обращается к новейшему.",
+            "id": "Dengan dua jendela pada satu folder, hook kini terhubung ke yang terbaru.",
+            "de": "Bei zwei Fenstern auf einem Ordner spricht der Hook jetzt mit dem neuesten.",
+            "tr": "Aynı klasörde iki pencere varsa, hook artık en yenisiyle konuşur.",
+            "ko": "한 폴더에 창이 두 개면 이제 훅이 가장 최근 창과 연결돼요.",
+            "ja": "同じフォルダーに 2 つのウィンドウがあると、フックは最新の方とつながります。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.11.1",
       "items": [
         {

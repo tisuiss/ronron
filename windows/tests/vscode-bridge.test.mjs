@@ -45,6 +45,11 @@ test("an event goes to the window whose folder holds the session", () => {
   assert.equal(lib.pickBridge([a, b, c], "/home/g/ronron").socket, "a");
   assert.equal(lib.pickBridge([a, c], "/home/g/ronronx").socket, "c", "else the latest window");
   assert.equal(lib.pickBridge([], "/x"), null);
+  // Two windows on the same folder (an old one left over): the newest, in either order.
+  const old = { socket: "old", folders: ["/workspace/ronron"], started: 10 };
+  const now = { socket: "now", folders: ["/workspace/ronron"], started: 20 };
+  assert.equal(lib.pickBridge([old, now], "/workspace/ronron").socket, "now");
+  assert.equal(lib.pickBridge([now, old], "/workspace/ronron").socket, "now");
   assert.deepEqual(lib.pickEnv({ CLAUDE_CODE_ENTRYPOINT: "claude-vscode", HOME: "/root", SECRET: "x" }), { CLAUDE_CODE_ENTRYPOINT: "claude-vscode" });
 });
 

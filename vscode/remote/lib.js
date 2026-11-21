@@ -53,7 +53,9 @@ function hooksInstalled(settings) {
   return HOOK_EVENTS.every(([event]) => Array.isArray(hooks[event]) && hooks[event].some(isOurs));
 }
 
-/** The window whose folder holds `cwd` (the deepest), else the most recent one. */
+/** The window whose folder holds `cwd` (the deepest; the most recent of windows on the
+ *  same folder — an older one may be left over from a window whose tunnel is gone),
+ *  else the most recent one. */
 function pickBridge(bridges, cwd) {
   const norm = (p) => String(p || "").replace(/\/+$/, "");
   const inside = (folder) => {
@@ -64,9 +66,11 @@ function pickBridge(bridges, cwd) {
   let bestLen = -1;
   for (const b of bridges) {
     for (const folder of b.folders || []) {
-      if (inside(folder) && norm(folder).length > bestLen) {
+      const len = norm(folder).length;
+      const newer = best !== null && len === bestLen && (b.started || 0) > (best.started || 0);
+      if (inside(folder) && (len > bestLen || newer)) {
         best = b;
-        bestLen = norm(folder).length;
+        bestLen = len;
       }
     }
   }

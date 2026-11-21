@@ -634,10 +634,12 @@ export function buildTodoSpace(actions: ViewActions): ViewHost {
     if (k === key) return;
     key = k;
 
-    // Left: today's progress — ticked off in Ronron today, out of that plus what is still due.
+    // Left: today's progress — ticked off in Ronron today, out of that plus what Today still
+    // shows: the tasks due (late or today), or, when none is due, every open task.
     const dueNow = open.filter((x) => x.due !== null && x.due <= today);
+    const todayShown = dueNow.length ? dueNow : open;
     const doneCount = doneTodayCount(today);
-    const total = doneCount + dueNow.length;
+    const total = doneCount + todayShown.length;
     const late = overdueCount(open, today);
     const share = total ? doneCount / total : 0;
     clear(left);
@@ -652,7 +654,7 @@ export function buildTodoSpace(actions: ViewActions): ViewHost {
     const current = lists.find((l) => l.id === listFilter);
     const label = (name: string, n: number) => `${name} - ${n}`;
     const choices: { id: string | null; text: string }[] = [
-      { id: null, text: label(t("Today"), dueNow.length) },
+      { id: null, text: label(t("Today"), todayShown.length) },
       ...lists.map((l) => ({ id: l.id, text: label(l.name || t("Tasks"), counts.get(l.id) ?? 0) })),
     ];
     const shownChoice = choices.find((c) => c.id === (current ? current.id : null)) ?? choices[0];
@@ -694,7 +696,7 @@ export function buildTodoSpace(actions: ViewActions): ViewHost {
     if (signedOut(TODO_ID)) {
       rows.append(h("div", { class: "sp-empty", text: t("Sign in to Microsoft 365 or Google in Settings.") }));
     } else {
-      const shown = listFilter ? open.filter((x) => x.listId === listFilter) : dueNow.length ? dueNow : open;
+      const shown = listFilter ? open.filter((x) => x.listId === listFilter) : todayShown;
       const doneHere = done.filter((x) => !listFilter || x.listId === listFilter);
       for (const task of doneHere) rows.append(row(task, today));
       for (const task of shown) rows.append(row(task, today));
