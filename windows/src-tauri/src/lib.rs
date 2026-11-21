@@ -23,6 +23,7 @@ mod calcom;
 mod calendar365;
 mod ical;
 mod msgraph;
+mod google;
 mod todo;
 mod island;
 mod launch;
@@ -921,6 +922,10 @@ pub fn run() {
             msgraph::ms_sign_in_code,
             msgraph::ms_sign_in_cancel,
             msgraph::ms_sign_out,
+            google::google_account,
+            google::google_sign_in,
+            google::google_sign_in_cancel,
+            google::google_sign_out,
             todo::todo_set_done,
             todo::todo_add,
             mail::mail_more,

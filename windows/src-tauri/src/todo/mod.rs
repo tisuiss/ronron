@@ -1,4 +1,5 @@
-//! Microsoft To Do through Microsoft Graph (sign-in: crate::msgraph).
+//! Microsoft To Do through Microsoft Graph (sign-in: crate::msgraph), and Google
+//! Tasks (crate::google::tasks) beside it when a Google account is signed in.
 //!
 //! The pill polls every two minutes while it is declared (integrations.rs). The
 //! card can complete a task, undo that, and add one to the default list.
@@ -33,7 +34,7 @@ pub async fn poll(app: AppHandle) {
 
 /// Refreshes now (after a change or a sign-in), or clears the card when signed out.
 pub async fn poll_now(app: &AppHandle) {
-    let result = if msgraph::signed_in() {
+    let result = if msgraph::signed_in() || crate::google::signed_in() {
         tokio::time::timeout(Duration::from_secs(45), fetch()).await
             .unwrap_or_else(|_| Err(crate::i18n::t("No response text.")))
     } else {
@@ -64,26 +65,44 @@ fn local_only() -> Value {
 }
 
 async fn fetch() -> Result<Value, String> {
-    let lists = graph::lists().await?;
-    let mut tasks = Vec::new();
-    for list in lists.iter().take(graph::MAX_LISTS) {
-        tasks.extend(graph::open_tasks(list).await?);
-        if tasks.len() >= graph::MAX_TASKS {
-            break;
+    let mut lists: Vec<Value> = Vec::new();
+    let mut tasks: Vec<Value> = Vec::new();
+    if msgraph::signed_in() {
+        let ms = graph::lists().await?;
+        let mut found = Vec::new();
+        for list in ms.iter().take(graph::MAX_LISTS) {
+            found.extend(graph::open_tasks(list).await?);
+            if found.len() >= graph::MAX_TASKS {
+                break;
+            }
+        }
+        found.truncate(graph::MAX_TASKS);
+        lists.extend(ms.iter().map(|l| json!({ "id": l.id, "name": l.name, "default": l.default })));
+        tasks.extend(found.into_iter().filter_map(|t| serde_json::to_value(t).ok()));
+    }
+    if crate::google::signed_in() {
+        let google = crate::google::tasks::lists().await?;
+        // The account's first list is the default one, unless Microsoft's already is.
+        let first_default = !msgraph::signed_in();
+        for (i, list) in google.iter().enumerate() {
+            lists.push(json!({ "id": format!("{}{}", crate::google::tasks::PREFIX, list.id), "name": list.name, "default": first_default && i == 0 }));
+            tasks.extend(crate::google::tasks::open_tasks(list).await?);
         }
     }
-    tasks.truncate(graph::MAX_TASKS);
-    let mut lists: Vec<Value> = lists.iter().map(|l| json!({ "id": l.id, "name": l.name, "default": l.default })).collect();
-    let mut tasks: Vec<Value> = tasks.into_iter().filter_map(|t| serde_json::to_value(t).ok()).collect();
     // Tasks kept here before signing in stay, in their own list, until they are done.
     let here = local_tasks();
     if !here.is_empty() {
         lists.push(local_list(false));
         tasks.extend(here);
     }
+    let (account, web) = if msgraph::signed_in() {
+        (msgraph::auth::account(), msgraph::auth::web_url())
+    } else {
+        (crate::google::auth::account(), "https://tasks.google.com/")
+    };
     Ok(json!({
-        "account": msgraph::auth::account(),
-        "webUrl": msgraph::auth::web_url(),
+        "account": account,
+        "webUrl": web,
         "lists": lists,
         "tasks": tasks,
     }))
@@ -94,6 +113,8 @@ async fn fetch() -> Result<Value, String> {
 pub async fn todo_set_done(app: AppHandle, list_id: String, task_id: String, done: bool) -> Result<(), String> {
     if list_id == local::LIST_ID {
         local::set_done(&task_id, done)?;
+    } else if let Some(google) = list_id.strip_prefix(crate::google::tasks::PREFIX) {
+        crate::google::tasks::set_done(google, &task_id, done).await?;
     } else {
         graph::set_status(&list_id, &task_id, done).await?;
     }
@@ -109,8 +130,20 @@ pub async fn todo_add(app: AppHandle, title: String, list_id: Option<String>) ->
         return Ok(());
     }
     // Not signed in, or the local list asked for: kept on this computer.
-    if !msgraph::signed_in() || list_id.as_deref() == Some(local::LIST_ID) {
+    let google = crate::google::signed_in();
+    if (!msgraph::signed_in() && !google) || list_id.as_deref() == Some(local::LIST_ID) {
         local::add(title)?;
+        poll_now(&app).await;
+        return Ok(());
+    }
+    // A Google list, or the default list when only Google is signed in.
+    let google_list = match list_id.as_deref().filter(|id| !id.is_empty()) {
+        Some(id) => id.strip_prefix(crate::google::tasks::PREFIX).map(String::from),
+        None if !msgraph::signed_in() => Some("@default".to_string()),
+        None => None,
+    };
+    if let Some(list) = google_list {
+        crate::google::tasks::add(&list, title).await?;
         poll_now(&app).await;
         return Ok(());
     }
