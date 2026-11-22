@@ -20,8 +20,10 @@ Ronron lives in a small island at the top of the screen. He purrs while Claude C
 - 🤖 **Your agents, live**: Claude Code, Codex, Cursor, Gemini CLI, Copilot CLI and more: what they read, edit and run, with live diffs.
 - ✅ **Approve from the island**: permission requests and questions show up right away and wait for your answer.
 - 💬 **Chat** with Claude through your own subscription (Claude Code) or an API key, or with Gemini, OpenAI, OpenRouter or a local model.
-- 🎙️ **Flow**: hold a key, speak, let go: offline dictation with Parakeet. Plus a call **Notetaker** and « **OK Ronron** ».
-- 📬 **Mail** (classic Outlook), **GitHub**, **n8n**, **Stripe**, **Vercel**, **Cal.com**, **Notion**, **Spotify**, **WhatsApp**: each gets its own mini cat pill.
+- 🎙️ **Voice**: hold a key, speak, let go: offline dictation with Parakeet. Plus a call **Notetaker** and « **OK Ronron** ».
+- 📬 **Your accounts**: **Microsoft 365** and **Google** (Gmail, Google Calendar, Google Tasks), side by side, or the classic Outlook: Mail, Calendar and To Do as tabs at the top of the island.
+- 🧩 **GitHub**, **n8n**, **Stripe**, **Vercel**, **Cal.com**, **Notion**, **WhatsApp**, **Music** (Spotify, YouTube Music, Amazon Music…): each gets its own mini cat pill.
+- 🖥️ **Remote workspaces**: Claude Code running over VS Code Remote (Tunnels, SSH, containers) shows up too, through [Ronron for VS Code](vscode/README.md).
 
 The full guide (install, shortcuts, integrations, keys, building) is in **[windows/README.md](windows/README.md)**.
 

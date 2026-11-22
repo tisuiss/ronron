@@ -46,10 +46,10 @@ You can also [build it yourself](#build-it-yourself).
 | What you do | What happens |
 |---|---|
 | Look at the top-centre of the screen | The closed island: a small black island that stays there while Ronron runs, where a Mac has its notch. It shows Ronron, as on a Mac without a notch, or the time, the date and the time, your Claude usage or what's playing (**Settings → Island → Behavior → Closed island shows**). **Hide the island** keeps nothing there: move the pointer to the very top-centre of the screen instead |
-| Move the pointer onto the closed island | Ronron peeks out: the compact island |
+| Move the pointer onto the closed island | Ronron peeks out: the compact island. A second after the pointer leaves it, the closed island you picked comes back |
 | A permission, a question or a WhatsApp message comes in | The closed island comes back on its own. Work starting or finishing, a deploy, music playing don't bring it back: it keeps what **Closed island shows**, and the pill keeps a badge |
 | Click the small island | It opens. With **Settings → Island → Behavior → Open on hover**, resting the pointer on it is enough, and it folds again shortly after the pointer leaves (click inside to keep it open) |
-| The **✕** at the top right of the open island | Folds it back to the compact island now, without waiting for the auto-close |
+| The **✕** at the top right of the open island | Folds it back to the compact island now, without waiting for the auto-close; once the pointer is away, the closed island follows a second later |
 | Click Ronron | It gets annoyed. Three times in a row and it goes dizzy |
 | Rest the pointer on Ronron for two seconds | Hearts |
 | Right-click Ronron | The wardrobe: rest the pointer on an outfit to try it on, click to keep it. **Auto** dresses him for the season (witch hat in October, Santa hat in December…) |
@@ -127,11 +127,15 @@ session, and they are forgotten an hour after the last edit or when the session
 ends. When Claude finishes, the card keeps the first paragraph of its final
 answer on one line, still, until the next prompt.
 
-## Flow, the Notetaker and « OK Ronron »
+## Dictation, the Notetaker and « OK Ronron »
 
-Ronron has its own window (tray → Open, or launch Ronron again): **Flow** on the
-left (Dictation, Notetaker, Statistics, Dictionary, Snippets, Styles, Settings),
-then **Notch**, the island's settings. Everything below runs on
+Ronron has its own window (tray → Open, or launch Ronron again), its sidebar
+arranged by what you set: **Ronron** (appearance & sounds), **Island** (behavior,
+active pills, shortcuts), **AI agents** (agents, chat), **Accounts & services**
+(Microsoft 365 and Google, integrations, Android phone), **Voice** (Dictation,
+Notetaker, Statistics, Dictionary, Snippets, Styles, OK Ronron, Dictation settings),
+**Mail** and **System** (startup, language, updates). A search field at the top
+finds any setting. The dictation below (once called Flow) runs on
 [Parakeet](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) through
 [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx), on your CPU and offline;
 nothing is downloaded until you click **Download** (about 700 MB, once, checked
@@ -258,7 +262,7 @@ no credential: the tool answers exactly as it does in a terminal. Each run is
 read-only (plan or ask modes, no shell, no edits), loads none of your hooks,
 MCP servers or extensions where the tool can turn them off, saves no session,
 and searches the web for the chat only; a dropped file is read with no web at
-all. Through npm's `.cmd` shims the prompt goes in on stdin. Flow's clean-up
+all. Through npm's `.cmd` shims the prompt goes in on stdin. The dictation's clean-up
 and the notes of a call use Claude Code when no Anthropic key is saved;
 « OK Ronron » still needs the key: its tools are Ronron's own.
 
@@ -352,13 +356,13 @@ The pill refreshes every two minutes while it is turned on, and right after each
 
 **Several calendars and reminders:** Settings → Accounts → **Calendars** lists the Microsoft 365 account's calendars and your iCal ones (Google's secret address, Outlook's published calendar, iCloud… up to eight, `webcal://` or `https://`; the address is a secret and goes to the credential store, `ical-url-0` … `ical-url-7`). For each: **Shown in Ronron** and a **Reminder** (none, 5, 10, 15 or 30 min before). A reminder opens the island on the event a few minutes before, with **Join the meeting** for Teams, Meet or Zoom, **Open** and **OK**; it stays until you answer or the event starts. iCal recurring events (RRULE, EXDATE, moved occurrences) are expanded in their time zone, Outlook's Windows zone names included.
 
-**Music:** Settings → Integrations → **Music** → *Music tab in the header*. The tab shows what plays on this computer — the Spotify app, YouTube Music in a browser or as an app, Amazon Music, anything that shows in the system's media controls (Windows) or MPRIS (Linux) — with its cover, progress, **previous**, **play/pause** and **next**, a chip per player when there are several, and the **player's own volume** (a slider and mute for that app alone — its stream in the Windows mixer, or in PulseAudio / PipeWire through `pactl` on Linux — never the computer's volume). No account: YouTube Music and Amazon Music have no public API to drive playback, and Spotify's needs Premium. Read every 1.5 s while the tab is on screen, never otherwise.
+**Music:** Settings → Accounts & services → Integrations → **Music** → *Music tab in the header*. The tab shows what plays on this computer — the Spotify app, YouTube Music in a browser or as an app, Amazon Music, anything that shows in the system's media controls (Windows) or MPRIS (Linux) — with its cover, progress, **previous**, **play/pause** and **next**, a chip per player when there are several, and the **player's own volume** (a slider and mute for that app alone — its stream in the Windows mixer, or in PulseAudio / PipeWire through `pactl` on Linux — never the computer's volume). No account: YouTube Music and Amazon Music have no public API to drive playback, and Spotify's needs Premium. Read every 1.5 s while the tab is on screen, never otherwise.
 
 **The overview:** with no pill open, the four pills sit side by side, one space each (name, state, what it is doing); a free slot leads to Settings.
 
 **Fold when the pointer leaves** (Settings → Island → Behavior, on by default): the open island folds a moment after the pointer leaves it — not while the Ronron window is on screen, a card waits for an answer (permission, question, reminder) or something is being typed. Off, it waits for the auto-close delay as before.
 
-**The compact island:** at rest, Ronron alone on the left — himself, ginger, as at launch — and your four pills on the right. A pill doing something (a session at work or waiting on you, an approval or error badge, unread WhatsApp) leaves the right and takes Ronron's place on the left; once you've answered, read or replied, or the turn is over, it goes back to the right.
+**The compact island:** at rest, Ronron alone on the left — himself, ginger, as at launch — and your four pills on the right. A pill doing something (a session at work or waiting on you, an approval or error badge, unread WhatsApp) leaves the right and takes Ronron's place on the left; once you've answered, read or replied, or the turn is over, it goes back to the right. Without the clock (Settings → Island → Behavior → *Show clock in the island*) the compact island is 200 px wide, with nothing between Ronron and the pills; with the clock it widens to make room for it in the middle.
 
 **A pill open:** clicking a pill in the overview gives its card the whole island, taller (as tall as a space), with every pill stacked in a column on the right, the open one lit. Click it again, or the overview's tab, to go back.
 
@@ -368,7 +372,7 @@ The pill refreshes every two minutes while it is turned on, and right after each
 |---|---|---|---|
 | **Calendar** | Today's date and how long until the next event | A week at a time (‹ › from four weeks back to nine weeks ahead, **Today** to come back): pick a day, its events (Teams marked) | The next event, or the one you clicked: **Join the meeting**, **Open in Outlook** |
 | **Mail** | The unread count | Search (`from:`, `subject:`), All / Unread / Important / Today, the list. A click shows the message in its place: **Reply** (a draft, nothing is sent), **Open**, **Mark as read**, **Important**, **Delete** (to Deleted Items, where it can be got back); **‹ Inbox** (or Esc) goes back | — |
-| **To Do** | A ring: tasks ticked off from Ronron today out of those due today; what is late | Today's tasks (late and due today), or a list's, picked on the right of the title (« Tâches - 4 »); tick off with Undo; add a task (to that list); ↗ opens To Do | — |
+| **To Do** | A ring: tasks ticked off from Ronron today, out of those plus the tasks Today still shows (late and due today; every open task when nothing is due); what is late | Today's tasks (late and due today, or every open task when nothing is due), or a list's, picked on the right of the title (« Tâches - 4 »); tick off with Undo; add a task (to that list); ↗ opens To Do | — |
 
 ## Google: Gmail, Google Calendar and Google Tasks (Windows and Linux)
 
@@ -594,7 +598,7 @@ problems. It stays on your machine. The weekly recap's history sits beside it in
 
 ## Supported agents
 
-Every agent below is installed from **Settings → Agents** with the same steps as
+Every agent below is installed from **Settings → AI agents → Agents** with the same steps as
 Claude Code: the exact diff, the path of the dated backup, nothing written until
 you click, and uninstalling removes only Ronron's entries. A config Ronron cannot
 read, or where it finds something it does not expect, is left alone and the
@@ -604,7 +608,7 @@ Linux.
 
 | Agent | Installs | Permissions |
 |---|---|---|
-| Claude Code | `.claude\settings.json` (**Settings → Claude Code**) | Allow / Deny and questions in the island |
+| Claude Code | `.claude\settings.json` (**Settings → AI agents → Agents → Claude Code**) | Allow / Deny and questions in the island |
 | Codex | `.codex\hooks.json` — then trust the hooks once with `/hooks` in Codex | Allow / Deny in the island |
 | GitHub Copilot CLI | `.copilot\hooks\ronron.json` | Allow / Deny in the island |
 | Muse Code | `.config\muse\settings.json` | Allow / Deny in the island |
@@ -627,7 +631,7 @@ terminal exactly as without Ronron — including when Ronron is closed.
 **Antigravity** has no permission request: it runs its `PreToolUse` hook before
 its own permission check and waits for the hook's decision. The relay answers
 `{"decision":"ask"}`, so Antigravity's rules and prompt decide — unless
-**Approve commands from the notch** is on (Settings → Agents → Antigravity, off
+**Approve commands from the notch** is on (Settings → AI agents → Agents → Antigravity, off
 by default, shown once the hooks are installed). Then a `run_command` that none
 of Antigravity's `command(...)` rules covers waits on the island's card, as on
 the Mac: **Allow** prints `{"decision":"allow"}`, **Deny**
@@ -650,7 +654,7 @@ cmd, PowerShell and when started directly — and in double quotes otherwise.
 These three are untested on Windows.
 
 A pill is **connected** when Ronron finds its own entries in the files above —
-the same check as Settings → Agents (for Claude Code: a SessionStart hook
+the same check as Settings → AI agents → Agents (for Claude Code: a SessionStart hook
 running Ronron's relay; the Cursor pill also counts Claude Code's hooks).
 Ronron only reads these files, each time the island opens. Permission requests
 get the island's card for Claude Code (in any terminal, and in Cursor's),
@@ -659,7 +663,7 @@ on; other agents and Claude Desktop ask in their own window.
 
 ## What's different from the Mac version
 
-- **Flow dictation** pastes with `Ctrl+V` (`Ctrl+Shift+V` in a terminal),
+- **Dictation** pastes with `Ctrl+V` (`Ctrl+Shift+V` in a terminal),
   typed by `SendInput` on Windows and XTest on X11, and puts back what the
   clipboard held once it is pasted; clipboard history (Windows, KDE, GNOME
   extensions) leaves the dictation out. On **Wayland** no app may watch the
@@ -719,11 +723,11 @@ on; other agents and Claude Desktop ask in their own window.
   has none either) and no global shortcut yet: the header's terminal tab
   opens it.
 - A file let go on a session in the drop card is pasted with `Ctrl+V` on
-  Windows and `Ctrl+Shift+V` on Linux, through Flow's paste (and its clipboard
+  Windows and `Ctrl+Shift+V` on Linux, through the dictation's paste (and its clipboard
   restore), instead of the Mac's ⌘V with Accessibility.
 - Apple Music, the one pill from the Mac catalog with nothing behind it here,
   is left out.
-- **Spotify** (Settings → Integrations) is read from the system media
+- **Spotify** (Settings → Accounts & services → Integrations) is read from the system media
   controls, the session Spotify publishes for the media keys: the same pill
   and card as on Linux (cover, progress bar, play/pause, previous, next,
   shuffle, repeat), and Ronron dances while it plays. Nothing is polled: one
@@ -876,14 +880,14 @@ What changes on Linux:
   the desktop may show its own window to confirm them or to pick other keys,
   and it has the last word: a shortcut it already knows keeps the keys it was
   given there, and you change them in the desktop's own shortcut settings.
-  **Settings → Shortcuts** says the shortcuts are registered with the desktop,
+  **Settings → Island → Shortcuts** says the shortcuts are registered with the desktop,
   shows next to each one the keys the desktop reports (*Desktop: …*), and flags
   one it left out. Changing or turning off a shortcut in Ronron binds the new
   set in a new portal session. Ronron names itself `ch.cloudguy.ronron` to
   the portal where the portal allows it (`xdg-desktop-portal` 1.19+); a
   desktop that wants an app name may otherwise refuse.
   Where there is no such portal, or the desktop refuses, nothing is registered
-  and **Settings → Shortcuts** lists commands to bind in your
+  and **Settings → Island → Shortcuts** lists commands to bind in your
   desktop's own keyboard settings instead (they are shown with the portal too,
   for any shortcut that doesn't work):
   `ronron --shortcut openChat` (or the AppImage's path) runs the action in the
@@ -891,7 +895,7 @@ What changes on Linux:
   `goToAlert`, `jumpToTerminal`, `nextPill`, `prevPill`, `muteToggle`,
   `desktopToggle` and `wardrobeToggle`.
 - **Keys** live in the Secret Service (GNOME Keyring, KWallet).
-- **Spotify** (Settings → Integrations) is read over MPRIS, Spotify's D-Bus
+- **Spotify** (Settings → Accounts & services → Integrations) is read over MPRIS, Spotify's D-Bus
   interface on the session bus: the pill shows the track and plays, pauses
   or skips on hover, the card has the cover, the progress bar (drag to
   seek), shuffle, previous, next, repeat and the volume, and Ronron dances
