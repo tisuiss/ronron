@@ -78,6 +78,20 @@ fn tools() -> Vec<Value> {
                 "required": ["recipient", "subject", "body"]
             }
         }),
+        json!({
+            "name": "reminder",
+            "description": "The user's reminders, kept on this computer: the island opens on each one at its time. Add one (what to remind and when), list them, or remove one by its id.",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "action": { "type": "string", "enum": ["add", "list", "remove"] },
+                    "text": { "type": "string", "description": "What to remind the user of, short, in their language (for add)." },
+                    "when": { "type": "string", "description": "Local date and time, YYYY-MM-DDTHH:MM (for add). Work it out from the current time; ask if the user gave no time." },
+                    "id": { "type": "string", "description": "The reminder's id from list (for remove)." }
+                },
+                "required": ["action"]
+            }
+        }),
         json!({ "type": "web_search_20250305", "name": "web_search", "max_uses": 3 }),
     ]
 }
@@ -91,7 +105,7 @@ quick, warm, a little playful. It is {:04}-{:02}-{:02} {:02}:{:02}.\n\
 Everything you write is read aloud: answer in the language the user spoke, in one or two short sentences, \
 no markdown, no lists, no emojis, no links.\n\
 Act with the tools instead of describing: pills, music, service_info for the user's own data, open_app, \
-prepare_email, and web_search for anything current (weather, news, scores, prices, facts you are not sure of). \
+prepare_email, reminder (\"remind me to … at …\"), and web_search for anything current (weather, news, scores, prices, facts you are not sure of). \
 Never invent the user's data.\n\
 Email: gather the recipient's address, the subject and what to say (write the text yourself from what the user \
 wants to say, in the language they used), asking for what is missing one short question at a time, then call \

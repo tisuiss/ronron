@@ -247,6 +247,8 @@ class AppState {
   focusId: string | null = null;
   /** The calendar reminder on screen (island/reminders.ts). */
   reminder: { booking: Booking; calendar: CalendarInfo | null } | null = null;
+  /** One of your reminders ringing (island/alarms.ts). */
+  alarm: { id: string; text: string; at: number } | null = null;
   /** A pill was clicked in the overview: its card takes the island, taller, the pills in a column. */
   pillOpen = false;
 

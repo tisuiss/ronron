@@ -4657,6 +4657,54 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
   cursor: default;
 }
 
+/* ── Reminders space (views/reminders.ts) ─────────────────────────────────── */
+.space.reminders {
+  grid-template-columns: 140px minmax(0, 1fr);
+}
+.rm-next {
+  margin-top: 8px;
+  font: 600 13px var(--font);
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.rm-bell {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: #ffc58f;
+}
+.rm-remove {
+  opacity: 0;
+}
+.sp-task:hover .rm-remove,
+.rm-remove:focus-visible {
+  opacity: 1;
+}
+.rm-add {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rm-chips {
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.rm-when {
+  flex: none;
+  width: 150px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--dim);
+  font: 11px var(--font);
+  color-scheme: dark;
+}
+
 /* ── Music space (views/music.ts) ───────────────────────────────────────────── */
 .space.music {
   grid-template-columns: 140px minmax(0, 1fr);

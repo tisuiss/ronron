@@ -8,6 +8,7 @@
 // use their own under "Use your own Entra app".
 
 import { MUSIC_ID } from "../core/media";
+import { REMINDERS_ID } from "../core/reminders";
 import { Bridge, onEvent } from "../core/bridge";
 import { h, clear } from "../views/dom";
 import { statusDot } from "./parts";
@@ -183,4 +184,18 @@ export function musicSection(header: HeaderPillsAccess): HTMLElement {
     h("h2", {}, h("span", { text: t("Music") })),
     h("div", { class: "hint", text: t("Play, pause and skip what plays on this computer — Spotify, YouTube Music, Amazon Music — through the system's media controls. No account to connect.") }),
     h("div", { class: "row", style: "gap:10px;margin-top:4px" }, sw, h("span", { style: "font-size:12.5px", text: t("Music tab in the header") })));
+}
+
+/** Reminders: a tab in the island's header for reminders kept on this computer (src/views/reminders.ts). */
+export function remindersSection(header: HeaderPillsAccess): HTMLElement {
+  const sw = h("button", { class: header.get().includes(REMINDERS_ID) ? "switch on" : "switch" });
+  sw.addEventListener("click", () => {
+    const on = header.get().includes(REMINDERS_ID);
+    header.set(on ? header.get().filter((x) => x !== REMINDERS_ID) : [...header.get(), REMINDERS_ID]);
+    sw.classList.toggle("on", !on);
+  });
+  return h("section", {},
+    h("h2", {}, h("span", { text: t("Reminders") })),
+    h("div", { class: "hint", text: t("Reminders kept on this computer, no account needed: the island opens on each one at its time, with Done and a snooze. « OK Ronron, remind me to… » adds one by voice.") }),
+    h("div", { class: "row", style: "gap:10px;margin-top:4px" }, sw, h("span", { style: "font-size:12.5px", text: t("Reminders tab in the header") })));
 }

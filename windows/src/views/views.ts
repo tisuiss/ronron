@@ -35,6 +35,9 @@ import { buildWhatsAppCard } from "./whatsapp";
 import { WHATSAPP_ID } from "../core/whatsapp";
 import { MAIL_ID } from "../core/mail";
 import { MUSIC_ID } from "../core/media";
+import { REMINDERS_ID, ReminderList } from "../core/reminders";
+import { buildRemindersSpace } from "./reminders";
+import { buildAlarm } from "./alarm";
 import { buildMailCard } from "./mail";
 import type { Outfit, OutfitSelection } from "../cat/wardrobe";
 import { language, t, tl, type Msg } from "../i18n/i18n";
@@ -76,6 +79,10 @@ export interface ViewActions {
   openPill(): void;
   /** OK or Join on a calendar reminder. */
   dismissReminder(): void;
+  /** Done on one of your reminders: it goes. */
+  alarmDone(): void;
+  /** In 10 min / In 1 h on one of your reminders: it rings again then. */
+  snoozeAlarm(minutes: number): void;
 }
 
 export interface ViewHost {
@@ -999,6 +1006,8 @@ export function buildViews(
   map.set("tasks", buildTodoSpace(actions));
   map.set("music", buildMusicSpace(actions));
   map.set("reminder", buildReminder(actions));
+  map.set("reminders", buildRemindersSpace(actions));
+  map.set("alarm", buildAlarm(actions));
   // Not in the Windows v1: sending a file by email, window attach + web result.
   map.set("mail", buildPlaceholder(tl("Sending by email isn't in this version."), ""));
   map.set("searching", buildPlaceholder(tl("Claude is searching…"), ""));
@@ -1041,6 +1050,10 @@ export function headerTabs(now: number): HeaderTab[] {
       out.push({ id, view, label: "To Do", badge: tasks.length ? String(tasks.length) : "", alert: late > 0 });
     } else if (id === MUSIC_ID) {
       out.push({ id, view, label: t("Music"), badge: "", alert: false });
+    } else if (id === REMINDERS_ID) {
+      // How many are planned; red while one has rung and waits.
+      const list = ReminderList.items;
+      out.push({ id, view, label: t("Reminders"), badge: list.length ? String(list.length) : "", alert: list.some((r) => r.at <= now) });
     }
   }
   return out;
