@@ -2,6 +2,8 @@
 // Mirrors IslandRootView.swift + IslandWindowController.swift.
 
 import { Reminders } from "./reminders";
+import { Alarms } from "./alarms";
+import { startReminders } from "../core/reminders";
 import { Tracked, Spring, clamp } from "../core/anim";
 import { Bridge, IS_TAURI, onDragDrop, type DragDropPayload } from "../core/bridge";
 import {
@@ -108,6 +110,7 @@ export class Island {
   private views!: Map<IslandViewName, ViewHost>;
   /** Calendar reminders (./reminders.ts). */
   private reminders: Reminders | null = null;
+  private alarms: Alarms | null = null;
   private uploadCanvas!: UploadCanvas;
   /** The sessions listed on the drop card while a file is over it. */
   private sessionDrop!: SessionDropList;
@@ -327,6 +330,8 @@ export class Island {
         else if (!TYPING_VIEWS.has(State.view) && State.mode === "expanded") void Bridge.focusWindow(false);
       },
       dismissReminder: () => this.reminders?.dismissed(),
+      alarmDone: () => this.alarms?.done(),
+      snoozeAlarm: (minutes) => this.alarms?.snooze(minutes),
       openPill: () => {
         window.setTimeout(() => {
           if (State.pillOpen || State.view !== "overview" || State.mode !== "expanded") return;
@@ -392,6 +397,16 @@ export class Island {
       setPinned: (on) => this.setPinned(on),
       closeReminder: () => {
         if (State.mode === "expanded" && State.view === "reminder") this.collapse();
+      },
+    });
+    // Your own reminders: read from Rust, rung by Alarms.
+    startReminders();
+    this.alarms = new Alarms({
+      alert: (view) => this.alert(view),
+      emote: (name) => this.emote(name),
+      setPinned: (on) => this.setPinned(on),
+      closeAlarm: () => {
+        if (State.mode === "expanded" && State.view === "alarm") this.collapse();
       },
     });
     this.viewsEl = h("div", { id: "views" });

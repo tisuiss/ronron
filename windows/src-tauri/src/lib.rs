@@ -24,6 +24,7 @@ mod calendar365;
 mod ical;
 mod msgraph;
 mod google;
+mod reminders;
 mod todo;
 mod island;
 mod launch;
@@ -926,6 +927,10 @@ pub fn run() {
             google::google_sign_in,
             google::google_sign_in_cancel,
             google::google_sign_out,
+            reminders::reminders_list,
+            reminders::reminders_add,
+            reminders::reminders_remove,
+            reminders::reminders_snooze,
             todo::todo_set_done,
             todo::todo_add,
             mail::mail_more,

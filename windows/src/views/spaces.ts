@@ -17,6 +17,7 @@ import {
 } from "../core/mail";
 import type { IslandViewName } from "../core/layout";
 import { MUSIC_ID } from "../core/media";
+import { REMINDERS_ID } from "../core/reminders";
 import { timeAgo } from "./integrations";
 import { TODO_ID, dueLabel, overdueCount, todayKey, doneTodayCount, todoActions, type TodoTask } from "./todo";
 import type { ViewActions, ViewHost } from "./views";
@@ -33,17 +34,18 @@ export const SPACE_OF: Record<string, IslandViewName> = {
   [MAIL_ID]: "inbox",
   [TODO_ID]: "tasks",
   [MUSIC_ID]: "music",
+  [REMINDERS_ID]: "reminders",
 };
 
 export function isSpace(view: IslandViewName): boolean {
-  return view === "agenda" || view === "inbox" || view === "tasks" || view === "music";
+  return view === "agenda" || view === "inbox" || view === "tasks" || view === "music" || view === "reminders";
 }
 
-function tile(cls: string, ...children: (Node | null)[]): HTMLElement {
+export function tile(cls: string, ...children: (Node | null)[]): HTMLElement {
   return h("section", { class: `sp-tile ${cls}` }, ...children);
 }
 
-function spaceView(cls: string, left: HTMLElement, middle: HTMLElement, right: HTMLElement | null): HTMLElement {
+export function spaceView(cls: string, left: HTMLElement, middle: HTMLElement, right: HTMLElement | null): HTMLElement {
   return h("div", { class: "view" }, h("div", { class: `space ${cls}` }, left, middle, right));
 }
 
@@ -74,14 +76,14 @@ export function untilLabel(ms: number): string {
 }
 
 /** When the space is open, a text field takes the keyboard; leaving it gives it back. */
-function bindField(input: HTMLInputElement, actions: ViewActions) {
+export function bindField(input: HTMLInputElement, actions: ViewActions) {
   input.addEventListener("focus", () => actions.keyboard(true));
   input.addEventListener("blur", () => actions.keyboard(false));
   input.addEventListener("input", () => actions.holdOpen(input.value.trim() !== ""));
 }
 
 /** The keyboard goes back when the island leaves the view. */
-function releaseOnLeave(view: IslandViewName, input: HTMLInputElement, actions: ViewActions) {
+export function releaseOnLeave(view: IslandViewName, input: HTMLInputElement, actions: ViewActions) {
   State.subscribe(() => {
     if ((State.view !== view || State.mode !== "expanded") && document.activeElement === input) {
       input.blur();
@@ -91,7 +93,7 @@ function releaseOnLeave(view: IslandViewName, input: HTMLInputElement, actions: 
 }
 
 /** The pill left the header while its space was on screen: back to the overview. */
-function leftHeader(view: IslandViewName, id: string, actions: ViewActions): boolean {
+export function leftHeader(view: IslandViewName, id: string, actions: ViewActions): boolean {
   if (State.headerIds.includes(id)) return false;
   window.setTimeout(() => {
     if (State.view === view && !State.headerIds.includes(id)) actions.setView(State.defaultView());

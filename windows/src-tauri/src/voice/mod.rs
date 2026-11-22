@@ -412,7 +412,42 @@ pub fn run_tool(app: &AppHandle, name: &str, input: &Value) -> (String, bool) {
             crate::platform::open_url(&url);
             (format!("The mail app opened with the email to {to}. Nothing is sent until the user sends it."), true)
         }
+        "reminder" => reminder(app, input),
         _ => (format!("unknown tool {name}"), false),
+    }
+}
+
+/// « Remind me to call Anne at 3 pm »: the reminder tool.
+fn reminder(app: &AppHandle, input: &Value) -> (String, bool) {
+    match input["action"].as_str().unwrap_or("") {
+        "add" => {
+            let when = input["when"].as_str().unwrap_or("");
+            let Some(at) = crate::reminders::parse_local(when) else {
+                return ("No valid time: ask the user when (then give YYYY-MM-DDTHH:MM).".into(), false);
+            };
+            match crate::reminders::add(app, input["text"].as_str().unwrap_or(""), at) {
+                Ok(r) => (format!("Reminder set for {when}: {}", r.text), true),
+                Err(e) => (e, false),
+            }
+        }
+        "remove" => {
+            let id = input["id"].as_str().unwrap_or("");
+            let known = crate::reminders::list().iter().any(|r| r.id == id);
+            if !known {
+                return ("No reminder with that id: list them first.".into(), false);
+            }
+            let removed = crate::reminders::reminders_remove(app.clone(), id.to_string()).is_ok();
+            (if removed { "Removed.".into() } else { "Could not remove it.".into() }, removed)
+        }
+        _ => {
+            use chrono::TimeZone;
+            let lines: Vec<String> = crate::reminders::list().iter().map(|r| {
+                let when = chrono::Local.timestamp_millis_opt(r.at).single()
+                    .map(|d| d.format("%Y-%m-%d %H:%M").to_string()).unwrap_or_default();
+                format!("{} · {} · {}", r.id, when, r.text)
+            }).collect();
+            (if lines.is_empty() { "No reminders.".into() } else { lines.join("\n") }, false)
+        }
     }
 }
 

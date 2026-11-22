@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.0 — November 22, 2026
+
+- **Reminders**: a new tab in the island's header (Settings → Accounts & services → Integrations → Reminders) for reminders kept on this computer, no account needed. Write what to remember, pick in 10 min, in 1 h, this evening, tomorrow morning or a date and time; when its time comes the island opens on it with **In 10 min**, **In 1 h** and **Done**. One that came due while the computer slept rings as soon as Ronron is back.
+- **« OK Ronron, remind me to… »** adds a reminder by voice, and lists or removes them.
+- **Microsoft 365 in one click**: the sign-in no longer asks for a domain; by default it goes through Microsoft's « Microsoft Graph Command Line Tools » app, for any account. **Use my own app registration…** takes your own Entra app (and its tenant) instead.
+
 ## 0.11.2 — November 21, 2026
 
 - **To Do's ring counts the tasks you see**: with nothing due, Today shows every open task — its ring now counts them too (ticked off today, out of that plus the open ones), and the picker's *Today* number matches the list. It used to read 2/2 with two tasks still waiting.

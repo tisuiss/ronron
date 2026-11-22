@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.12.0",
+      "items": [
+        {
+          "icon": "bell",
+          "title": {
+            "en": "Reminders",
+            "zh-Hans": "提醒",
+            "hi": "रिमाइंडर",
+            "es": "Recordatorios",
+            "ar": "التذكيرات",
+            "fr": "Rappels",
+            "bn": "রিমাইন্ডার",
+            "pt-BR": "Lembretes",
+            "ru": "Напоминания",
+            "id": "Pengingat",
+            "de": "Erinnerungen",
+            "tr": "Hatırlatıcılar",
+            "ko": "미리 알림",
+            "ja": "リマインダー"
+          },
+          "detail": {
+            "en": "A new tab: the island opens at the time you pick, with Done and a snooze.",
+            "zh-Hans": "新标签页：到你选的时间，岛会打开，可选“完成”或稍后提醒。",
+            "hi": "नया टैब: चुने समय पर आइलैंड खुलता है, 'हो गया' और स्नूज़ के साथ।",
+            "es": "Una pestaña nueva: la isla se abre a la hora elegida, con Hecho y posponer.",
+            "ar": "تبويب جديد: تُفتح الجزيرة في الوقت الذي تختاره، مع «تم» والتأجيل.",
+            "fr": "Un nouvel onglet : l'îlot s'ouvre à l'heure choisie, avec Fait et un report.",
+            "bn": "নতুন ট্যাব: বেছে নেওয়া সময়ে আইল্যান্ড খোলে, 'হয়ে গেছে' আর স্নুজসহ।",
+            "pt-BR": "Uma aba nova: a ilha abre na hora escolhida, com Feito e adiar.",
+            "ru": "Новая вкладка: остров открывается в выбранное время — «Готово» или «Отложить».",
+            "id": "Tab baru: pulau terbuka di waktu pilihan Anda, dengan Selesai dan tunda.",
+            "de": "Ein neuer Tab: Die Insel öffnet sich zur gewählten Zeit, mit Erledigt und Schlummern.",
+            "tr": "Yeni bir sekme: ada seçtiğiniz saatte açılır, Tamam ve erteleme ile.",
+            "ko": "새 탭: 고른 시간에 아일랜드가 열리고, 완료나 다시 알림을 고를 수 있어요.",
+            "ja": "新しいタブ：選んだ時間にアイランドが開き、「完了」かスヌーズを選べます。"
+          }
+        },
+        {
+          "icon": "mic",
+          "title": {
+            "en": "Reminders by voice",
+            "zh-Hans": "语音添加提醒",
+            "hi": "आवाज़ से रिमाइंडर",
+            "es": "Recordatorios por voz",
+            "ar": "تذكيرات بالصوت",
+            "fr": "Des rappels à la voix",
+            "bn": "ভয়েসে রিমাইন্ডার",
+            "pt-BR": "Lembretes por voz",
+            "ru": "Напоминания голосом",
+            "id": "Pengingat lewat suara",
+            "de": "Erinnerungen per Stimme",
+            "tr": "Sesle hatırlatıcı",
+            "ko": "음성으로 미리 알림",
+            "ja": "声でリマインダー"
+          },
+          "detail": {
+            "en": "« OK Ronron, remind me to call Anne at 3 pm. »",
+            "zh-Hans": "“OK Ronron，下午 3 点提醒我给 Anne 打电话。”",
+            "hi": "« OK Ronron, मुझे 3 बजे Anne को फ़ोन करने की याद दिलाना। »",
+            "es": "«OK Ronron, recuérdame llamar a Anne a las 15:00.»",
+            "ar": "«OK Ronron، ذكّرني بالاتصال بـ Anne الساعة 3 عصرًا.»",
+            "fr": "« OK Ronron, rappelle-moi d'appeler Anne à 15 h. »",
+            "bn": "« OK Ronron, বিকেল ৩টায় Anne-কে ফোন করার কথা মনে করিয়ে দিও। »",
+            "pt-BR": "«OK Ronron, me lembre de ligar para a Anne às 15h.»",
+            "ru": "«OK Ronron, напомни позвонить Анне в 15:00.»",
+            "id": "«OK Ronron, ingatkan aku menelepon Anne jam 3 sore.»",
+            "de": "„OK Ronron, erinnere mich, Anne um 15 Uhr anzurufen.“",
+            "tr": "«OK Ronron, saat 15'te Anne'yi aramamı hatırlat.»",
+            "ko": "« OK Ronron, 오후 3시에 Anne에게 전화하라고 알려 줘. »",
+            "ja": "「OK Ronron、15 時に Anne に電話するようリマインドして。」"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.11.2",
       "items": [
         {
