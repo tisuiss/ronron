@@ -31,6 +31,8 @@ always the newest version, and run it. The .exe installs for the current user on
 2. Click **More info** (*Informations complémentaires* in French). This reveals a **Run anyway** button.
 3. Click **Run anyway** (*Exécuter quand même*). The installer starts normally.
 
+**Uninstalling** (Settings → Apps, or `uninstall.exe` in `%LOCALAPPDATA%\Ronron`) keeps your settings, reminders, accounts and keys, so a reinstall picks up where you were. To leave nothing behind, tick **Delete the application data** (*Supprimer les données de l'application*) on the uninstaller's page: Ronron then clears every key it put in the Windows Credential Manager (Microsoft, Google, API keys, WhatsApp…), and removes `%APPDATA%\Ronron` (settings, reminders, local tasks, mail sorting) and `%LOCALAPPDATA%\Ronron` (relay, voice models, log). Claude Code's own `settings.json` is never touched: remove Ronron's hooks from Settings → AI agents → Agents before uninstalling if you want them gone. The `.msi` has no such box: delete those two folders by hand. On Linux, removing the package leaves `~/.config/ronron`, `~/.local/share/ronron` and the keyring entries (service `ch.cloudguy.ronron`).
+
 This is only because the app isn't signed with a paid certificate yet. Ronron is open source, and Microsoft Defender scans the installer as clean.
 
 Microsoft Defender once flagged the installer by mistake (`Trojan:Win32/Wacatac.H!ml`,

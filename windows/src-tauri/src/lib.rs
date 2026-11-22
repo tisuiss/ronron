@@ -883,6 +883,18 @@ fn open_settings_window(app: AppHandle, page: Option<String>) {
     show_hub(&app, Some(page.as_deref().unwrap_or("general")));
 }
 
+/// The uninstaller's "Delete the application data" (nsis/hooks.nsh) runs
+/// `ronron.exe --forget-everything` before removing the program: every key in the
+/// credential store goes, and the settings folder (settings, reminders, local tasks,
+/// mail sorting). The local folder (relay, models, log) holds the program itself in a
+/// per-user install: the uninstaller removes it once the program is gone. No window
+/// opens. Never run on an update.
+pub fn forget_everything() {
+    let keys = secrets::forget_everything();
+    let _ = std::fs::remove_dir_all(platform::config_dir());
+    eprintln!("ronron: forgot {keys} stored keys and the settings");
+}
+
 pub fn run() {
     platform::prepare_environment();
     let loaded = settings::load();

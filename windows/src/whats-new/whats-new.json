@@ -2,6 +2,46 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.12.1",
+      "items": [
+        {
+          "icon": "shield",
+          "title": {
+            "en": "Uninstall, cleanly if you want",
+            "zh-Hans": "可选择彻底卸载",
+            "hi": "चाहें तो पूरी तरह अनइंस्टॉल",
+            "es": "Desinstalar sin dejar rastro, si quieres",
+            "ar": "إزالة نظيفة إن أردت",
+            "fr": "Désinstaller proprement, si tu veux",
+            "bn": "চাইলে পুরোপুরি আনইনস্টল",
+            "pt-BR": "Desinstalar sem deixar rastros, se quiser",
+            "ru": "Удаление начисто — по желанию",
+            "id": "Copot bersih, jika Anda mau",
+            "de": "Sauber deinstallieren, wenn du willst",
+            "tr": "İsterseniz iz bırakmadan kaldırın",
+            "ko": "원하면 깨끗하게 제거",
+            "ja": "必要ならきれいにアンインストール"
+          },
+          "detail": {
+            "en": "Tick “Delete the application data” to remove settings and stored keys too.",
+            "zh-Hans": "勾选“删除应用程序数据”，设置和保存的密钥也会一并删除。",
+            "hi": "सेटिंग्स और सहेजी कुंजियाँ भी हटाने के लिए “Delete the application data” चुनें।",
+            "es": "Marca «Eliminar los datos de la aplicación» para borrar también ajustes y claves.",
+            "ar": "حدّد «حذف بيانات التطبيق» لإزالة الإعدادات والمفاتيح المحفوظة أيضًا.",
+            "fr": "Coche « Supprimer les données de l'application » pour effacer aussi réglages et clés.",
+            "bn": "সেটিংস ও সংরক্ষিত কী-ও মুছতে “Delete the application data” টিক দিন।",
+            "pt-BR": "Marque “Excluir os dados do aplicativo” para apagar também ajustes e chaves.",
+            "ru": "Отметьте «Удалить данные приложения», чтобы стереть и настройки, и ключи.",
+            "id": "Centang “Hapus data aplikasi” untuk ikut menghapus pengaturan dan kunci.",
+            "de": "„Anwendungsdaten löschen“ anhaken, um auch Einstellungen und Schlüssel zu entfernen.",
+            "tr": "Ayarları ve kayıtlı anahtarları da silmek için “Uygulama verilerini sil”i işaretleyin.",
+            "ko": "“앱 데이터 삭제”를 선택하면 설정과 저장된 키도 함께 지워져요.",
+            "ja": "「アプリケーション データを削除」にチェックすると、設定と保存済みのキーも消えます。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.12.0",
       "items": [
         {
