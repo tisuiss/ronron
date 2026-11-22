@@ -41,4 +41,11 @@ Ronron chat ─pipe→ local extension ─VS Code command→ remote extension �
   with nothing; only a permission waits (up to 115 s) for the click.
 - `~/.ronron` in the remote is closed to other users; each window's socket has a
   random token. The chat pipe on the computer has its own token, in Ronron's folder.
+- Several VS Code windows on the remote: each one registers its own socket in
+  `~/.ronron/bridges`, and an event goes to the window whose folder holds the
+  session (the deepest folder). When two windows show the same folder — an older one
+  may still be running after its connection to the computer is gone — the newest
+  window wins (remote 0.9.1 and later).
+- The remote extension rewrites `~/.ronron` (the hook and its scripts) each time a
+  window starts: update the `.vsix` from Ronron's release, then reload the window.
 - `ronron.claudePath` (remote setting) when the CLI is not found by itself.
