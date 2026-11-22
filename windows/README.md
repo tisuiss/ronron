@@ -330,7 +330,7 @@ One sign-in gives three pills their data through Microsoft Graph: **To Do** (you
 
 **Permissions** (delegated, for the signed-in user only): `Tasks.ReadWrite` (tick tasks off, add some), `Calendars.Read`, `Mail.ReadWrite` (read, flag, move; Ronron never sends: there is no `Mail.Send`) and `User.Read`.
 
-**Which Entra app:** builds made with the `RONRON_MS_CLIENT_ID` repository variable carry their own app, so the click is all it takes. Otherwise, or to use your own, open **Use your own Entra app** and enter its client ID and tenant ID. To create one for your company only (Microsoft Entra admin center → App registrations → New registration):
+**Which Entra app:** by default Ronron signs in through Microsoft's own public client **Microsoft Graph Command Line Tools** (`14d82eec-204b-4c2f-b7e8-296a70dab67e`, the one Graph PowerShell uses), any account, no domain asked — its name is what Microsoft's sign-in page shows. A build made with the `RONRON_MS_CLIENT_ID` repository variable uses that app instead. Some organisations block that app, and personal Microsoft accounts may not be accepted by it: then click **Use my own app registration…** and enter your app's client ID (and its tenant ID or domain, which only counts with your own app). Saving an empty client ID goes back to the default. To create one for your company only (Microsoft Entra admin center → App registrations → New registration):
 
 1. Supported account types: **Accounts in this organizational directory only** (single tenant).
 2. **Authentication** → Add a platform → **Mobile and desktop applications** → redirect URI `http://localhost`. Then *Allow public client flows* → **Yes** (for the code).

@@ -26,11 +26,19 @@ function listen() {
   void onEvent<AuthEvent>("ms-auth", (e) => current?.(e));
 }
 
-/** The client ID and tenant of the user's own app, folded away when the build has one. */
-function ownApp(builtin: boolean): HTMLElement {
-  const details = h("details", { class: "todo-own-app" }) as HTMLDetailsElement;
-  details.open = !builtin;
-  details.append(h("summary", { class: "hint", style: "cursor:pointer", text: t("Use your own Entra app") }));
+/**
+ * The user's own app registration, behind a button: by default Ronron signs in with
+ * the build's app (Microsoft Graph Command Line Tools unless the build says
+ * otherwise), any account, no domain asked. The tenant only counts with an own app.
+ */
+function ownApp(): HTMLElement {
+  const box = h("div", { class: "todo-own-app", style: "display:none;flex-direction:column;gap:6px;margin-top:4px" });
+  const toggle = h("button", { class: "link-btn hint", style: "align-self:flex-start;padding:0", text: t("Use my own app registration…") });
+  toggle.addEventListener("click", () => {
+    const open = box.style.display === "none";
+    box.style.display = open ? "flex" : "none";
+    toggle.textContent = open ? t("Hide") : t("Use my own app registration…");
+  });
   const fields: { key: string; label: string; placeholder: string }[] = [
     { key: "msgraph-client-id", label: t("Client ID"), placeholder: "00000000-0000-0000-0000-000000000000" },
     { key: "msgraph-tenant", label: t("Tenant"), placeholder: "common" },
@@ -42,6 +50,11 @@ function ownApp(builtin: boolean): HTMLElement {
       if (present) {
         input.placeholder = t("Stored");
         dot.style.background = "#22c55e";
+        // An own app is in use: show it.
+        if (field.key === "msgraph-client-id") {
+          box.style.display = "flex";
+          toggle.textContent = t("Hide");
+        }
       }
     });
     const save = h("button", { text: t("Save") });
@@ -56,11 +69,13 @@ function ownApp(builtin: boolean): HTMLElement {
         dot.style.background = "#f5a524";
       }
     });
-    details.append(h("div", { class: "row", style: "margin-top:6px" },
+    box.append(h("div", { class: "row" },
       h("label", { style: "min-width:104px", text: field.label }), input, save, dot));
   }
-  details.append(h("div", { class: "hint", text: t("Register an app in Microsoft Entra: a Mobile and desktop platform with the redirect URI http://localhost, public client flows allowed, delegated permissions Tasks.ReadWrite, Calendars.Read, Mail.ReadWrite and User.Read. Paste its client ID; tenant ID or domain, or leave empty for any account.") }));
-  return details;
+  box.append(h("div", { class: "hint", text: t("Register an app in Microsoft Entra: a Mobile and desktop platform with the redirect URI http://localhost, public client flows allowed, delegated permissions Tasks.ReadWrite, Calendars.Read, Mail.ReadWrite and User.Read. Paste its client ID; tenant ID or domain, or leave empty for any account. Save an empty client ID to go back to the default app.") }));
+  return h("div", { style: "display:flex;flex-direction:column;gap:2px" },
+    h("div", { class: "hint", text: t("By default the sign-in goes through Microsoft's own app « Microsoft Graph Command Line Tools », for any account. If your organisation blocks it, use your own app registration.") }),
+    toggle, box);
 }
 
 export interface HeaderPillsAccess {
@@ -96,7 +111,6 @@ export function microsoftSection(header?: HeaderPillsAccess): HTMLElement {
   listen();
   const root = h("div", { class: "todo-signin", style: "display:flex;flex-direction:column;gap:6px;padding-top:2px" });
   const status = h("div", { style: "display:flex;flex-direction:column;gap:6px" });
-  let builtin = false;
 
   function signedIn(account: string | null) {
     clear(status);
@@ -163,11 +177,10 @@ export function microsoftSection(header?: HeaderPillsAccess): HTMLElement {
     h("div", { class: "hint", text: t("One sign-in for the To Do, Calendar and Mail pills, through Microsoft Graph.") }),
     root);
   if (header) section.append(headerSwitches(header));
-  void Promise.all([Bridge.msBuiltinApp(), Bridge.msAccount()]).then(([hasApp, account]) => {
-    builtin = hasApp === true;
+  void Bridge.msAccount().then((account) => {
     if (account !== null) signedIn(account);
     else signedOut(null);
-    root.append(ownApp(builtin));
+    root.append(ownApp());
   });
   return section;
 }

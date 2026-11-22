@@ -62,7 +62,13 @@ static REFRESHING: LazyLock<tokio::sync::Mutex<()>> = LazyLock::new(|| tokio::sy
 
 /// "common" unless the user entered a tenant: its ID, or a domain.
 pub fn tenant() -> String {
-    secrets::get(TENANT_KEY).map(|t| t.trim().to_string()).filter(|t| valid_tenant(t))
+    effective_tenant(custom_client_id().is_some(), secrets::get(TENANT_KEY))
+}
+
+/// The tenant only goes with the user's own app registration: the default app signs
+/// in any account through "common", so nobody is asked for a domain.
+fn effective_tenant(custom_app: bool, stored: Option<String>) -> String {
+    stored.filter(|_| custom_app).map(|t| t.trim().to_string()).filter(|t| valid_tenant(t))
         .unwrap_or_else(|| "common".to_string())
 }
 
@@ -81,15 +87,32 @@ fn authority() -> String {
 /// (`RONRON_MS_CLIENT_ID`): a multi-tenant public client, so a click is enough.
 pub const BUILTIN_CLIENT_ID: Option<&str> = option_env!("RONRON_MS_CLIENT_ID");
 
+/// Without one: Microsoft's own public client "Microsoft Graph Command Line Tools"
+/// (the one Graph PowerShell signs in with) — multi-tenant, localhost redirects,
+/// delegated permissions asked for at sign-in — so a click is enough. Its name is
+/// what Microsoft's sign-in page shows. An organisation may block it; Settings then
+/// takes the user's own app registration instead (client ID, and a tenant if needed).
+pub const DEFAULT_CLIENT_ID: &str = "14d82eec-204b-4c2f-b7e8-296a70dab67e";
+
+/// The app this build signs in with: the one it was compiled with, else the default.
+fn builtin_client_id() -> String {
+    BUILTIN_CLIENT_ID.map(|c| c.trim().to_string()).filter(|c| !c.is_empty())
+        .unwrap_or_else(|| DEFAULT_CLIENT_ID.to_string())
+}
+
+/// There is always an app to sign in with.
 pub fn has_builtin() -> bool {
-    BUILTIN_CLIENT_ID.is_some_and(|c| !c.trim().is_empty())
+    true
+}
+
+/// The user's own app registration, when they entered one.
+fn custom_client_id() -> Option<String> {
+    secrets::get(CLIENT_ID_KEY).map(|c| c.trim().to_string()).filter(|c| !c.is_empty())
 }
 
 /// The user's own app if they entered one, else the build's.
 fn client_id() -> Result<String, String> {
-    secrets::get(CLIENT_ID_KEY).map(|c| c.trim().to_string()).filter(|c| !c.is_empty())
-        .or_else(|| BUILTIN_CLIENT_ID.map(|c| c.trim().to_string()).filter(|c| !c.is_empty()))
-        .ok_or_else(|| crate::i18n::t("Enter the application (client) ID first."))
+    Ok(custom_client_id().unwrap_or_else(builtin_client_id))
 }
 
 pub fn signed_in() -> bool {
@@ -503,6 +526,15 @@ fn cached() -> Option<String> {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn the_tenant_goes_only_with_a_custom_app() {
+        assert_eq!(effective_tenant(false, Some("contoso.onmicrosoft.com".into())), "common");
+        assert_eq!(effective_tenant(true, Some(" contoso.onmicrosoft.com ".into())), "contoso.onmicrosoft.com");
+        assert_eq!(effective_tenant(true, None), "common");
+        assert_eq!(effective_tenant(true, Some("evil.com/x".into())), "common");
+        assert_eq!(DEFAULT_CLIENT_ID.len(), 36);
+    }
 
     #[test]
     fn tenants_cannot_change_the_url() {
