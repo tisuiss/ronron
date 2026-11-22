@@ -147,6 +147,21 @@ pub const INTERNAL_KEYS: &[&str] = &[
     "whatsapp-webhook-secret",
 ];
 
+/// Every key Ronron may have stored, the user's and its own: the uninstaller's
+/// "Delete the application data" (lib.rs: --forget-everything) clears them all.
+pub fn forget_everything() -> usize {
+    let mut cleared = 0;
+    for key in KNOWN_KEYS.iter().chain(INTERNAL_KEYS) {
+        if let Ok(entry) = Entry::new(SERVICE, key) {
+            if entry.delete_credential().is_ok() {
+                cleared += 1;
+            }
+        }
+    }
+    PRESENT.lock().unwrap().clear();
+    cleared
+}
+
 /// Whether the keystore would accept this key through `get_internal` / `set_internal`.
 pub fn is_internal(key: &str) -> bool {
     INTERNAL_KEYS.contains(&key)

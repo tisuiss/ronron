@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.12.1 — November 22, 2026
+
+- **A clean uninstall when you ask for it**: on Windows, ticking *Delete the application data* in the uninstaller now also clears every key Ronron stored in the Credential Manager (Microsoft, Google, API keys, WhatsApp…) and removes `%APPDATA%\Ronron` and `%LOCALAPPDATA%\Ronron` (settings, reminders, local tasks, voice models). Unticked — and always on an update — everything stays for a reinstall.
+
 ## 0.12.0 — November 22, 2026
 
 - **Reminders**: a new tab in the island's header (Settings → Accounts & services → Integrations → Reminders) for reminders kept on this computer, no account needed. Write what to remember, pick in 10 min, in 1 h, this evening, tomorrow morning or a date and time; when its time comes the island opens on it with **In 10 min**, **In 1 h** and **Done**. One that came due while the computer slept rings as soon as Ronron is back.
