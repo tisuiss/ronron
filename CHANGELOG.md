@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.2 — November 23, 2026
+
+- **« OK Ronron » with another model than Claude**: Voice → *Ronron answers with* picks Claude (your key), Gemini, OpenAI, OpenRouter, or a model on your computer — Ollama, LM Studio, any OpenAI-compatible server — with the key and the model already set for it in AI agents → Chat. Gemini with a Google AI Studio key or Ollama costs nothing. Pills, music, mail, reminders and your services' data work with all of them; the web search with Claude and Gemini (Google Search, same key). The voice page says what is missing (a key, a model) instead of always asking for a Claude key.
+- **A volume for each kind of sound**: Ronron → Appearance & sounds keeps the general volume and adds three sliders — Notifications (an agent finishes, asks or fails, a message, a reminder, an alarm), Clicks and interface, and Ronron's own sounds. Letting go of one plays a sound at its new level; at 0 % that kind is silent.
+- The messages that still sent you to "Notch → Chat" now say AI agents → Chat.
+
 ## 0.12.1 — November 22, 2026
 
 - **A clean uninstall when you ask for it**: on Windows, ticking *Delete the application data* in the uninstaller now also clears every key Ronron stored in the Credential Manager (Microsoft, Google, API keys, WhatsApp…) and removes `%APPDATA%\Ronron` and `%LOCALAPPDATA%\Ronron` (settings, reminders, local tasks, voice models). Unticked — and always on an update — everything stays for a reinstall.

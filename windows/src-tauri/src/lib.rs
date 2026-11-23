@@ -108,8 +108,13 @@ fn boot(app: AppHandle, shared: State<Shared>) -> BootInfo {
 
 #[tauri::command]
 fn save_settings(app: AppHandle, shared: State<Shared>, settings: Settings) {
-    let (settings, screen_changed, autostart_changed, shortcuts_changed) = {
+    let (settings, screen_changed, autostart_changed, shortcuts_changed, servers_changed) = {
         let mut current = shared.settings.lock().unwrap();
+        // What « OK Ronron » may answer with (voice/llm.rs).
+        let servers_changed = current.chat_models != settings.chat_models
+            || current.ollama_url != settings.ollama_url
+            || current.lmstudio_url != settings.lmstudio_url
+            || current.custom_url != settings.custom_url;
         let screen_changed = current.screen != settings.screen;
         let autostart_changed = current.autostart != settings.autostart;
         let shortcuts_changed = current.shortcuts != settings.shortcuts;
@@ -131,10 +136,14 @@ fn save_settings(app: AppHandle, shared: State<Shared>, settings: Settings) {
         // Antigravity approvals: only their own switch changes them (agy_approvals.rs).
         settings.agy_approvals_enabled = current.agy_approvals_enabled;
         *current = settings;
-        (current.clone(), screen_changed, autostart_changed, shortcuts_changed)
+        (current.clone(), screen_changed, autostart_changed, shortcuts_changed, servers_changed)
     };
     if let Err(err) = settings::save(&settings) {
         log::line(format!("could not save settings: {err}"));
+    }
+    // A local server connected or a model picked may be what « OK Ronron » waited for.
+    if servers_changed {
+        voice::sync(&app);
     }
     if autostart_changed {
         let manager = app.autolaunch();
@@ -662,9 +671,8 @@ fn secret_set(app: AppHandle, key: String, value: String) -> Result<(), String> 
     }
     let before = (key == "github-token").then(|| secrets::get(&key));
     secrets::set(&key, &value)?;
-    if key == claude::KEY {
-        voice::sync(&app);
-    }
+    // Any key may be the one « OK Ronron » answers with (voice/llm.rs).
+    voice::sync(&app);
     if let Some(before) = before {
         if secrets::get(&key) != before {
             integrations::github_token_changed(&app);
@@ -684,9 +692,7 @@ fn secret_set(app: AppHandle, key: String, value: String) -> Result<(), String> 
 fn secret_clear(app: AppHandle, key: String) -> Result<(), String> {
     let had = key == "github-token" && secrets::present(&key);
     secrets::clear(&key)?;
-    if key == claude::KEY {
-        voice::sync(&app);
-    }
+    voice::sync(&app);
     if had {
         integrations::github_token_changed(&app);
     }

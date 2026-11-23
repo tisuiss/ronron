@@ -4,8 +4,8 @@
 // While it is on, the microphone is open and a cheap energy detector cuts what
 // you say into stretches; only a stretch of speech goes to Parakeet, on this
 // computer, and only a stretch that starts with « OK Ronron » goes further:
-// what you said after it goes to Claude with your own key (brain.rs), never
-// the audio. Ronron shows it all in the pill at the bottom of the screen —
+// what you said after it goes to the model picked on the voice page — Claude
+// with your own key, Gemini, Ollama… (brain.rs, llm.rs) — never the audio. Ronron shows it all in the pill at the bottom of the screen —
 // listening, thinking, then the answer, said out loud by the system's voice
 // (the pill's speechSynthesis) or ElevenLabs with your key.
 //
@@ -13,6 +13,7 @@
 // speaks itself.
 
 pub mod brain;
+pub mod llm;
 pub mod wake;
 
 use std::collections::HashMap;
@@ -23,7 +24,7 @@ use std::time::{Duration, Instant};
 
 use serde::Serialize;
 use serde_json::{json, Value};
-use tauri::{AppHandle, Emitter};
+use tauri::{AppHandle, Emitter, Manager};
 
 use crate::flow::pill;
 use crate::speech::{self, audio};
@@ -53,16 +54,27 @@ fn pending() -> &'static Mutex<HashMap<u64, mpsc::Sender<String>>> {
 }
 static NEXT_ID: AtomicU64 = AtomicU64::new(1);
 
-/// Whether « OK Ronron » can run: the voice model and a Claude key.
-pub fn requirements_met() -> bool {
-    speech::is_ready() && crate::secrets::present(crate::claude::KEY)
+/// The model that answers, as the voice page and the chat settings say, or
+/// what is missing for it.
+pub fn backend(app: &AppHandle) -> Result<llm::Backend, String> {
+    let stored = crate::flow::get(app).map(|f| f.store.lock().unwrap().prefs.voice_provider.clone()).unwrap_or_default();
+    let settings = app
+        .try_state::<crate::Shared>()
+        .map(|s| s.settings.lock().unwrap().clone())
+        .unwrap_or_default();
+    llm::backend(&settings, &stored)
+}
+
+/// Whether « OK Ronron » can run: the voice model and a model to answer.
+pub fn requirements_met(app: &AppHandle) -> bool {
+    speech::is_ready() && backend(app).is_ok()
 }
 
 /// Starts or stops listening to follow the preference.
 pub fn sync(app: &AppHandle) {
     let wanted = crate::flow::get(app).is_some_and(|f| f.store.lock().unwrap().prefs.voice);
     let mut running = RUNNING.lock().unwrap();
-    match (wanted && requirements_met(), running.is_some()) {
+    match (wanted && requirements_met(app), running.is_some()) {
         (true, false) => {
             let stop = Arc::new(AtomicBool::new(false));
             let app2 = app.clone();
@@ -208,7 +220,7 @@ fn run(app: AppHandle, stop: Arc<AtomicBool>) {
                 show(&app, Some(VoiceView {
                     phase: "speaking".into(),
                     heard: question,
-                    answer: if done { "✓".into() } else { crate::i18n::t("Ronron couldn't answer: check your Claude key in Notch → Chat.") },
+                    answer: if done { "✓".into() } else { crate::i18n::t("Ronron couldn't answer: check the model picked in Voice and its key in AI agents → Chat.") },
                 }));
                 hide_at = Some(Instant::now() + Duration::from_secs(5));
                 continue;

@@ -110,9 +110,17 @@ export interface IcalCalendar {
   color: string;
 }
 
+export interface SoundLevels {
+  notifications: number;
+  interface: number;
+  ronron: number;
+}
+
 export interface Settings {
   soundEnabled: boolean;
   soundVolume: number;
+  /** Each kind of sound's share of the volume, 0 to 1 (see core/sound.ts). */
+  soundLevels?: SoundLevels;
   autoCloseInterval: number;
   /** Hovering the island opens it all the way (off: hovering only peeks). */
   openOnHover: boolean;
@@ -198,6 +206,7 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
   soundEnabled: true,
   soundVolume: 0.12,
+  soundLevels: { notifications: 1, interface: 1, ronron: 1 },
   autoCloseInterval: 15,
   openOnHover: false,
   foldOnLeave: true,

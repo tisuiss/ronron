@@ -17,6 +17,7 @@ export interface DesktopSnapshot {
   outfit: Outfit;
   soundEnabled: boolean;
   soundVolume: number;
+  soundLevels?: { notifications: number; interface: number; ronron: number };
   /** Tray → Pause: he dozes off and stays asleep. */
   paused: boolean;
   /** Music plays: he dances (the compact island's rules, core/spotify.ts). */

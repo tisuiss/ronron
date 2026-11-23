@@ -170,6 +170,7 @@ export class DesktopLink {
       outfit: State.wardrobePreview ?? this.seasons.get(parseOutfit(State.settings.catOutfit)),
       soundEnabled: State.settings.soundEnabled,
       soundVolume: State.settings.soundVolume,
+      soundLevels: State.settings.soundLevels,
       paused: State.paused,
       dancing: desktopDances(State.spotifyPlaying, State.effectiveState),
     };

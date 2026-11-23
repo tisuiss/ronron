@@ -465,6 +465,10 @@ pub struct FlowStatus {
     /// "ok", or why the key can't be watched here ("wayland", "no-display").
     keys: String,
     has_claude_key: bool,
+    /// What « OK Ronron » still needs to answer (a key, a model…), in words; None when it can.
+    voice_problem: Option<String>,
+    /// The model that answers it; "" for Claude (Haiku, then the chat's).
+    voice_model: String,
     mics: Vec<audio::InputDevice>,
     platform: &'static str,
     /// Ronron started with the computer.
@@ -474,7 +478,8 @@ pub struct FlowStatus {
 }
 
 #[tauri::command]
-pub fn flow_status(flow: State<Arc<Flow>>) -> FlowStatus {
+pub fn flow_status(app: AppHandle, flow: State<Arc<Flow>>) -> FlowStatus {
+    let voice = crate::voice::backend(&app);
     FlowStatus {
         prefs: flow.store.lock().unwrap().prefs.clone(),
         models: speech::status(),
@@ -483,6 +488,8 @@ pub fn flow_status(flow: State<Arc<Flow>>) -> FlowStatus {
             Err(why) => why.into(),
         },
         has_claude_key: cleanup::has_key(),
+        voice_problem: voice.as_ref().err().cloned(),
+        voice_model: voice.map(|b| b.model).unwrap_or_default(),
         mics: audio::input_devices(),
         platform: if cfg!(windows) { "windows" } else { "linux" },
         autostarted: crate::launched_at_login(),
@@ -517,7 +524,7 @@ pub fn flow_set_prefs(app: AppHandle, flow: State<Arc<Flow>>, prefs: Prefs) {
     if prefs.enabled && (!before.enabled || restart) {
         enable(&app, &flow);
     }
-    if before.voice != prefs.voice || before.mic != prefs.mic {
+    if before.voice != prefs.voice || before.mic != prefs.mic || before.voice_provider != prefs.voice_provider {
         if before.mic != prefs.mic {
             crate::voice::restart(&app);
         } else {

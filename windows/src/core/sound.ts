@@ -16,9 +16,32 @@ export const SOUND_NAMES = [
 
 export type SoundName = (typeof SOUND_NAMES)[number];
 
+/** The three volumes of Settings → Ronron → Appearance & sounds. */
+export type SoundKind = "notifications" | "interface" | "ronron";
+export type SoundLevels = Record<SoundKind, number>;
+export const DEFAULT_LEVELS: SoundLevels = { notifications: 1, interface: 1, ronron: 1 };
+
+/** Which volume each sound follows; a call can say otherwise (a WhatsApp message's pop is a notification). */
+export const SOUND_KIND: Record<SoundName, SoundKind> = {
+  peek: "notifications", work: "notifications", finish: "notifications", error: "notifications",
+  approval: "notifications", question: "notifications", rate: "notifications",
+  open: "interface", close: "interface", hover: "interface", blip: "interface", tick: "interface",
+  send: "interface", approve: "interface", pop: "interface", attach: "interface",
+  slap: "ronron", annoyed: "ronron", dizzy: "ronron", greet: "ronron", gulp: "ronron", love: "ronron",
+  proud: "ronron", wink: "ronron", yawn: "ronron", think: "ronron", search: "ronron", sleep: "ronron",
+  greeting: "ronron",
+};
+
+/** A level as stored, made safe: a number from 0 to 1, else 1. */
+export function levelOf(levels: Partial<SoundLevels> | null | undefined, kind: SoundKind): number {
+  const v = levels?.[kind];
+  return typeof v === "number" && Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 1;
+}
+
 class SoundEngine {
   enabled = true;
   volume = 0.12;
+  levels: SoundLevels = { ...DEFAULT_LEVELS };
 
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
@@ -113,12 +136,18 @@ class SoundEngine {
     if (this.master) this.master.gain.value = this.volume;
   }
 
+  setLevels(levels: Partial<SoundLevels> | null | undefined) {
+    this.levels = { notifications: levelOf(levels, "notifications"), interface: levelOf(levels, "interface"), ronron: levelOf(levels, "ronron") };
+  }
+
   setEnabled(on: boolean) {
     this.enabled = on;
   }
 
-  play(name: SoundName | string) {
+  play(name: SoundName | string, kind?: SoundKind) {
     if (!this.enabled) return;
+    const level = this.levels[kind ?? SOUND_KIND[name as SoundName] ?? "interface"];
+    if (!(level > 0)) return;
     const ctx = this.ctx;
     const master = this.master;
     const buf = this.buffers.get(name);
@@ -131,6 +160,7 @@ class SoundEngine {
     const src = ctx.createBufferSource();
     src.buffer = buf;
     const gain = ctx.createGain();
+    gain.gain.value = level;
     src.connect(gain);
     gain.connect(master);
     const voice = { src, gain };
