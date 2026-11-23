@@ -138,6 +138,19 @@ pub async fn media_set_mute(source: String, muted: bool) -> bool {
     tauri::async_runtime::spawn_blocking(move || volume::mute(&source, muted)).await.unwrap_or(false)
 }
 
+/// Says once per player, in ronron.log, that its sound stream was not found
+/// and which apps had one: what tells which name to match next.
+#[allow(dead_code)]
+fn note_unmatched(source: &str, apps: &[String]) {
+    static LOGGED: std::sync::Mutex<Vec<String>> = std::sync::Mutex::new(Vec::new());
+    let mut logged = LOGGED.lock().unwrap();
+    if logged.iter().any(|s| s == source) || logged.len() > 50 {
+        return;
+    }
+    logged.push(source.to_string());
+    crate::log::line(format!("music: no sound stream for {source:?}; streams of {apps:?}"));
+}
+
 /// Words of a media session id that never name an app.
 const NOT_AN_APP: &[&str] = &["org", "mpris", "mediaplayer2", "exe", "crx", "instance"];
 
@@ -160,11 +173,18 @@ pub fn app_matches(source: &str, app: &str) -> bool {
     if app.len() < 3 {
         return false;
     }
-    source
+    let words: Vec<String> = source
         .split(|c: char| !c.is_ascii_alphanumeric())
         .map(str::to_ascii_lowercase)
         .filter(|w| w.len() >= 3 && !NOT_AN_APP.contains(&w.as_str()) && !w.starts_with("instance"))
-        .any(|w| w == app || (w == "chromium" && CHROMIUM_FAMILY.contains(&app.as_str())))
+        .collect();
+    if words.iter().any(|w| *w == app || (w == "chromium" && CHROMIUM_FAMILY.contains(&app.as_str()))) {
+        return true;
+    }
+    // An app whose name is several words of the id: "YouTube Music.exe" for
+    // "com.github.th-ch.youtube-music". Long names only, so "Music.exe" never
+    // takes another player's sound.
+    app.len() >= 8 && words.windows(2).chain(words.windows(3)).any(|run| run.concat() == app)
 }
 
 /// One app's sound stream in PulseAudio / PipeWire (`pactl list sink-inputs`).
@@ -218,37 +238,49 @@ mod volume {
     use windows::core::Interface;
     use windows::Win32::Foundation::CloseHandle;
     use windows::Win32::Media::Audio::{
-        eMultimedia, eRender, IAudioSessionControl2, IAudioSessionManager2, IMMDeviceEnumerator, ISimpleAudioVolume,
-        MMDeviceEnumerator,
+        eRender, IAudioSessionControl2, IAudioSessionManager2, IMMDeviceEnumerator, ISimpleAudioVolume,
+        MMDeviceEnumerator, DEVICE_STATE_ACTIVE,
     };
     use windows::Win32::System::Com::{CoCreateInstance, CoInitializeEx, CLSCTX_ALL, COINIT_MULTITHREADED};
     use windows::Win32::System::Threading::{
         OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32, PROCESS_QUERY_LIMITED_INFORMATION,
     };
 
-    /// The audio sessions of the app playing as `source`, on the default output
-    /// (a browser has several: all of them).
+    /// The audio sessions of the app playing as `source`, on every active
+    /// output — a headset that is not the default one too (a browser has
+    /// several sessions: all of them).
     fn sessions(source: &str) -> Vec<ISimpleAudioVolume> {
         let mut out = Vec::new();
+        let mut apps: Vec<String> = Vec::new();
         unsafe {
             let _ = CoInitializeEx(None, COINIT_MULTITHREADED);
             let Ok(devices) = CoCreateInstance::<_, IMMDeviceEnumerator>(&MMDeviceEnumerator, None, CLSCTX_ALL) else {
                 return out;
             };
-            let Ok(device) = devices.GetDefaultAudioEndpoint(eRender, eMultimedia) else { return out };
-            let Ok(manager) = device.Activate::<IAudioSessionManager2>(CLSCTX_ALL, None) else { return out };
-            let Ok(list) = manager.GetSessionEnumerator() else { return out };
-            for i in 0..list.GetCount().unwrap_or(0) {
-                let Ok(control) = list.GetSession(i) else { continue };
-                let Ok(control) = control.cast::<IAudioSessionControl2>() else { continue };
-                let pid = control.GetProcessId().unwrap_or(0);
-                if pid == 0 || !exe_name(pid).is_some_and(|exe| app_matches(source, &exe)) {
-                    continue;
-                }
-                if let Ok(volume) = control.cast::<ISimpleAudioVolume>() {
-                    out.push(volume);
+            let Ok(outputs) = devices.EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE) else { return out };
+            for d in 0..outputs.GetCount().unwrap_or(0) {
+                let Ok(device) = outputs.Item(d) else { continue };
+                let Ok(manager) = device.Activate::<IAudioSessionManager2>(CLSCTX_ALL, None) else { continue };
+                let Ok(list) = manager.GetSessionEnumerator() else { continue };
+                for i in 0..list.GetCount().unwrap_or(0) {
+                    let Ok(control) = list.GetSession(i) else { continue };
+                    let Ok(control) = control.cast::<IAudioSessionControl2>() else { continue };
+                    let pid = control.GetProcessId().unwrap_or(0);
+                    let Some(exe) = (pid != 0).then(|| exe_name(pid)).flatten() else { continue };
+                    if !app_matches(source, &exe) {
+                        if !apps.contains(&exe) {
+                            apps.push(exe);
+                        }
+                        continue;
+                    }
+                    if let Ok(volume) = control.cast::<ISimpleAudioVolume>() {
+                        out.push(volume);
+                    }
                 }
             }
+        }
+        if out.is_empty() {
+            super::note_unmatched(source, &apps);
         }
         out
     }
@@ -681,6 +713,10 @@ mod tests {
         assert!(!app_matches("org.mpris.MediaPlayer2.vlc", "org"));
         assert!(!app_matches("org.mpris.MediaPlayer2.vlc", "mpris"));
         assert!(!app_matches("Foo.exe", "exe"));
+        // A desktop app whose exe name is several words of its id.
+        assert!(app_matches("com.github.th-ch.youtube-music", "YouTube Music.exe"));
+        assert!(app_matches("com.ytmdesktop.youtube.music.desktop", "YouTube Music Desktop.exe"));
+        assert!(!app_matches("SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify", "Music.exe"));
     }
 
     #[test]

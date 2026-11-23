@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.13.0 — November 23, 2026
+
+- **Aircall**: a new service pill (Settings → Accounts & services → Integrations → Aircall, with the company's API ID and token). Its card shows today's calls — in, out, missed — and the last three; click it for the last 20 with who took each. **Call back** opens the number in your computer's phone app (the Aircall app when it handles phone links), **To Do** turns a missed call into a « Call back » task, and a new missed call or voicemail lights the pill. « OK Ronron, who called me? » reads them. Read-only, every 30 s while the pill is on.
+- **The Music tab's volume is back for more players**: an app whose name is several words of its id (the YouTube Music desktop app) is found again, and so is a player on an output that is not the default one (a headset). When none is found, ronron.log says which apps had a sound stream.
+
 ## 0.12.3 — November 23, 2026
 
 - **« OK Ronron » with Gemini answers**: Gemini refused the whole request because one of Ronron's tools (your services' data) takes no parameters; such a tool is now sent without a schema. Thinking models (Gemini 2.5 and later) also get room to think and still answer.

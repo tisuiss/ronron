@@ -1,6 +1,7 @@
 // Ronron for Windows — app wiring and the commands the island calls.
 
 mod agent_hooks;
+mod aircall;
 mod agents;
 mod agy_approvals;
 mod agy_rules;
@@ -934,6 +935,7 @@ pub fn run() {
         .manage(recap::load())
         .invoke_handler(tauri::generate_handler![
             boot,
+            aircall::aircall_call,
             mail::mail_refresh,
             msgraph::ms_account,
             msgraph::ms_builtin_app,

@@ -49,7 +49,7 @@ test("the catalog holds the Mac's pills with the Claude Code label for Windows a
     ["integration_whatsapp", "WhatsApp", "#25D366", "service", "Integration"],
   ];
   assert.deepEqual(
-    PILL_CATALOG.filter((p) => !["integration_gitlab", "integration_gitea", "integration_todo", "integration_calendar"].includes(p.id))
+    PILL_CATALOG.filter((p) => !["integration_gitlab", "integration_gitea", "integration_todo", "integration_calendar", "integration_aircall"].includes(p.id))
       .map((p) => [p.id, p.name, p.color, p.category, p.subtitle]),
     mac,
   );
@@ -62,6 +62,14 @@ test("GitLab is a supported service integration", () => {
   const def = pillDefinition("integration_gitlab");
   assert.deepEqual([def.name, def.color, def.category, def.support], ["GitLab", "#FC6D26", "service", "yes"]);
   assert.ok(!isComingSoon("integration_gitlab"));
+});
+
+test("Aircall is a service pill connected by its API token", () => {
+  assert.deepEqual(
+    pillDefinition("integration_aircall"),
+    { id: "integration_aircall", name: "Aircall", color: "#00B388", category: "service",
+      subtitle: "Integration", source: "n8n", support: "yes", connect: { kind: "key", key: "aircall-api-token" } },
+  );
 });
 
 test("Gitea is an available service pill", () => {

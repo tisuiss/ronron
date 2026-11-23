@@ -27,6 +27,8 @@ pub const KNOWN_KEYS: &[&str] = &[
     "resend-api-key",
     "notion-api-key",
     "calcom-api-key",
+    "aircall-api-id",
+    "aircall-api-token",
     // Microsoft 365 (msgraph/): the Entra app, the account, and the refresh token in pieces.
     "msgraph-client-id",
     "msgraph-tenant",

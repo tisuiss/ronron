@@ -900,6 +900,12 @@ const INTEGRATIONS: IntegrationDef[] = [
     fields: [{ key: "notion-api-key", label: N_("Integration token"), placeholder: "ntn_…", secret: true }] },
   { id: "integration_calcom", name: "Cal.com", color: "#C9956A",
     fields: [{ key: "calcom-api-key", label: N_("API key"), placeholder: "cal_…", secret: true }] },
+  { id: "integration_aircall", name: "Aircall", color: "#00B388",
+    fields: [
+      { key: "aircall-api-id", label: N_("API ID"), placeholder: "…", secret: true },
+      { key: "aircall-api-token", label: N_("API token"), placeholder: "…", secret: true },
+    ],
+    hint: N_("In Aircall: Integrations & API → API keys → Generate an API key (an admin can). Ronron only reads the calls; Call back opens the number in your phone app.") },
   // Microsoft 365 through Graph: the sign-in is its own section (./microsoft.ts).
   { id: "integration_todo", name: "To Do", color: "#2564CF", fields: [], hint: N_("Uses the Microsoft 365 or Google sign-in above.") },
   { id: "integration_calendar", name: N_("Calendar"), color: "#0F78D4", fields: [], hint: N_("Uses the Microsoft 365 or Google sign-in above.") },
@@ -1597,7 +1603,7 @@ async function render() {
 
   const keys = [
     "stripe-api-key", "github-token", "gitlab-url", "gitlab-token", "gitea-url", "gitea-token", "vercel-token",
-    "n8n-url", "n8n-api-key", "resend-api-key", "notion-api-key", "calcom-api-key",
+    "n8n-url", "n8n-api-key", "resend-api-key", "notion-api-key", "calcom-api-key", "aircall-api-token",
     "msgraph-refresh-0", "google-refresh",
   ];
   const present: Record<string, boolean> = {};

@@ -254,6 +254,7 @@ export class Island {
           integration_stripe: "https://dashboard.stripe.com/payments",
           integration_notion: "https://notion.so",
           integration_calcom: "https://app.cal.com/bookings",
+          integration_aircall: "https://dashboard.aircall.io/",
           integration_todo: "https://to-do.office.com/tasks/",
           integration_calendar: "https://outlook.office.com/calendar/",
         };
