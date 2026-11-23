@@ -14,6 +14,8 @@ const FAST_MODEL: &str = "claude-haiku-4-5";
 const FORGET_AFTER: Duration = Duration::from_secs(90);
 
 pub struct Brain {
+    /// Why the last question got no answer, for the pill.
+    pub error: Option<String>,
     messages: Vec<Value>,
     last: Instant,
     /// Who the conversation was with: another provider starts a new one.
@@ -22,7 +24,7 @@ pub struct Brain {
 
 impl Default for Brain {
     fn default() -> Self {
-        Self { messages: Vec::new(), last: Instant::now(), provider: String::new() }
+        Self { error: None, messages: Vec::new(), last: Instant::now(), provider: String::new() }
     }
 }
 
@@ -130,10 +132,12 @@ impl Brain {
             self.messages.clear();
         }
         self.last = Instant::now();
+        self.error = None;
         let backend = match super::backend(app) {
             Ok(b) => b,
             Err(err) => {
                 crate::log::line(format!("voice: {err}"));
+                self.error = Some(err);
                 return None;
             }
         };
@@ -170,7 +174,8 @@ impl Brain {
             let turn = match turn {
                 Ok(t) => t,
                 Err(err) => {
-                    crate::log::line(format!("voice: Claude turn failed: {err}"));
+                    crate::log::line(format!("voice: {} turn failed: {err}", backend.id));
+                    self.error = Some(err);
                     if self.messages.last().is_some_and(|m| m["content"].is_string()) {
                         self.messages.pop();
                     }

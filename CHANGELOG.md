@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.3 — November 23, 2026
+
+- **« OK Ronron » with Gemini answers**: Gemini refused the whole request because one of Ronron's tools (your services' data) takes no parameters; such a tool is now sent without a schema. Thinking models (Gemini 2.5 and later) also get room to think and still answer.
+- **The pill says why** when Ronron can't answer — the provider's own message (a refused key, a model not found, a quota) instead of always "check your key".
+
 ## 0.12.2 — November 23, 2026
 
 - **« OK Ronron » with another model than Claude**: Voice → *Ronron answers with* picks Claude (your key), Gemini, OpenAI, OpenRouter, or a model on your computer — Ollama, LM Studio, any OpenAI-compatible server — with the key and the model already set for it in AI agents → Chat. Gemini with a Google AI Studio key or Ollama costs nothing. Pills, music, mail, reminders and your services' data work with all of them; the web search with Claude and Gemini (Google Search, same key). The voice page says what is missing (a key, a model) instead of always asking for a Claude key.

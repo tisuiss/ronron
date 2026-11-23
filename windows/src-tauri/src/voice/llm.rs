@@ -22,7 +22,8 @@ use crate::{net, openai_compat, secrets};
 pub const ANTHROPIC: &str = "anthropic";
 /// Gemini's latest Flash, when no Gemini model was picked in the chat.
 const GEMINI_DEFAULT: &str = "gemini-flash-latest";
-const MAX_TOKENS: u32 = 1024;
+/// Room for a thinking model (Gemini 2.5 and later) to think and still answer.
+const MAX_TOKENS: u32 = 4096;
 const TIMEOUT: Duration = Duration::from_secs(60);
 /// Ollama and LM Studio want a bearer even when they check none.
 const NO_KEY: &str = "ollama";
@@ -114,14 +115,14 @@ pub fn functions(tools: &[Value], web: bool) -> Vec<Value> {
         .iter()
         .filter(|tool| tool.get("input_schema").is_some())
         .map(|tool| {
-            json!({
-                "type": "function",
-                "function": {
-                    "name": tool["name"],
-                    "description": tool["description"],
-                    "parameters": tool["input_schema"],
-                }
-            })
+            let mut function = json!({ "name": tool["name"], "description": tool["description"] });
+            // Gemini refuses an object with no properties (service_info has
+            // none): such a function goes without parameters, as OpenAI allows.
+            let schema = &tool["input_schema"];
+            if schema["properties"].as_object().is_some_and(|p| !p.is_empty()) {
+                function["parameters"] = schema.clone();
+            }
+            json!({ "type": "function", "function": function })
         })
         .collect();
     if web {
@@ -351,7 +352,7 @@ mod tests {
 
     fn tools() -> Vec<Value> {
         vec![
-            json!({ "name": "pills", "description": "Pills.", "input_schema": { "type": "object", "properties": {} } }),
+            json!({ "name": "pills", "description": "Pills.", "input_schema": { "type": "object", "properties": { "action": { "type": "string" } } } }),
             json!({ "type": "web_search_20250305", "name": "web_search", "max_uses": 3 }),
         ]
     }
@@ -366,6 +367,14 @@ mod tests {
         let with_web = functions(&tools(), true);
         assert_eq!(with_web.len(), 2);
         assert_eq!(with_web[1]["function"]["name"], "web_search");
+    }
+
+    #[test]
+    fn a_tool_without_parameters_is_sent_without_a_schema() {
+        let tools = vec![json!({ "name": "service_info", "description": "Data.", "input_schema": { "type": "object", "properties": {} } })];
+        let f = functions(&tools, false);
+        assert_eq!(f[0]["function"]["name"], "service_info");
+        assert!(f[0]["function"].get("parameters").is_none());
     }
 
     #[test]

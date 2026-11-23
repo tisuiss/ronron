@@ -2,6 +2,46 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.12.3",
+      "items": [
+        {
+          "icon": "bug",
+          "title": {
+            "en": "« OK Ronron » works with Gemini",
+            "zh-Hans": "« OK Ronron » 可与 Gemini 配合使用",
+            "hi": "« OK Ronron » अब Gemini के साथ चलता है",
+            "es": "« OK Ronron » funciona con Gemini",
+            "ar": "« OK Ronron » يعمل مع Gemini",
+            "fr": "« OK Ronron » marche avec Gemini",
+            "bn": "« OK Ronron » এখন Gemini-তে চলে",
+            "pt-BR": "« OK Ronron » funciona com o Gemini",
+            "ru": "« OK Ronron » работает с Gemini",
+            "id": "« OK Ronron » berjalan dengan Gemini",
+            "de": "« OK Ronron » klappt mit Gemini",
+            "tr": "« OK Ronron » Gemini ile çalışıyor",
+            "ko": "« OK Ronron »이 Gemini로 동작",
+            "ja": "« OK Ronron » が Gemini で動作"
+          },
+          "detail": {
+            "en": "Gemini now answers, and the pill says why when Ronron can't.",
+            "zh-Hans": "Gemini 现在会回答；Ronron 无法回答时，提示条会说明原因。",
+            "hi": "Gemini अब जवाब देता है, और न दे पाने पर पिल कारण बताती है।",
+            "es": "Gemini ya responde, y la píldora dice por qué cuando Ronron no puede.",
+            "ar": "يجيب Gemini الآن، وتوضح الحبة السبب عندما يتعذر على Ronron الرد.",
+            "fr": "Gemini répond enfin, et la bulle dit pourquoi quand Ronron ne peut pas.",
+            "bn": "Gemini এখন উত্তর দেয়, আর না পারলে পিল কারণ জানায়।",
+            "pt-BR": "O Gemini agora responde, e a pílula diz o motivo quando o Ronron não consegue.",
+            "ru": "Gemini теперь отвечает, а если Ronron не может — плашка объяснит почему.",
+            "id": "Gemini kini menjawab, dan pil memberi tahu alasannya jika Ronron tidak bisa.",
+            "de": "Gemini antwortet jetzt, und die Pille sagt, warum, wenn Ronron nicht kann.",
+            "tr": "Gemini artık yanıt veriyor; Ronron yanıt veremezse hap nedenini söylüyor.",
+            "ko": "이제 Gemini가 답하고, 못 할 때는 알림이 이유를 알려 줘요.",
+            "ja": "Gemini が答えるようになり、答えられないときは理由が表示されます。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.12.2",
       "items": [
         {

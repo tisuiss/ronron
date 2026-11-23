@@ -220,7 +220,14 @@ fn run(app: AppHandle, stop: Arc<AtomicBool>) {
                 show(&app, Some(VoiceView {
                     phase: "speaking".into(),
                     heard: question,
-                    answer: if done { "✓".into() } else { crate::i18n::t("Ronron couldn't answer: check the model picked in Voice and its key in AI agents → Chat.") },
+                    answer: if done {
+                        "✓".into()
+                    } else if let Some(err) = brain.error.take() {
+                        let short: String = err.chars().take(180).collect();
+                        crate::i18n::tf("Ronron couldn't answer: {error}", &[("error", &short)])
+                    } else {
+                        crate::i18n::t("Ronron couldn't answer: check the model picked in Voice and its key in AI agents → Chat.")
+                    },
                 }));
                 hide_at = Some(Instant::now() + Duration::from_secs(5));
                 continue;
