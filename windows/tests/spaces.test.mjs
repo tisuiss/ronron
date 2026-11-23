@@ -70,7 +70,8 @@ test("Calendar: the week, today's events, and the next one to join", () => {
   const now = Date.now();
   State.view = "agenda";
   State.integrations.integration_calendar = {
-    data: { rangeStart: now - 86_400_000, rangeEnd: now + 30 * 86_400_000, bookings: [
+    // Read from an hour ago: yesterday is in last week on a Monday.
+    data: { rangeStart: now - 3_600_000, rangeEnd: now + 30 * 86_400_000, bookings: [
       { id: "next", title: "Point client", start: iso(now + 600_000), end: iso(now + 1_800_000), joinUrl: "https://teams.microsoft.com/x", webUrl: "https://outlook.office365.com/y" },
     ] },
     error: null, loaded: true, configured: true,
@@ -90,7 +91,7 @@ test("Calendar: the week, today's events, and the next one to join", () => {
   const days = () => view.el.find(".sp-day").map((d) => d.getAttribute("data-day"));
   const thisWeek = days();
   const [prev, next] = view.el.find(".sp-icon");
-  assert.equal(prev.disabled, true); // read from yesterday only
+  assert.equal(prev.disabled, true); // read from today only
   next.fire("click");
   assert.notDeepEqual(days(), thisWeek);
   assert.doesNotMatch(text(view.el), /This week/);

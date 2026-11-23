@@ -62,6 +62,7 @@ You can also [build it yourself](#build-it-yourself).
 | The terminal tab in the island's header | **New Claude Code session**: pick a project (the folders your sessions ran in, or **Choose a folder…**), type what Claude should do, and your terminal opens there running `claude` with it |
 | Click a file in the session ticker | Its diff opens in the island; ↗ opens the file in VS Code, ‹ or `Esc` goes back |
 | `Esc` | Closes the island |
+| Move the sliders under the volume in **Settings → Ronron → Appearance & sounds** | Each kind of sound plays at its share of the volume: **Notifications** (an agent finishes, asks or fails, a message, a reminder, an alarm), **Clicks and interface**, **Ronron's sounds** (his hello, purrs, reactions). Letting go plays one at the new level; 0 % silences that kind |
 | Put a file named like one of Ronron's sounds (`finish.wav`, `approval.mp3`, `greet.m4a`…) in the sounds folder | It replaces that sound after **Settings → Ronron → Appearance & sounds → Reload sounds**. **Open sounds folder** shows the folder: `~/.config/ronron/sounds` on Linux, `%APPDATA%\Ronron\sounds` on Windows |
 | Tray icon | Open, Weekly recap, Wardrobe…, Settings…, Pause, Quit — and **Update Ronron to X…** while a new version is out |
 | `Ctrl+Alt+Space` | Opens the chat, from any app |
@@ -149,12 +150,13 @@ against its SHA-256, kept in Ronron's data folder under `Models`).
 | Tap the key twice (once with **Hands-free with one press** on, in Voice → Dictation settings) | Hands-free: speak as long as you like, tap once to paste. `Esc` cancels |
 | Hover the pill at the bottom of the screen | Dictate, record a call, open Ronron. Put the pill on the left or right edge in Voice → Dictation settings |
 | Click **Record a call** | Your microphone and what the computer plays, transcribed live, then written person by person with a summary and to-dos by Claude (your key). The audio is deleted once the transcript is written |
-| Say **« OK Ronron »**, then ask | Claude (your key) answers in the pill and out loud: pills, Spotify, your services' numbers, your agents, web search, open an app, an email prepared in your mail app. Turn it on in Voice → OK Ronron |
+| Say **« OK Ronron »**, then ask | The model you picked answers in the pill and out loud: pills, Spotify, your services' numbers, your agents, web search, open an app, an email prepared in your mail app. Turn it on in Voice → OK Ronron; *Ronron answers with* picks Claude (your key), Gemini, OpenAI, OpenRouter, Ollama, LM Studio or an OpenAI-compatible server, with the key and model set for it in AI agents → Chat. Free: Gemini with a Google AI Studio key, or Ollama on your computer. Web search with Claude and Gemini only |
 
 Your voice never leaves the computer. With Claude's clean-up (Voice → Styles),
 a call's summary or « OK Ronron », the text — never the audio — goes to
-Anthropic with your key; an ElevenLabs voice for the answers sends them to
-ElevenLabs with yours.
+Anthropic with your key (for « OK Ronron », to the provider you picked, or
+nowhere with a model on this computer); an ElevenLabs voice for the answers
+sends them to ElevenLabs with yours.
 
 ## Your pills
 
@@ -266,7 +268,7 @@ MCP servers or extensions where the tool can turn them off, saves no session,
 and searches the web for the chat only; a dropped file is read with no web at
 all. Through npm's `.cmd` shims the prompt goes in on stdin. The dictation's clean-up
 and the notes of a call use Claude Code when no Anthropic key is saved;
-« OK Ronron » still needs the key: its tools are Ronron's own.
+« OK Ronron » needs a key or a model server (Voice → *Ronron answers with*): its tools are Ronron's own.
 
 The chat also talks to **Google AI (Gemini)**, **OpenAI** and **OpenRouter**:
 add their keys in **Settings… → Chat providers**, then click the model name

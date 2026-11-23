@@ -102,7 +102,7 @@ export const SETTINGS_ENTRIES: SettingsSearchEntry[] = [
   { id: "flow.privacy", page: "flowsettings", title: "hub.settings.privacy", terms: ["hub.settings.keep"] },
 
   // Ronron → Appearance & sounds
-  { id: "general.sound", page: "appearance", title: "Sound", terms: ["Enable sounds", "Volume", "Open sounds folder", "Reload sounds"] },
+  { id: "general.sound", page: "appearance", title: "Sound", terms: ["Enable sounds", "Volume", "Notifications", "Clicks and interface", "Ronron's sounds", "Open sounds folder", "Reload sounds"] },
 
   // Island → Behavior
   { id: "general.demo", page: "general", title: "demo.groupbox.title", terms: [] },
@@ -150,7 +150,7 @@ export const SETTINGS_ENTRIES: SettingsSearchEntry[] = [
     ],
   },
   { id: "phone.android", page: "phone", title: "phone.title", terms: ["phone.status", "phone.pairing", "phone.approvals"] },
-  { id: "voice.wake", page: "voice", title: "«\u202FOK Ronron\u202F» — voice wake word", terms: ["Enable voice command", "Request permissions"] },
+  { id: "voice.wake", page: "voice", title: "«\u202FOK Ronron\u202F» — voice wake word", terms: ["Enable voice command", "Request permissions", "Ronron answers with"] },
   { id: "voice.language", page: "voice", title: "Language", terms: ["voice.listen-language", "voice.language"] },
   { id: "voice.tts", page: "voice", title: "voice.tts-engine", terms: ["voice.tts-gender", "voice.tts-test"] },
   { id: "voice.history", page: "voice", title: "voice.history-title", terms: [] },

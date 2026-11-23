@@ -1,7 +1,8 @@
-// « OK Ronron »'s brain: Claude with the user's key and Ronron's tools —
-// pills, music, the user's own data, opening an app, preparing an email (the
-// mail app opens with it filled in; the user sends it) and Anthropic's web
-// search. The conversation lives in memory only and is forgotten 90 s after
+// « OK Ronron »'s brain: Claude with the user's key, or the model picked on
+// the voice page (llm.rs: Gemini, OpenAI, OpenRouter, Ollama, LM Studio…), and
+// Ronron's tools — pills, music, the user's own data, opening an app,
+// preparing an email (the mail app opens with it filled in; the user sends
+// it) and a web search where the model has one. The conversation lives in memory only and is forgotten 90 s after
 // the last turn. Port of ClaudeVoiceBrain.swift.
 
 use std::time::{Duration, Instant};
@@ -15,11 +16,13 @@ const FORGET_AFTER: Duration = Duration::from_secs(90);
 pub struct Brain {
     messages: Vec<Value>,
     last: Instant,
+    /// Who the conversation was with: another provider starts a new one.
+    provider: String,
 }
 
 impl Default for Brain {
     fn default() -> Self {
-        Self { messages: Vec::new(), last: Instant::now() }
+        Self { messages: Vec::new(), last: Instant::now(), provider: String::new() }
     }
 }
 
@@ -96,7 +99,7 @@ fn tools() -> Vec<Value> {
     ]
 }
 
-fn system_prompt(pills: &str) -> String {
+fn system_prompt(pills: &str, web: bool) -> String {
     let t = crate::platform::local_time();
     let os = if cfg!(windows) { "Windows" } else { "Linux" };
     format!(
@@ -105,14 +108,19 @@ quick, warm, a little playful. It is {:04}-{:02}-{:02} {:02}:{:02}.\n\
 Everything you write is read aloud: answer in the language the user spoke, in one or two short sentences, \
 no markdown, no lists, no emojis, no links.\n\
 Act with the tools instead of describing: pills, music, service_info for the user's own data, open_app, \
-prepare_email, reminder (\"remind me to … at …\"), and web_search for anything current (weather, news, scores, prices, facts you are not sure of). \
+prepare_email, reminder (\"remind me to … at …\"){web}. \
 Never invent the user's data.\n\
 Email: gather the recipient's address, the subject and what to say (write the text yourself from what the user \
 wants to say, in the language they used), asking for what is missing one short question at a time, then call \
 prepare_email. The email is never sent by you: the user checks it in their mail app and sends it.\n\
 When you need an answer from the user, end with one short question. Otherwise never end with a question.\n\
 Pills: {pills}",
-        t.year, t.month, t.day, t.hour, t.minute
+        t.year, t.month, t.day, t.hour, t.minute,
+        web = if web {
+            ", and web_search for anything current (weather, news, scores, prices, facts you are not sure of)"
+        } else {
+            ". You cannot search the web: for anything current (weather, news, scores, prices), say you cannot look it up"
+        }
     )
 }
 
@@ -122,10 +130,22 @@ impl Brain {
             self.messages.clear();
         }
         self.last = Instant::now();
+        let backend = match super::backend(app) {
+            Ok(b) => b,
+            Err(err) => {
+                crate::log::line(format!("voice: {err}"));
+                return None;
+            }
+        };
+        if backend.id != self.provider {
+            self.messages.clear();
+            self.provider = backend.id.clone();
+        }
+        let claude = matches!(backend.kind, super::llm::Kind::Anthropic);
         self.messages.push(json!({ "role": "user", "content": transcript }));
         self.trim();
         let pills = super::ask_island(app, "pills", json!({ "action": "list" })).unwrap_or_default();
-        let system = system_prompt(&pills);
+        let system = system_prompt(&pills, backend.web());
         let tools = tools();
         let chat_model = app
             .try_state::<crate::Shared>()
@@ -135,6 +155,9 @@ impl Brain {
         let mut spoken = String::new();
         for _ in 0..5 {
             let turn = tauri::async_runtime::block_on(async {
+                if !claude {
+                    return super::llm::turn(&backend, &system, &self.messages, &tools).await;
+                }
                 match crate::claude::voice_turn(FAST_MODEL, &system, &self.messages, &tools).await {
                     Ok(v) => Ok(v),
                     Err(err) if !chat_model.is_empty() => {
@@ -170,7 +193,13 @@ impl Brain {
             }
             let mut results = Vec::new();
             for u in uses {
-                let (result, did) = super::run_tool(app, u["name"].as_str().unwrap_or(""), &u["input"]);
+                let name = u["name"].as_str().unwrap_or("");
+                let (result, did) = if name == "web_search" && !claude {
+                    let query = u["input"]["query"].as_str().unwrap_or("").to_string();
+                    (tauri::async_runtime::block_on(super::llm::web_search(&backend, &query)), false)
+                } else {
+                    super::run_tool(app, name, &u["input"])
+                };
                 acted |= did;
                 results.push(json!({ "type": "tool_result", "tool_use_id": u["id"], "content": result }));
             }

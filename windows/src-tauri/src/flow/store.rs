@@ -108,8 +108,12 @@ pub struct Prefs {
     pub summary_engine: SummaryEngine,
     /// Open the Ronron window when Ronron is opened (not when it starts with the computer).
     pub open_at_launch: bool,
-    /// « OK Ronron »: listen for it and answer with Claude (needs the Claude key).
+    /// « OK Ronron »: listen for it and answer with the model below.
     pub voice: bool,
+    /// Who answers « OK Ronron »: "anthropic" (Claude with its key), a cloud
+    /// provider of openai_compat.rs or a model server of local_chat.rs — the
+    /// chat's providers, with the model picked for it there (voice/llm.rs).
+    pub voice_provider: String,
     /// The other apps' sound is muted while Ronron listens to you (Windows).
     pub mute_others: bool,
     /// How Ronron answers out loud: "system", "elevenlabs" or "off".
@@ -135,6 +139,7 @@ impl Default for Prefs {
             summary_engine: SummaryEngine::Claude,
             open_at_launch: true,
             voice: false,
+            voice_provider: "anthropic".into(),
             mute_others: true,
             voice_output: "system".into(),
             voice_gender: "female".into(),

@@ -13,7 +13,7 @@ import {
 import { DEFAULT_SETTINGS, type Settings } from "../core/state";
 import { closedIsland } from "../core/closed";
 import type { UpdateStatus } from "../core/update";
-import { SOUND_NAMES } from "../core/sound";
+import { SOUND_NAMES, Sound, levelOf, type SoundKind } from "../core/sound";
 import {
   MAX_DECLARED, PILL_CATEGORIES, availablePills, chooseMainPill, isComingSoon, mainPillChoices,
   sanitizeDeclared, toggleDeclared, type PillDefinition,
@@ -1046,6 +1046,42 @@ function generalParts(): { sound: HTMLElement; island: HTMLElement; system: HTML
     void save();
   });
 
+  // One volume per kind of sound, as a share of the one above. Letting go of a
+  // slider plays a sound of that kind at its new level (this window's own
+  // player, put back to sleep right after).
+  const SAMPLE: Record<SoundKind, string> = { notifications: "finish", interface: "tick", ronron: "love" };
+  const levels: { kind: SoundKind; input: HTMLInputElement; shown: HTMLElement }[] = [];
+  const levelRow = (kind: SoundKind, title: string, hint: string): HTMLElement => {
+    const input = h("input", { type: "range", min: "0", max: "1", step: "0.05", value: String(levelOf(settings.soundLevels, kind)) }) as HTMLInputElement;
+    const shown = h("span", { class: "hint", style: "min-width:38px;text-align:right" });
+    const show = () => (shown.textContent = `${Math.round(Number(input.value) * 100)} %`);
+    show();
+    input.addEventListener("input", () => {
+      show();
+      const current = settings.soundLevels ?? { notifications: 1, interface: 1, ronron: 1 };
+      settings.soundLevels = { ...current, [kind]: Number(input.value) };
+      void save();
+    });
+    input.addEventListener("change", () => {
+      if (!settings.soundEnabled) return;
+      Sound.setVolume(settings.soundVolume);
+      Sound.setLevels(settings.soundLevels);
+      void Sound.preload().then(() => {
+        Sound.play(SAMPLE[kind], kind);
+        Sound.idle();
+      });
+    });
+    levels.push({ kind, input, shown });
+    return h("div", {},
+      h("div", { class: "row" }, h("label", { text: title }), input, shown),
+      h("div", { class: "hint", text: hint }));
+  };
+  const levelRows = [
+    levelRow("notifications", t("Notifications"), t("An agent finishes, asks or fails, a message, a reminder, an alarm.")),
+    levelRow("interface", t("Clicks and interface"), t("Opening and closing the island, buttons, sending.")),
+    levelRow("ronron", t("Ronron's sounds"), t("His hello, purrs and reactions when you play with him.")),
+  ];
+
   // Your own sounds: the folder, a reload, and how many are replaced.
   const customCount = h("span", { class: "hint" });
   const countCustom = () =>
@@ -1125,6 +1161,11 @@ function generalParts(): { sound: HTMLElement; island: HTMLElement; system: HTML
     setSwitch(autostart, settings.autostart);
     // A field being edited keeps what is in it; it catches up when it is left.
     if (document.activeElement !== volume) volume.value = String(settings.soundVolume);
+    for (const l of levels) {
+      if (document.activeElement === l.input) continue;
+      l.input.value = String(levelOf(settings.soundLevels, l.kind));
+      l.shown.textContent = `${Math.round(Number(l.input.value) * 100)} %`;
+    }
     if (document.activeElement !== autoClose) {
       autoClose.value = String(Math.round(settings.autoCloseInterval));
     }
@@ -1141,6 +1182,8 @@ function generalParts(): { sound: HTMLElement; island: HTMLElement; system: HTML
       sound,
       volume,
     ),
+    h("div", { class: "hint", text: t("The general volume. Each kind of sound below plays at its share of it.") }),
+    ...levelRows,
     h("div", { class: "row" }, soundsFolder, reloadSounds, customCount),
     h("div", { class: "hint", text: t("Drop a file named like one of Ronron's sounds (finish.wav, approval.mp3, greet.m4a…) in the sounds folder to replace it, then Reload.") }),
   );

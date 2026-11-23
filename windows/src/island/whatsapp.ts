@@ -63,7 +63,7 @@ export function handlePillEvent(island: WhatsAppHost, e: WaPillEvent, now = perf
       if (now - lastAnnounce > ANNOUNCE_GAP_MS) {
         lastAnnounce = now;
         island.emote("happy");
-        Sound.play("pop");
+        Sound.play("pop", "notifications");
       }
       island.reveal();
       if (resetTimer != null) window.clearTimeout(resetTimer);

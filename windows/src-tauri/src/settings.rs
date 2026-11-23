@@ -33,6 +33,8 @@ pub struct IcalCalendar {
 pub struct Settings {
     pub sound_enabled: bool,
     pub sound_volume: f64,
+    /// Each kind of sound's share of `sound_volume`, 0 (silent) to 1.
+    pub sound_levels: SoundLevels,
     pub auto_close_interval: f64,
     /// Hovering the island opens it all the way, and it folds again shortly
     /// after the pointer leaves (the Mac's "Open on hover"). Off by default.
@@ -151,6 +153,25 @@ pub struct Settings {
     pub agy_approvals_enabled: bool,
 }
 
+/// How loud each kind of sound plays, as a share of the volume (src/core/sound.ts
+/// says which sound is which kind).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct SoundLevels {
+    /// An agent finished, asks or failed, a message, a reminder, an alarm.
+    pub notifications: f64,
+    /// Opening and closing the island, clicks, sending.
+    pub interface: f64,
+    /// Ronron's own sounds: his greeting, purrs, reactions.
+    pub ronron: f64,
+}
+
+impl Default for SoundLevels {
+    fn default() -> Self {
+        Self { notifications: 1.0, interface: 1.0, ronron: 1.0 }
+    }
+}
+
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct DesktopCatPref {
@@ -177,6 +198,7 @@ impl Default for Settings {
         Self {
             sound_enabled: true,
             sound_volume: 0.12,
+            sound_levels: SoundLevels::default(),
             auto_close_interval: 15.0,
             open_on_hover: false,
             fold_on_leave: true,
@@ -489,6 +511,7 @@ mod tests {
     const CUSTOM: &str = r##"{
   "soundEnabled": false,
   "soundVolume": 0.5,
+  "soundLevels": { "notifications": 0.8, "interface": 0.0, "ronron": 0.5 },
   "autoCloseInterval": 30.0,
   "openOnHover": true,
   "foldOnLeave": false,
@@ -801,6 +824,7 @@ mod tests {
         for (key, wrong) in [
             ("soundVolume", json!("loud")),
             ("soundEnabled", json!(1)),
+            ("soundLevels", json!("loud")),
             ("activeIntegrations", json!("integration_n8n")),
             ("mainPill", json!(["agent_cursor"])),
             ("screen", Value::Null),
@@ -1016,6 +1040,7 @@ mod tests {
             [
                 "soundEnabled",
                 "soundVolume",
+                "soundLevels",
                 "autoCloseInterval",
                 "openOnHover",
                 "foldOnLeave",

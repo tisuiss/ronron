@@ -52,6 +52,8 @@ export interface FlowPrefs {
   openAtLaunch: boolean;
   /** « OK Ronron »: listen for it and answer with Claude. */
   voice: boolean;
+  /** Who answers « OK Ronron » (src-tauri/src/voice/llm.rs). */
+  voiceProvider: VoiceProvider;
   voiceOutput: VoiceOutput;
   voiceGender: "female" | "male";
   /** The other apps go quiet while Ronron listens to you (Windows). */
@@ -77,6 +79,10 @@ export interface FlowStatus {
   /** "ok", or why the key can't be watched ("wayland", "no-display"). */
   keys: string;
   hasClaudeKey: boolean;
+  /** What « OK Ronron » still needs to answer, in words; null when it can. */
+  voiceProblem?: string | null;
+  /** The model that answers it; "" for Claude. */
+  voiceModel?: string;
   mics: { name: string; default: boolean }[];
   platform: "windows" | "linux";
   autostarted: boolean;
@@ -201,6 +207,7 @@ export interface VoiceView {
 }
 
 export type VoiceOutput = "system" | "elevenlabs" | "off";
+export type VoiceProvider = "anthropic" | "google" | "openai" | "openrouter" | "ollama" | "lmstudio" | "custom";
 
 export const FlowBridge = {
   status: () => call<FlowStatus>("flow_status"),

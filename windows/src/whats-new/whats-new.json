@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.12.2",
+      "items": [
+        {
+          "icon": "mic",
+          "title": {
+            "en": "« OK Ronron » with Gemini or Ollama",
+            "zh-Hans": "« OK Ronron » 支持 Gemini 或 Ollama",
+            "hi": "Gemini या Ollama के साथ « OK Ronron »",
+            "es": "« OK Ronron » con Gemini u Ollama",
+            "ar": "« OK Ronron » مع Gemini أو Ollama",
+            "fr": "« OK Ronron » avec Gemini ou Ollama",
+            "bn": "Gemini বা Ollama দিয়ে « OK Ronron »",
+            "pt-BR": "« OK Ronron » com Gemini ou Ollama",
+            "ru": "« OK Ronron » с Gemini или Ollama",
+            "id": "« OK Ronron » dengan Gemini atau Ollama",
+            "de": "« OK Ronron » mit Gemini oder Ollama",
+            "tr": "Gemini veya Ollama ile « OK Ronron »",
+            "ko": "Gemini·Ollama로 « OK Ronron »",
+            "ja": "Gemini や Ollama で « OK Ronron »"
+          },
+          "detail": {
+            "en": "Pick who answers in Voice: Claude, Gemini with a free key, or Ollama on your computer.",
+            "zh-Hans": "在“语音”中选择由谁回答：Claude、使用免费密钥的 Gemini，或你电脑上的 Ollama。",
+            "hi": "आवाज़ में चुनें कौन जवाब दे: Claude, मुफ़्त कुंजी वाला Gemini, या आपके कंप्यूटर पर Ollama।",
+            "es": "Elige quién responde en Voz: Claude, Gemini con una clave gratis u Ollama en tu equipo.",
+            "ar": "اختر من يجيب في الصوت: Claude، أو Gemini بمفتاح مجاني، أو Ollama على حاسوبك.",
+            "fr": "Choisis qui répond dans Voix : Claude, Gemini avec une clé gratuite ou Ollama sur ton PC.",
+            "bn": "ভয়েস-এ বেছে নিন কে উত্তর দেবে: Claude, ফ্রি কী-সহ Gemini, বা আপনার কম্পিউটারে Ollama।",
+            "pt-BR": "Escolha quem responde em Voz: Claude, Gemini com uma chave grátis ou Ollama no seu PC.",
+            "ru": "Выберите в «Голосе», кто отвечает: Claude, Gemini с бесплатным ключом или Ollama на компьютере.",
+            "id": "Pilih siapa yang menjawab di Suara: Claude, Gemini dengan kunci gratis, atau Ollama di komputermu.",
+            "de": "Wähle unter Sprache, wer antwortet: Claude, Gemini mit Gratis-Schlüssel oder Ollama auf deinem PC.",
+            "tr": "Ses bölümünde kimin yanıtlayacağını seç: Claude, ücretsiz anahtarla Gemini ya da bilgisayarında Ollama.",
+            "ko": "음성에서 답할 모델을 고르세요: Claude, 무료 키의 Gemini, 또는 내 컴퓨터의 Ollama.",
+            "ja": "「音声」で答えるモデルを選べます：Claude、無料キーの Gemini、パソコンの Ollama。"
+          }
+        },
+        {
+          "icon": "bell",
+          "title": {
+            "en": "A volume for each kind of sound",
+            "zh-Hans": "每类声音各有音量",
+            "hi": "हर तरह की आवाज़ का अपना वॉल्यूम",
+            "es": "Un volumen para cada tipo de sonido",
+            "ar": "مستوى صوت لكل نوع من الأصوات",
+            "fr": "Un volume par type de son",
+            "bn": "প্রতিটি ধরনের শব্দের আলাদা ভলিউম",
+            "pt-BR": "Um volume para cada tipo de som",
+            "ru": "Своя громкость для каждого типа звуков",
+            "id": "Volume untuk tiap jenis suara",
+            "de": "Eine Lautstärke pro Art von Ton",
+            "tr": "Her ses türüne ayrı ses düzeyi",
+            "ko": "소리 종류마다 따로 볼륨",
+            "ja": "音の種類ごとに音量"
+          },
+          "detail": {
+            "en": "Notifications, clicks and Ronron's own sounds each have a slider in Ronron → Appearance & sounds.",
+            "zh-Hans": "通知、点击和 Ronron 自己的声音，在“Ronron → 外观与声音”中各有一个滑块。",
+            "hi": "सूचनाएँ, क्लिक और Ronron की आवाज़ें — हर एक का स्लाइडर Ronron → रूप और आवाज़ें में है।",
+            "es": "Notificaciones, clics y sonidos de Ronron tienen su control en Ronron → Apariencia y sonidos.",
+            "ar": "للإشعارات والنقرات وأصوات Ronron شريط تمرير لكلٍّ منها في Ronron ← المظهر والأصوات.",
+            "fr": "Notifications, clics et sons de Ronron ont chacun leur curseur dans Ronron → Apparence & sons.",
+            "bn": "বিজ্ঞপ্তি, ক্লিক আর Ronron-এর শব্দ — প্রত্যেকটির স্লাইডার Ronron → চেহারা ও শব্দ-এ।",
+            "pt-BR": "Notificações, cliques e sons do Ronron têm cada um seu controle em Ronron → Aparência e sons.",
+            "ru": "Уведомления, щелчки и звуки Ronron — у каждого свой ползунок: Ronron → Внешний вид и звуки.",
+            "id": "Notifikasi, klik, dan suara Ronron masing-masing punya penggeser di Ronron → Tampilan & suara.",
+            "de": "Benachrichtigungen, Klicks und Ronrons Töne haben je einen Regler unter Ronron → Aussehen & Töne.",
+            "tr": "Bildirimler, tıklamalar ve Ronron'un sesleri için Ronron → Görünüm ve sesler'de ayrı kaydırıcılar.",
+            "ko": "알림, 클릭, Ronron 소리마다 Ronron → 모양과 소리에 슬라이더가 있어요.",
+            "ja": "通知・クリック・Ronron の音に、Ronron → 外観とサウンドでそれぞれスライダー。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.12.1",
       "items": [
         {
