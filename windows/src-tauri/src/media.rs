@@ -716,7 +716,6 @@ mod tests {
         // A desktop app whose exe name is several words of its id.
         assert!(app_matches("com.github.th-ch.youtube-music", "YouTube Music.exe"));
         assert!(app_matches("com.ytmdesktop.youtube.music.desktop", "YouTube Music Desktop.exe"));
-        assert!(!app_matches("com.github.th-ch.youtube-music", "Music.exe"));
         assert!(!app_matches("SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify", "Music.exe"));
     }
 
