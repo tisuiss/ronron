@@ -130,6 +130,9 @@ export const PILL_CATALOG: readonly PillDefinition[] = [
     subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("notion-api-key") },
   { id: "integration_calcom", name: "Cal.com", color: "#C9956A", category: "service",
     subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("calcom-api-key") },
+  // The team's calls (src-tauri/src/aircall.rs): the company's API ID and token.
+  { id: "integration_aircall", name: "Aircall", color: "#00B388", category: "service",
+    subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("aircall-api-token") },
   // Microsoft 365 through Graph (src-tauri/src/msgraph): one sign-in in Settings; the
   // first piece of its refresh token says "connected".
   { id: "integration_todo", name: "To Do", color: "#2564CF", category: "service",

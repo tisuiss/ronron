@@ -234,6 +234,8 @@ export const Bridge = {
   listMonitors: () => call<{ key: string; label: string }[]>("list_monitors"),
 
   openUrl: (url: string) => call<void>("open_url", { url }),
+  /** Aircall's "Call back": the system's phone app (tel:) with the number. */
+  aircallCall: (number: string) => callOrThrow<void>("aircall_call", { number }),
   /** Opens a GitLab link only when it belongs to the configured instance. */
   openGitLabUrl: (url: string) => call<void>("open_gitlab_url", { url }),
   /** Opens the configured Gitea instance without exposing its URL to the page. */

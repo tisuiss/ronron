@@ -103,6 +103,20 @@ const BUILDERS: Record<string, Builder> = {
       items: bookings.slice(0, 3).map((b) => ({ label: String(b.title ?? t("Meeting")), detail: when(b) })),
     };
   },
+  // For « OK Ronron » (« who called me? »); the phone link carries only its own SERVICE_IDS.
+  integration_aircall: (now) => {
+    const calls = list("integration_aircall", "calls");
+    const missed = calls.filter((c) => c.missed === true);
+    return {
+      id: "integration_aircall", title: "Aircall",
+      headline: t("{n} missed", { n: missed.length }),
+      reason: t("Calls"),
+      items: calls.slice(0, 5).map((c) => ({
+        label: String(c.name || c.number || ""),
+        detail: `${c.missed ? t("Missed") : c.direction === "outbound" ? t("Outgoing") : t("Incoming")} · ${String(c.number ?? "")} · ${ago(c.at, now)}`,
+      })),
+    };
+  },
   integration_n8n: () => {
     const task = State.tasks.find((x) => x.id === "integration_n8n");
     if (task && (task.state === "finished" || task.state === "error")) {

@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.13.0",
+      "items": [
+        {
+          "icon": "phone",
+          "title": {
+            "en": "Aircall in the island",
+            "zh-Hans": "岛中的 Aircall",
+            "hi": "आइलैंड में Aircall",
+            "es": "Aircall en la isla",
+            "ar": "Aircall في الجزيرة",
+            "fr": "Aircall dans l'îlot",
+            "bn": "আইল্যান্ডে Aircall",
+            "pt-BR": "Aircall na ilha",
+            "ru": "Aircall на острове",
+            "id": "Aircall di pulau",
+            "de": "Aircall auf der Insel",
+            "tr": "Adada Aircall",
+            "ko": "아일랜드에 Aircall",
+            "ja": "アイランドに Aircall"
+          },
+          "detail": {
+            "en": "Today's calls, missed ones lit up, Call back in one click and a To Do for each.",
+            "zh-Hans": "今天的通话，未接来电会亮起，一键回拨，并可为每个未接来电添加 To Do。",
+            "hi": "आज की कॉल, छूटी कॉल पर रोशनी, एक क्लिक में वापस कॉल और हर एक के लिए To Do।",
+            "es": "Las llamadas de hoy, las perdidas resaltadas, devolver con un clic y un To Do para cada una.",
+            "ar": "مكالمات اليوم، والفائتة مضاءة، ومعاودة الاتصال بنقرة، ومهمة To Do لكل منها.",
+            "fr": "Les appels du jour, les manqués signalés, Rappeler en un clic et un To Do pour chacun.",
+            "bn": "আজকের কল, মিসড কলে আলো, এক ক্লিকে কল ব্যাক আর প্রতিটির জন্য To Do।",
+            "pt-BR": "As chamadas de hoje, as perdidas em destaque, retornar com um clique e um To Do para cada.",
+            "ru": "Звонки за сегодня, пропущенные подсвечены, перезвон в один клик и To Do для каждого.",
+            "id": "Panggilan hari ini, yang tak terjawab menyala, telepon balik sekali klik, dan To Do untuk tiap-tiapnya.",
+            "de": "Die Anrufe von heute, verpasste markiert, Rückruf mit einem Klick und ein To Do für jeden.",
+            "tr": "Bugünün aramaları, cevapsızlar işaretli, tek tıkla geri arama ve her biri için To Do.",
+            "ko": "오늘의 통화, 부재중은 표시되고, 클릭 한 번으로 다시 걸고 To Do로 남겨요.",
+            "ja": "今日の通話、不在着信を表示、ワンクリックで折り返し、To Do にも追加。"
+          }
+        },
+        {
+          "icon": "bug",
+          "title": {
+            "en": "Music volume, found again",
+            "zh-Hans": "重新找回音乐音量",
+            "hi": "संगीत वॉल्यूम फिर से मिला",
+            "es": "El volumen de la música, de vuelta",
+            "ar": "عودة مستوى صوت الموسيقى",
+            "fr": "Le volume de la musique revient",
+            "bn": "মিউজিকের ভলিউম আবার পাওয়া গেল",
+            "pt-BR": "O volume da música está de volta",
+            "ru": "Громкость музыки снова на месте",
+            "id": "Volume musik kembali",
+            "de": "Die Musiklautstärke ist zurück",
+            "tr": "Müzik ses düzeyi geri geldi",
+            "ko": "음악 볼륨이 돌아왔어요",
+            "ja": "音楽の音量が戻りました"
+          },
+          "detail": {
+            "en": "The YouTube Music app and players on a headset get their volume slider back.",
+            "zh-Hans": "YouTube Music 应用和耳机上的播放器重新有了音量滑块。",
+            "hi": "YouTube Music ऐप और हेडसेट पर चल रहे प्लेयर को वॉल्यूम स्लाइडर वापस मिला।",
+            "es": "La app de YouTube Music y los reproductores en auriculares recuperan su control de volumen.",
+            "ar": "يستعيد تطبيق YouTube Music والمشغلات على السماعة شريط مستوى الصوت.",
+            "fr": "L'app YouTube Music et les lecteurs sur un casque retrouvent leur curseur de volume.",
+            "bn": "YouTube Music অ্যাপ আর হেডসেটে চলা প্লেয়ার আবার ভলিউম স্লাইডার পেল।",
+            "pt-BR": "O app YouTube Music e os players no fone voltam a ter o controle de volume.",
+            "ru": "Приложение YouTube Music и плееры в наушниках снова получили ползунок громкости.",
+            "id": "Aplikasi YouTube Music dan pemutar di headset kembali punya penggeser volume.",
+            "de": "Die YouTube-Music-App und Player am Headset haben wieder ihren Lautstärkeregler.",
+            "tr": "YouTube Music uygulaması ve kulaklıktaki oynatıcılar ses kaydırıcısına kavuştu.",
+            "ko": "YouTube Music 앱과 헤드셋의 플레이어에 볼륨 슬라이더가 돌아왔어요.",
+            "ja": "YouTube Music アプリやヘッドセットのプレーヤーに音量スライダーが戻りました。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.12.3",
       "items": [
         {

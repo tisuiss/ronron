@@ -55,6 +55,7 @@ const OPEN_URLS: Record<string, string> = {
   integration_stripe: "https://dashboard.stripe.com/payments",
   integration_notion: "https://notion.so",
   integration_calcom: "https://app.cal.com/bookings",
+  integration_aircall: "https://dashboard.aircall.io/",
   integration_todo: "https://to-do.office.com/tasks/",
   integration_calendar: "https://outlook.office.com/calendar/",
 };
@@ -245,6 +246,112 @@ function resendCard(): HTMLElement {
     rows.append(listRow(accent, i === 0, ...cells));
   });
   return h("div", { class: "int-card" }, header("#22C55E", "Resend", t("Emails"), extra), rows);
+}
+
+// ── Aircall ───────────────────────────────────────────────────────────────────
+
+const AIRCALL = "#00B388";
+
+/** Today's calls by kind, from local midnight. */
+export function aircallToday(calls: Record<string, unknown>[], now = Date.now()) {
+  const midnight = new Date(now);
+  midnight.setHours(0, 0, 0, 0);
+  const today = calls.filter((c) => Number(c.at) >= midnight.getTime());
+  return {
+    inbound: today.filter((c) => c.direction === "inbound" && !c.missed).length,
+    outbound: today.filter((c) => c.direction === "outbound").length,
+    missed: today.filter((c) => c.missed === true).length,
+    voicemails: today.filter((c) => c.voicemail === true).length,
+  };
+}
+
+function callWho(c: Record<string, unknown>): string {
+  return String(c.name || c.number || t("Unknown number"));
+}
+
+function callState(c: Record<string, unknown>): { color: string; label: string } {
+  if (c.ongoing === true) return { color: "#F5A524", label: t("In progress") };
+  if (c.voicemail === true) return { color: "#F4505E", label: t("Voicemail") };
+  if (c.missed === true) return { color: "#F4505E", label: t("Missed") };
+  const secs = Number(c.duration ?? 0);
+  const length = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
+  return c.direction === "outbound" ? { color: "#3B82F6", label: `↗ ${length}` } : { color: "#22C55E", label: `↙ ${length}` };
+}
+
+function callBack(c: Record<string, unknown>): HTMLElement | null {
+  if (!c.number) return null;
+  return h("button", {
+    class: "link-btn", style: `color:${AIRCALL};margin-left:auto`, text: t("Call back"),
+    onclick: (e: Event) => { e.stopPropagation(); void Bridge.aircallCall(String(c.number)); },
+  });
+}
+
+function aircallCard(openDetail: () => void): HTMLElement {
+  const calls = arr("integration_aircall", "calls");
+  const today = aircallToday(calls);
+  const extra = h("span", { class: "int-total", style: today.missed ? "color:#F4505E" : undefined, text:
+    t("{in} in · {out} out · {missed} missed", { in: today.inbound, out: today.outbound, missed: today.missed }) });
+  const rows = h("div", { class: "int-rows" });
+  if (calls.length === 0) rows.append(h("div", { class: "int-empty", text: t("No calls yet today") }));
+  calls.slice(0, 3).forEach((c, i) => {
+    const state = callState(c);
+    const cells: Node[] = [
+      h("span", { class: "int-name", text: callWho(c) }),
+      h("span", { class: "int-ago", text: `${state.label} · ${timeAgo(Number(c.at))}` }),
+    ];
+    if (i === 0 && (c.missed === true || c.voicemail === true)) {
+      const back = callBack(c);
+      if (back) cells.push(back);
+    }
+    rows.append(listRow(state.color, i === 0, ...cells));
+  });
+  const card = h("div", { class: "int-card", style: "cursor:pointer" }, header(AIRCALL, "Aircall", t("Calls"), extra), rows);
+  card.addEventListener("click", openDetail);
+  return card;
+}
+
+function aircallDetail(onBack: () => void): HTMLElement {
+  const calls = arr("integration_aircall", "calls");
+  const today = aircallToday(calls);
+  const body = h("div", { class: "int-detail-body", style: "overflow-y:auto;max-height:190px" });
+  body.append(h("div", { class: "int-meta" },
+    h("span", { text: t("{n} in", { n: today.inbound }) }),
+    h("span", { text: t("{n} out", { n: today.outbound }) }),
+    h("span", { style: today.missed ? "color:#F4505E" : undefined, text: t("{n} missed", { n: today.missed }) }),
+    h("span", { text: t("{n} voicemails", { n: today.voicemails }) })));
+  const rows = h("div", { class: "int-rows" });
+  for (const c of calls.slice(0, 20)) {
+    const state = callState(c);
+    const cells: Node[] = [
+      h("span", { class: "int-name", text: callWho(c) }),
+      h("span", { class: "int-ago", text: `${state.label} · ${timeAgo(Number(c.at))}${c.agent ? ` · ${String(c.agent)}` : ""}` }),
+    ];
+    const back = callBack(c);
+    if (back) cells.push(back);
+    if (c.missed === true) {
+      cells.push(h("button", {
+        class: "link-btn", style: `color:${AIRCALL}`, text: "To Do",
+        title: t("Add « Call back » to To Do"),
+        onclick: (e: Event) => {
+          e.stopPropagation();
+          const btn = e.currentTarget as HTMLButtonElement;
+          void Bridge.todoAdd(t("Call back {who}", { who: c.name ? `${String(c.name)} (${String(c.number)})` : String(c.number) }))
+            .then(() => { btn.textContent = "✓"; btn.disabled = true; }, () => { btn.textContent = "!"; });
+        },
+      }));
+    }
+    rows.append(listRow(state.color, false, ...cells));
+  }
+  if (calls.length === 0) rows.append(h("div", { class: "int-empty", text: t("No calls yet today") }));
+  body.append(rows);
+  return h("div", { class: "int-card detail" },
+    h("div", { class: "int-detail-head" },
+      h("button", { class: "int-back", onclick: onBack }, svg(ICONS.chevronLeft, 10, { stroke: 2.4 })),
+      dot(AIRCALL, 6),
+      h("b", { text: "Aircall" }),
+      h("button", { class: "link-btn", style: `color:${AIRCALL};margin-left:auto`, text: t("Open {name}", { name: "Aircall" }),
+        onclick: () => void Bridge.openUrl(OPEN_URLS.integration_aircall) })),
+    body);
 }
 
 // ── GitHub ────────────────────────────────────────────────────────────────────
@@ -490,6 +597,8 @@ export function hasIntegrationData(id: string): boolean {
       return arr(id, "pages").length > 0;
     case "integration_calcom":
       return info.loaded;
+    case "integration_aircall":
+      return info.loaded;
     case "integration_todo":
       return info.loaded && Array.isArray(get(id).tasks);
     case "integration_calendar":
@@ -548,6 +657,8 @@ export function renderIntegrationCard(task: AgentTask, hooks: IntegrationCardHoo
       return notionCard();
     case "integration_calcom":
       return hooks.detailOpen ? calendarDetail(get(task.id), hooks.closeDetail, () => void Bridge.openUrl(OPEN_URLS[task.id])) : calcomCard(hooks.openDetail);
+    case "integration_aircall":
+      return hooks.detailOpen ? aircallDetail(hooks.closeDetail) : aircallCard(hooks.openDetail);
     case "integration_todo":
       return hooks.detailOpen ? todoDetail(hooks.closeDetail) : todoCard(hooks.openDetail);
     case "integration_calendar":
