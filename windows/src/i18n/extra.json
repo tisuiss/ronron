@@ -9453,6 +9453,21 @@
       "tr": "Düzenleme, Claude anahtarını kullanır. Yapay zekâ ajanları → Sohbet bölümünden ekle.",
       "ko": "다듬기에는 Claude 키가 필요해요. AI 에이전트 → 채팅에서 넣어 주세요.",
       "ja": "整える機能は Claude のキーを使います。AI エージェント → チャットで追加してください。"
+    },
+    "Ronron couldn't answer: {error}": {
+      "fr": "Ronron n'a pas pu répondre : {error}",
+      "de": "Ronron konnte nicht antworten: {error}",
+      "es": "Ronron no pudo responder: {error}",
+      "pt-BR": "O Ronron não conseguiu responder: {error}",
+      "ru": "Ronron не смог ответить: {error}",
+      "tr": "Ronron yanıt veremedi: {error}",
+      "id": "Ronron tidak bisa menjawab: {error}",
+      "zh-Hans": "Ronron 无法回答：{error}",
+      "ja": "Ronron は答えられませんでした：{error}",
+      "ko": "Ronron이 답하지 못했어요: {error}",
+      "hi": "Ronron जवाब नहीं दे सका: {error}",
+      "bn": "Ronron উত্তর দিতে পারেনি: {error}",
+      "ar": "لم يتمكن Ronron من الرد: {error}"
     }
   }
 }
