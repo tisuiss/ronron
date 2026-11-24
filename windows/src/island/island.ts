@@ -16,6 +16,7 @@ import {
   QUESTION_PICKER_H,
   type BotEmoteName, type BotStateName, type IslandMode, type IslandViewName,
 } from "../core/layout";
+import { WAITING_VIEWS } from "../core/notifications";
 import { checkClockify, clockifyTimer } from "./clockify";
 import { Sound } from "../core/sound";
 import { State } from "../core/state";
@@ -199,8 +200,10 @@ export class Island {
       Sound.play(view);
       return;
     }
-    this.fsm.pinned = false;
-    this.setView(State.defaultView());
+    // A reminder covered by the request comes back, and keeps the island.
+    const next = State.defaultView();
+    this.setPinned(next === "reminder" || next === "alarm");
+    this.setView(next);
   }
 
   /**
@@ -333,6 +336,7 @@ export class Island {
         else if (!TYPING_VIEWS.has(State.view) && State.mode === "expanded") void Bridge.focusWindow(false);
       },
       dismissReminder: () => this.reminders?.dismissed(),
+      snoozeReminder: () => this.reminders?.snooze(),
       alarmDone: () => this.alarms?.done(),
       snoozeAlarm: (minutes) => this.alarms?.snooze(minutes),
       openPill: () => {
@@ -521,7 +525,17 @@ export class Island {
   private setMode(mode: IslandMode) {
     const prev = State.mode;
     if (mode === prev) return;
+    const leftView = State.view;
     State.mode = mode;
+    // Another alert covered a reminder still waiting, then folded: the reminder
+    // comes back (it stays until OK, a snooze, or a while after its event starts).
+    if (prev === "expanded" && mode !== "expanded" && (State.reminder || State.alarm) && !WAITING_VIEWS.has(leftView)) {
+      window.setTimeout(() => {
+        if (State.mode === "expanded" || State.paused || !(State.reminder || State.alarm)) return;
+        this.setPinned(true);
+        this.alert(State.defaultView());
+      }, 800);
+    }
     if (mode === "expanded") Sound.play("open");
     if (prev === "expanded") {
       Sound.play("close");

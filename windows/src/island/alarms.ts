@@ -6,7 +6,9 @@
 
 import { State } from "../core/state";
 import { Sound } from "../core/sound";
-import { ReminderList, RemindersBridge, type Reminder } from "../core/reminders";
+import { REMINDERS_ID, ReminderList, RemindersBridge, type Reminder } from "../core/reminders";
+import { Notices } from "../core/notifications";
+import { t } from "../i18n/i18n";
 import type { BotEmoteName, IslandViewName } from "../core/layout";
 
 export interface AlarmHost {
@@ -72,6 +74,7 @@ export class Alarms {
       return;
     }
     State.alarm = due;
+    Notices.push({ kind: "alarm", title: due.text, detail: t("Reminder"), color: "#F5A524", pillId: REMINDERS_ID, ref: `alarm:${due.id}@${due.at}` });
     this.host.setPinned(true);
     this.host.alert("alarm");
     this.host.emote("surprised");
@@ -80,7 +83,10 @@ export class Alarms {
 
   private close() {
     const r = State.alarm;
-    if (r) this.answered.set(r.id, r.at);
+    if (r) {
+      this.answered.set(r.id, r.at);
+      Notices.settle(`alarm:${r.id}@${r.at}`);
+    }
     State.alarm = null;
     this.host.setPinned(false);
     this.host.closeAlarm();

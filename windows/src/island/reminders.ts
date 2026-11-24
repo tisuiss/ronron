@@ -7,6 +7,13 @@ import { State } from "../core/state";
 import { Sound } from "../core/sound";
 import { readBookings, readCalendars, type Booking, type CalendarInfo } from "../core/calendar";
 import type { BotEmoteName, IslandViewName } from "../core/layout";
+import { Notices } from "../core/notifications";
+import { language } from "../i18n/i18n";
+
+/** Snoozed reminders ring again this much later. */
+export const SNOOZE_MIN = 5;
+/** A reminder nobody answered goes this long after its event started (or at its end). */
+const STAYS_AFTER_START_MS = 10 * 60_000;
 
 const CALENDAR_ID = "integration_calendar";
 const FIRED_KEY = "ronron.reminders.fired";
@@ -107,23 +114,50 @@ export class Reminders {
       return;
     }
     this.remember(next.key);
-    State.reminder = { booking: next.booking, calendar: next.calendar };
+    this.ring(next.booking, next.calendar);
+    this.schedule();
+  }
+
+  /** The island opens on the reminder and stays until OK, Join, a snooze, or a while after the start. */
+  private ring(booking: Booking, calendar: CalendarInfo | null) {
+    // A permission card comes first: the reminder waits a little.
+    if (State.pendingApproval || State.reminder) {
+      window.setTimeout(() => this.ring(booking, calendar), 20_000);
+      return;
+    }
+    if (booking.end.getTime() <= Date.now()) return;
+    State.reminder = { booking, calendar };
+    const time = booking.start.toLocaleTimeString(language(), { hour: "2-digit", minute: "2-digit" });
+    Notices.push({
+      kind: "reminder", title: booking.title, detail: [time, calendar?.name ?? ""].filter(Boolean).join(" · "),
+      color: calendar?.color, pillId: CALENDAR_ID, ref: `reminder:${booking.id}@${booking.start.getTime()}`,
+    });
     this.host.setPinned(true);
     this.host.alert("reminder");
     this.host.emote("surprised");
     Sound.play("peek");
-    // Gone once the event has started, if nobody answered.
-    const until = next.booking.start.getTime() - Date.now() + 60_000;
+    // Gone a while after the event started (or at its end), if nobody answered: the history keeps it.
+    const start = booking.start.getTime();
+    const until = Math.min(booking.end.getTime(), start + STAYS_AFTER_START_MS) - Date.now();
     window.setTimeout(() => {
-      if (State.reminder?.booking.id === next.booking.id && State.view === "reminder") this.dismissed();
+      if (State.reminder?.booking.id === booking.id) this.dismissed(false);
     }, Math.max(60_000, until));
-    this.schedule();
   }
 
-  /** OK, Join, or the event under way: the island lets go. */
-  dismissed() {
+  /** OK, Join, or the event long under way: the island lets go. */
+  dismissed(answered = true) {
+    const r = State.reminder;
+    if (r && answered) Notices.settle(`reminder:${r.booking.id}@${r.booking.start.getTime()}`);
     State.reminder = null;
     this.host.setPinned(false);
     this.host.closeReminder();
+  }
+
+  /** « In 5 min »: the island lets go and the reminder rings again then (while the event is not over). */
+  snooze(minutes = SNOOZE_MIN) {
+    const r = State.reminder;
+    if (!r) return;
+    this.dismissed();
+    window.setTimeout(() => this.ring(r.booking, r.calendar), minutes * 60_000);
   }
 }

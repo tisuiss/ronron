@@ -4,6 +4,7 @@
 // to idle a minute later; the pill gets its small red dot while the gateway is down.
 
 import { Bridge, onEvent } from "../core/bridge";
+import { Notices } from "../core/notifications";
 import { Sound } from "../core/sound";
 import { State } from "../core/state";
 import { WHATSAPP_ID, WhatsApp, type WaIslandView } from "../core/whatsapp";
@@ -60,6 +61,7 @@ export function handlePillEvent(island: WhatsAppHost, e: WaPillEvent, now = perf
       t.steps = [e.name];
       t.stepIndex = 0;
       if (State.focusId !== WHATSAPP_ID) t.pillBadge = "finished";
+      Notices.push({ kind: "message", title: "WhatsApp", detail: e.name, color: t.color, pillId: WHATSAPP_ID });
       if (now - lastAnnounce > ANNOUNCE_GAP_MS) {
         lastAnnounce = now;
         island.emote("happy");

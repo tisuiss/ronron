@@ -5,7 +5,9 @@
 
 import { State } from "../core/state";
 import { Sound } from "../core/sound";
-import { CLOCKIFY_ID, readClockify, suggestion, type Suggestion } from "../core/clockify";
+import { CLOCKIFY_ID, folderName, readClockify, suggestion, type Suggestion } from "../core/clockify";
+import { Notices } from "../core/notifications";
+import { t } from "../i18n/i18n";
 
 const dismissed = new Set<string>();
 let current: Suggestion | null = null;
@@ -26,6 +28,7 @@ export function clockifyTimer(): { label: string; color: string; start: number }
 /** "Not now": that suggestion is not offered again (today, for a folder). */
 export function dismissClockify(key: string) {
   dismissed.add(key);
+  Notices.settle(`clockify:${key}`);
   checkClockify();
 }
 
@@ -58,6 +61,12 @@ export function checkClockify(now = Date.now()) {
   if (task) {
     if (next) {
       if (State.focusId !== CLOCKIFY_ID) task.pillBadge = "approval";
+      Notices.push({
+        kind: "timer", title: "Clockify", color: task.color, pillId: CLOCKIFY_ID, ref: `clockify:${next.key}`,
+        detail: next.kind === "agent" ? t("{agent} is working in {folder}. Start a timer?", { agent: next.agent, folder: folderName(next.folder) })
+          : next.kind === "meeting" ? t("« {title} » is starting. Start a timer?", { title: next.title })
+          : t("The timer has been running for {n} h. Still on it?", { n: Math.floor((now - next.entry.start) / 3600_000) }),
+      });
       Sound.play("peek", "notifications");
     } else if (task.pillBadge === "approval") {
       task.pillBadge = null;

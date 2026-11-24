@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.0 — November 24, 2026
+
+- **Notifications**: the **+** of the island's header (a file is still dropped by dragging it onto the island) makes way for a bell with the count of unread notifications. It opens everything the island showed or badged since Ronron started — calendar reminders, your reminders, requests from the agents, turns finished or failed, WhatsApp messages, missed calls, Clockify suggestions — newest first; a click goes where each belongs. In memory only.
+- **Nothing covered is lost**: a request from Claude that comes during a calendar reminder goes first, then the island goes back to the reminder. A turn finishing no longer covers a reminder or a request. **« 1 waiting »** in the header leads back to what waits behind the view on screen.
+- **Calendar reminders stay**: until OK, Join, the new **In 5 min**, or ten minutes after the event starts (instead of a minute); no ✕ while one waits.
+
 ## 0.14.0 — November 24, 2026
 
 - **Clockify**: a new service pill (Settings → Accounts & services → Integrations → Clockify, with your API key). The card shows today's and this week's hours, the running timer ticking with **Stop**, or what to start and on which project; the last things you worked on start again in one click. The closed island can show the running timer (*Closed island shows → The running Clockify timer*).
