@@ -10143,6 +10143,36 @@
       "hi": "5 मिनट में",
       "bn": "৫ মিনিটে",
       "ar": "بعد 5 دقائق"
+    },
+    "No task": {
+      "fr": "Sans tâche",
+      "de": "Keine Aufgabe",
+      "es": "Sin tarea",
+      "pt-BR": "Sem tarefa",
+      "ru": "Без задачи",
+      "tr": "Görev yok",
+      "id": "Tanpa tugas",
+      "zh-Hans": "无任务",
+      "ja": "タスクなし",
+      "ko": "작업 없음",
+      "hi": "कोई कार्य नहीं",
+      "bn": "কোনো টাস্ক নেই",
+      "ar": "بلا مهمة"
+    },
+    "Pick a project first": {
+      "fr": "Choisis d'abord un projet",
+      "de": "Wähle zuerst ein Projekt",
+      "es": "Elige primero un proyecto",
+      "pt-BR": "Escolha um projeto primeiro",
+      "ru": "Сначала выберите проект",
+      "tr": "Önce bir proje seç",
+      "id": "Pilih proyek dulu",
+      "zh-Hans": "请先选择项目",
+      "ja": "先にプロジェクトを選択",
+      "ko": "먼저 프로젝트를 고르세요",
+      "hi": "पहले प्रोजेक्ट चुनें",
+      "bn": "আগে একটি প্রকল্প বেছে নিন",
+      "ar": "اختر مشروعًا أولًا"
     }
   }
 }

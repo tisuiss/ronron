@@ -34,6 +34,8 @@ struct Cache {
     workspace: String,
     projects: Vec<Value>,
     projects_at: Option<Instant>,
+    /// Each project's active tasks, read when the project is picked, for 10 minutes.
+    tasks: std::collections::HashMap<String, (Instant, Vec<Value>)>,
     data: Value,
 }
 
@@ -184,6 +186,8 @@ fn parse_entries(raw: &Value) -> Result<Vec<Value>, String> {
                 "projectId": e["projectId"].as_str().or_else(|| e["project"]["id"].as_str()),
                 "projectName": e["project"]["name"].as_str().unwrap_or(""),
                 "projectColor": e["project"]["color"].as_str().unwrap_or(""),
+                "taskId": e["taskId"].as_str().or_else(|| e["task"]["id"].as_str()),
+                "taskName": e["task"]["name"].as_str().unwrap_or(""),
                 "start": start,
                 "end": end,
             }))
@@ -216,12 +220,16 @@ fn parse_projects(raw: &Value) -> Vec<Value> {
 // ── Starting and stopping ─────────────────────────────────────────────────────
 
 /// Starts a timer now (Clockify stops the one running, if any).
-pub async fn start(description: &str, project: Option<&str>) -> Result<(), String> {
+pub async fn start(description: &str, project: Option<&str>, task: Option<&str>) -> Result<(), String> {
     let api = Api::new()?;
     let (_, ws) = api.who().await?;
     let mut body = json!({ "start": iso_utc(now_ms()), "description": description.trim() });
     if let Some(p) = project.map(str::trim).filter(|p| !p.is_empty()) {
         body["projectId"] = json!(p);
+        // A task only goes with its project.
+        if let Some(t) = task.map(str::trim).filter(|t| !t.is_empty()) {
+            body["taskId"] = json!(t);
+        }
     }
     let url = format!("{}/workspaces/{ws}/time-entries", api.base);
     api.send(api.http.post(url).json(&body)).await.map(|_| ())
@@ -236,10 +244,54 @@ pub async fn stop() -> Result<(), String> {
 }
 
 #[tauri::command]
-pub async fn clockify_start(app: AppHandle, description: String, project_id: Option<String>) -> Result<(), String> {
-    start(&description, project_id.as_deref()).await?;
+pub async fn clockify_start(
+    app: AppHandle,
+    description: String,
+    project_id: Option<String>,
+    task_id: Option<String>,
+) -> Result<(), String> {
+    start(&description, project_id.as_deref(), task_id.as_deref()).await?;
     poll(app).await;
     Ok(())
+}
+
+/// A project's active tasks (id and name, sorted), for the card's task list.
+#[tauri::command]
+pub async fn clockify_tasks(project_id: String) -> Result<Vec<Value>, String> {
+    let project = project_id.trim().to_string();
+    if project.is_empty() || !project.chars().all(|c| c.is_ascii_alphanumeric()) {
+        return Ok(Vec::new());
+    }
+    let cached = CACHE
+        .lock()
+        .unwrap()
+        .as_ref()
+        .and_then(|c| c.tasks.get(&project).filter(|(at, _)| at.elapsed() < PROJECTS_EVERY).map(|(_, t)| t.clone()));
+    if let Some(tasks) = cached {
+        return Ok(tasks);
+    }
+    let api = Api::new()?;
+    let (_, ws) = api.who().await?;
+    let raw = api
+        .get(&format!("/workspaces/{ws}/projects/{project}/tasks"), &[("is-active", "true".into()), ("page-size", "500".into())])
+        .await?;
+    let tasks = parse_tasks(&raw);
+    let mut cache = CACHE.lock().unwrap();
+    cache.get_or_insert_with(Cache::default).tasks.insert(project, (Instant::now(), tasks.clone()));
+    Ok(tasks)
+}
+
+fn parse_tasks(raw: &Value) -> Vec<Value> {
+    let mut out: Vec<Value> = raw
+        .as_array()
+        .map(|l| l.as_slice())
+        .unwrap_or_default()
+        .iter()
+        .filter(|t| t["status"].as_str() != Some("DONE"))
+        .filter_map(|t| Some(json!({ "id": t["id"].as_str()?, "name": t["name"].as_str().unwrap_or("") })))
+        .collect();
+    out.sort_by_key(|t| t["name"].as_str().unwrap_or("").to_lowercase());
+    out
 }
 
 #[tauri::command]
@@ -283,7 +335,7 @@ pub fn voice(app: &AppHandle, input: &Value) -> (String, bool) {
             }
             let id = project.as_ref().and_then(|p| p["id"].as_str()).map(str::to_string);
             let done = tauri::async_runtime::block_on(async {
-                let r = start(&description, id.as_deref()).await;
+                let r = start(&description, id.as_deref(), None).await;
                 poll(app.clone()).await;
                 r
             });
@@ -380,6 +432,18 @@ mod tests {
         let p = parse_projects(&raw);
         assert_eq!(p.iter().map(|p| p["id"].as_str().unwrap()).collect::<Vec<_>>(), ["1", "2"]);
         assert_eq!(p[1]["client"], "ACME");
+    }
+
+    #[test]
+    fn tasks_are_sorted_and_done_ones_left_out() {
+        let raw = json!([
+            { "id": "t2", "name": "80244-270-Ceremonies", "status": "ACTIVE" },
+            { "id": "t1", "name": "149-0-004", "status": "ACTIVE" },
+            { "id": "t3", "name": "Old", "status": "DONE" }
+        ]);
+        let t = parse_tasks(&raw);
+        assert_eq!(t.iter().map(|t| t["id"].as_str().unwrap()).collect::<Vec<_>>(), ["t1", "t2"]);
+        assert!(parse_tasks(&json!({})).is_empty());
     }
 
     #[test]

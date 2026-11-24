@@ -27,8 +27,26 @@ async function act(run: () => Promise<void>, button?: HTMLButtonElement) {
   }
 }
 
-const start = (description: string, projectId: string | null, button?: HTMLButtonElement) =>
-  act(() => Bridge.clockifyStart(description, projectId), button);
+const start = (description: string, projectId: string | null, button?: HTMLButtonElement, taskId: string | null = null) =>
+  act(() => Bridge.clockifyStart(description, projectId, projectId ? taskId : null), button);
+
+/** The task list of the project picked: empty and off until a project is picked, then its tasks. */
+function taskSelect(project: HTMLSelectElement): HTMLSelectElement {
+  const select = h("select", { class: "ck-select ck-task" }) as HTMLSelectElement;
+  const fill = async () => {
+    const projectId = project.value;
+    select.replaceChildren(h("option", { value: "", text: projectId ? t("No task") : t("Pick a project first") }));
+    select.disabled = true;
+    if (!projectId) return;
+    const tasks = await Bridge.clockifyTasks(projectId).catch(() => []);
+    if (project.value !== projectId) return; // another project was picked meanwhile
+    for (const task of tasks) select.append(h("option", { value: task.id, text: task.name }));
+    select.disabled = tasks.length === 0;
+  };
+  project.addEventListener("change", () => void fill());
+  void fill();
+  return select;
+}
 const stop = (button?: HTMLButtonElement) => act(() => Bridge.clockifyStop(), button);
 
 function saveFolder(folder: string, projectId: string | null) {
@@ -121,17 +139,19 @@ function nowRow(data: ClockifyData): HTMLElement {
       dot(r.projectColor || CLOCKIFY_COLOR, 6),
       h("div", { class: "ck-now-text" },
         h("span", { class: "int-name", style: "color:#e8e9eb", text: entryLabel(r) }),
-        r.projectName && r.description ? h("span", { class: "int-sub", text: r.projectName }) : h("span")),
+        r.projectName && r.description ? h("span", { class: "int-sub", text: r.taskName ? `${r.projectName} · ${r.taskName}` : r.projectName }) : h("span")),
       ticking(r.start), b);
   }
+  // As in Clockify: what, then the project, then its task.
   const input = h("input", { class: "todo-input", placeholder: t("What are you working on?"), spellcheck: "false" }) as HTMLInputElement;
-  const select = projectSelect(data, null);
-  const go = playButton((b) => void start(input.value, select.value || null, b), t("Start"));
+  const project = projectSelect(data, null);
+  const task = taskSelect(project);
+  const go = playButton((b) => void start(input.value, project.value || null, b, task.value || null), t("Start"));
   input.addEventListener("keydown", (e) => {
     e.stopPropagation();
     if (e.key === "Enter") go.click();
   });
-  return h("div", { class: "ck-start" }, input, select, go);
+  return h("div", { class: "ck-start" }, input, h("div", { class: "ck-pick" }, project, task, go));
 }
 
 function recentRows(data: ClockifyData, n: number): HTMLElement {
@@ -140,9 +160,9 @@ function recentRows(data: ClockifyData, n: number): HTMLElement {
     rows.append(h("div", { class: "int-row" },
       dot(e.projectColor || "#6B7079", 5),
       h("span", { class: "int-name", text: entryLabel(e) }),
-      e.projectName && e.description ? h("span", { class: "int-sub", text: e.projectName }) : h("span"),
+      e.projectName && e.description ? h("span", { class: "int-sub", text: e.taskName ? `${e.projectName} · ${e.taskName}` : e.projectName }) : h("span"),
       h("span", { style: "margin-left:auto" }),
-      playButton((b) => void start(e.description, e.projectId, b), t("Start again"))));
+      playButton((b) => void start(e.description, e.projectId, b, e.taskId ?? null), t("Start again"))));
   }
   return rows;
 }

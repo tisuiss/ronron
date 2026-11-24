@@ -2,6 +2,46 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.15.1",
+      "items": [
+        {
+          "icon": "clock",
+          "title": {
+            "en": "Clockify tasks",
+            "zh-Hans": "Clockify 任务",
+            "hi": "Clockify कार्य",
+            "es": "Tareas de Clockify",
+            "ar": "مهام Clockify",
+            "fr": "Les tâches Clockify",
+            "bn": "Clockify টাস্ক",
+            "pt-BR": "Tarefas do Clockify",
+            "ru": "Задачи Clockify",
+            "id": "Tugas Clockify",
+            "de": "Clockify-Aufgaben",
+            "tr": "Clockify görevleri",
+            "ko": "Clockify 작업",
+            "ja": "Clockify のタスク"
+          },
+          "detail": {
+            "en": "What you work on, then the project, then its task — as in Clockify.",
+            "zh-Hans": "先写你在做什么，再选项目，然后选任务——和 Clockify 一样。",
+            "hi": "आप किस पर काम कर रहे हैं, फिर प्रोजेक्ट, फिर उसका कार्य — Clockify की तरह।",
+            "es": "En qué trabajas, luego el proyecto y después su tarea, como en Clockify.",
+            "ar": "ما تعمل عليه، ثم المشروع، ثم مهمته — كما في Clockify.",
+            "fr": "Sur quoi tu travailles, puis le projet, puis sa tâche — comme dans Clockify.",
+            "bn": "কী নিয়ে কাজ করছেন, তারপর প্রকল্প, তারপর তার টাস্ক — Clockify-এর মতো।",
+            "pt-BR": "No que você trabalha, depois o projeto e a tarefa dele — como no Clockify.",
+            "ru": "Над чем работаете, затем проект, затем его задача — как в Clockify.",
+            "id": "Apa yang kamu kerjakan, lalu proyek, lalu tugasnya — seperti di Clockify.",
+            "de": "Woran du arbeitest, dann das Projekt, dann seine Aufgabe — wie in Clockify.",
+            "tr": "Ne üzerinde çalıştığın, sonra proje, sonra görevi — Clockify'daki gibi.",
+            "ko": "무슨 작업인지, 그다음 프로젝트, 그다음 작업 — Clockify처럼.",
+            "ja": "作業内容、プロジェクト、そのタスクの順に——Clockify と同じ。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.15.0",
       "items": [
         {

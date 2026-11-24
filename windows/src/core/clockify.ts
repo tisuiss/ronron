@@ -9,6 +9,8 @@ export interface ClockifyEntry {
   projectId: string | null;
   projectName: string;
   projectColor: string;
+  taskId?: string | null;
+  taskName?: string;
   /** ms since 1970. */
   start: number;
   /** null while it runs. */

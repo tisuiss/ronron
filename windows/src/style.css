@@ -4932,13 +4932,35 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
 }
 
 /* Clockify's card (views/clockify.ts). */
-.ck-now,
-.ck-start {
+.ck-now {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 6px 0 2px;
   min-width: 0;
+}
+/* Not running: what, then the project and its task, then ▶ — as in Clockify. */
+.ck-start {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 0 2px;
+  min-width: 0;
+}
+.ck-start .todo-input {
+  height: 22px;
+}
+.ck-pick {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.ck-pick .ck-select {
+  flex: 1 1 0;
+  max-width: none;
+  min-width: 0;
+  height: 20px;
 }
 .ck-now-text {
   display: flex;
