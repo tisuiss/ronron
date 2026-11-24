@@ -11,6 +11,7 @@ import { isComingSoon, pillDefinition } from "../core/pills";
 import { refreshHookPills } from "../island/integrations";
 import { readActivity, readPulse, readStats } from "../core/github";
 import { githubDetail, githubPulseCard, type ForgeCardOptions } from "./github";
+import { clockifyCard, clockifyDetail } from "./clockify";
 import { N_, language, t } from "../i18n/i18n";
 
 /** Same shape as the Swift `timeAgo` computed properties. */
@@ -56,6 +57,7 @@ const OPEN_URLS: Record<string, string> = {
   integration_notion: "https://notion.so",
   integration_calcom: "https://app.cal.com/bookings",
   integration_aircall: "https://dashboard.aircall.io/",
+  integration_clockify: "https://app.clockify.me/tracker",
   integration_todo: "https://to-do.office.com/tasks/",
   integration_calendar: "https://outlook.office.com/calendar/",
 };
@@ -599,6 +601,8 @@ export function hasIntegrationData(id: string): boolean {
       return info.loaded;
     case "integration_aircall":
       return info.loaded;
+    case "integration_clockify":
+      return info.loaded && Array.isArray(get(id).entries);
     case "integration_todo":
       return info.loaded && Array.isArray(get(id).tasks);
     case "integration_calendar":
@@ -657,6 +661,8 @@ export function renderIntegrationCard(task: AgentTask, hooks: IntegrationCardHoo
       return notionCard();
     case "integration_calcom":
       return hooks.detailOpen ? calendarDetail(get(task.id), hooks.closeDetail, () => void Bridge.openUrl(OPEN_URLS[task.id])) : calcomCard(hooks.openDetail);
+    case "integration_clockify":
+      return hooks.detailOpen ? clockifyDetail(hooks.closeDetail) : clockifyCard(hooks.openDetail);
     case "integration_aircall":
       return hooks.detailOpen ? aircallDetail(hooks.closeDetail) : aircallCard(hooks.openDetail);
     case "integration_todo":

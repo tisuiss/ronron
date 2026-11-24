@@ -6,6 +6,7 @@ mod agents;
 mod agy_approvals;
 mod agy_rules;
 mod chat;
+mod clockify;
 mod claude;
 mod claude_code;
 mod cli_relay;
@@ -936,6 +937,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             boot,
             aircall::aircall_call,
+            clockify::clockify_start,
+            clockify::clockify_stop,
             mail::mail_refresh,
             msgraph::ms_account,
             msgraph::ms_builtin_app,

@@ -906,6 +906,12 @@ const INTEGRATIONS: IntegrationDef[] = [
       { key: "aircall-api-token", label: N_("API token"), placeholder: "…", secret: true },
     ],
     hint: N_("In Aircall: Integrations & API → API keys → Generate an API key (an admin can). Ronron only reads the calls; Call back opens the number in your phone app.") },
+  { id: "integration_clockify", name: "Clockify", color: "#03A9F4",
+    fields: [
+      { key: "clockify-api-key", label: N_("API key"), placeholder: "…", secret: true },
+      { key: "clockify-url", label: N_("API address (optional)"), placeholder: "https://api.clockify.me/api/v1", secret: false },
+    ],
+    hint: N_("In Clockify: Profile settings → API → Generate. Leave the address empty unless your workspace is on a regional server. A timer starts or stops only when you click or ask « OK Ronron ».") },
   // Microsoft 365 through Graph: the sign-in is its own section (./microsoft.ts).
   { id: "integration_todo", name: "To Do", color: "#2564CF", fields: [], hint: N_("Uses the Microsoft 365 or Google sign-in above.") },
   { id: "integration_calendar", name: N_("Calendar"), color: "#0F78D4", fields: [], hint: N_("Uses the Microsoft 365 or Google sign-in above.") },
@@ -1121,6 +1127,7 @@ function generalParts(): { sound: HTMLElement; island: HTMLElement; system: HTML
     h("option", { value: "datetime", text: t("The date and the time") }),
     h("option", { value: "claude", text: t("Claude usage") }),
     h("option", { value: "music", text: t("What's playing") }),
+    h("option", { value: "timer", text: t("The running Clockify timer") }),
     h("option", { value: "empty", text: t("Nothing, just the island") }),
     h("option", { value: "hidden", text: t("Hide the island") }),
   );
@@ -1603,7 +1610,7 @@ async function render() {
 
   const keys = [
     "stripe-api-key", "github-token", "gitlab-url", "gitlab-token", "gitea-url", "gitea-token", "vercel-token",
-    "n8n-url", "n8n-api-key", "resend-api-key", "notion-api-key", "calcom-api-key", "aircall-api-token",
+    "n8n-url", "n8n-api-key", "resend-api-key", "notion-api-key", "calcom-api-key", "aircall-api-token", "clockify-api-key",
     "msgraph-refresh-0", "google-refresh",
   ];
   const present: Record<string, boolean> = {};

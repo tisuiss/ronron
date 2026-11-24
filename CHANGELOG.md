@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.14.0 — November 24, 2026
+
+- **Clockify**: a new service pill (Settings → Accounts & services → Integrations → Clockify, with your API key). The card shows today's and this week's hours, the running timer ticking with **Stop**, or what to start and on which project; the last things you worked on start again in one click. The closed island can show the running timer (*Closed island shows → The running Clockify timer*).
+- **Suggestions, never actions**: with no timer running, the island offers to start one when an agent works in a folder (on the project you picked for that folder, kept for next time) or when a meeting starts; it points out a timer still running after 9 h or after 9 pm. A light on the pill and a button on the card — nothing starts or stops without your click.
+- **« OK Ronron »** starts and stops the timer (« start the timer on Ronron ») and says how many hours you tracked.
+
 ## 0.13.0 — November 23, 2026
 
 - **Aircall**: a new service pill (Settings → Accounts & services → Integrations → Aircall, with the company's API ID and token). Its card shows today's calls — in, out, missed — and the last three; click it for the last 20 with who took each. **Call back** opens the number in your computer's phone app (the Aircall app when it handles phone links), **To Do** turns a missed call into a « Call back » task, and a new missed call or voicemail lights the pill. « OK Ronron, who called me? » reads them. Read-only, every 30 s while the pill is on.

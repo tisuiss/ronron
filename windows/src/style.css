@@ -4930,3 +4930,83 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
 .rm-buttons .sp-btn {
   padding: 0 14px;
 }
+
+/* Clockify's card (views/clockify.ts). */
+.ck-now,
+.ck-start {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0 2px;
+  min-width: 0;
+}
+.ck-now-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.ck-elapsed {
+  font: 600 13px var(--font);
+  color: #e8e9eb;
+  font-variant-numeric: tabular-nums;
+}
+.ck-stop {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: #f4505e;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.ck-stop i {
+  width: 7px;
+  height: 7px;
+  border-radius: 1px;
+  background: #fff;
+}
+.ck-play {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: #03a9f4;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.ck-play:disabled,
+.ck-stop:disabled {
+  opacity: 0.5;
+}
+.ck-select {
+  max-width: 96px;
+  height: 18px;
+  border: 1px solid #ffffff1f;
+  border-radius: 5px;
+  background: #1c1d21;
+  color: #c5c8cd;
+  font: 400 10px var(--font);
+  outline: none;
+}
+.ck-suggest {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #03a9f41a;
+  font: 400 11px var(--font);
+  color: #c5c8cd;
+}
+.ck-suggest-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

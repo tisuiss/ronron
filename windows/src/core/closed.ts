@@ -3,15 +3,15 @@
 // behind, so instead of vanishing (which left nothing to find it by) the
 // island keeps a small black shape there, with one thing in it: Ronron (what a
 // Mac shows on a screen without a notch), the time, the date and the time, the
-// Claude plan's usage, what plays, or nothing at all.
+// Claude plan's usage, what plays, the running Clockify timer, or nothing at all.
 // "hidden" keeps the old behaviour: nothing shows, the top edge wakes it.
 // No DOM here: the island draws what this returns.
 
 import { dominantPct, planColor, type PlanUsage } from "./plan";
 
-export type ClosedIsland = "cat" | "time" | "datetime" | "claude" | "music" | "empty" | "hidden";
+export type ClosedIsland = "cat" | "time" | "datetime" | "claude" | "music" | "timer" | "empty" | "hidden";
 
-export const CLOSED_ISLANDS: readonly ClosedIsland[] = ["cat", "time", "datetime", "claude", "music", "empty", "hidden"];
+export const CLOSED_ISLANDS: readonly ClosedIsland[] = ["cat", "time", "datetime", "claude", "music", "timer", "empty", "hidden"];
 
 /** A value this build doesn't know (written by a newer one) reads as the default. */
 export function closedIsland(value: unknown): ClosedIsland {
@@ -44,6 +44,8 @@ export interface ClosedInputs {
   planUsage: PlanUsage | null;
   /** The song playing, if one plays on a declared music pill. */
   music: { title: string; artist: string } | null;
+  /** The running Clockify timer: what, its project's colour, since when (ms). */
+  timer?: { label: string; color: string; start: number } | null;
 }
 
 function time(now: Date, locale?: string): string {
@@ -78,6 +80,13 @@ export function closedContent(style: ClosedIsland, input: ClosedInputs): ClosedC
       const m = input.music;
       if (!m || !m.title) return plain(time(input.now, input.locale));
       return { text: m.artist ? `${m.title} · ${m.artist}` : m.title, dot: null, note: true };
+    }
+    case "timer": {
+      const r = input.timer;
+      if (!r) return plain(time(input.now, input.locale));
+      const mins = Math.max(0, Math.floor((input.now.getTime() - r.start) / 60_000));
+      const elapsed = `${Math.floor(mins / 60)}:${String(mins % 60).padStart(2, "0")}`;
+      return { text: r.label ? `${r.label} · ${elapsed}` : elapsed, dot: r.color || "#03A9F4", note: false };
     }
   }
 }

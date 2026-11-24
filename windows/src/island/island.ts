@@ -16,6 +16,7 @@ import {
   QUESTION_PICKER_H,
   type BotEmoteName, type BotStateName, type IslandMode, type IslandViewName,
 } from "../core/layout";
+import { checkClockify, clockifyTimer } from "./clockify";
 import { Sound } from "../core/sound";
 import { State } from "../core/state";
 import { SPOTIFY_ID, Spotify, islandDances } from "../core/spotify";
@@ -255,6 +256,7 @@ export class Island {
           integration_notion: "https://notion.so",
           integration_calcom: "https://app.cal.com/bookings",
           integration_aircall: "https://dashboard.aircall.io/",
+          integration_clockify: "https://app.clockify.me/tracker",
           integration_todo: "https://to-do.office.com/tasks/",
           integration_calendar: "https://outlook.office.com/calendar/",
         };
@@ -1064,6 +1066,7 @@ export class Island {
         locale: language(),
         planUsage: State.planUsage,
         music: State.spotifyPlaying && track ? { title: track.title, artist: track.artist } : null,
+        timer: clockifyTimer(),
       })
       : null;
     const key = content ? `${style}|${content.text}|${content.dot ?? ""}|${content.note}` : style;
@@ -1650,6 +1653,7 @@ export class Island {
 
   /** The clock sits in the middle of the compact island, where the notch is on a Mac. */
   private updateClock() {
+    checkClockify();
     this.updateClosed();
     const on = State.mode === "compact" && State.settings.showClock;
     this.clockEl.style.opacity = on ? "1" : "0";

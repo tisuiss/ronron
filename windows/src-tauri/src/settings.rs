@@ -151,6 +151,10 @@ pub struct Settings {
     /// (agy_approvals.rs). Off by default; owned by the Rust side like `phone_link`, so
     /// what a webview sends back is ignored. The Mac's key is the same.
     pub agy_approvals_enabled: bool,
+    /// Clockify: the project picked for each folder an agent works in (a
+    /// session's folder → a project id), so the island can offer to start
+    /// a timer on it. Kept as it comes: a project that is gone is just not offered.
+    pub clockify_folders: BTreeMap<String, String>,
 }
 
 /// How loud each kind of sound plays, as a share of the volume (src/core/sound.ts
@@ -247,6 +251,7 @@ impl Default for Settings {
             show_clock: false,
             closed_island: "cat".into(),
             agy_approvals_enabled: false,
+            clockify_folders: BTreeMap::new(),
         }
     }
 }
@@ -554,7 +559,8 @@ mod tests {
   "phoneRelayUrl": "wss://relay.example.workers.dev",
   "showClock": true,
   "closedIsland": "music",
-  "agyApprovalsEnabled": true
+  "agyApprovalsEnabled": true,
+  "clockifyFolders": { "C:\\code\\ronron": "64a1b2c3" }
 }"##;
 
     fn custom() -> Value {
@@ -1084,6 +1090,7 @@ mod tests {
                 "showClock",
                 "closedIsland",
                 "agyApprovalsEnabled",
+                "clockifyFolders",
             ]
         );
         let _ = std::fs::remove_dir_all(&dir);

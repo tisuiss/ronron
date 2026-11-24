@@ -97,6 +97,19 @@ fn tools() -> Vec<Value> {
                 "required": ["action"]
             }
         }),
+        json!({
+            "name": "timer",
+            "description": "The user's Clockify time tracking: start a timer (what they work on, and the project as they said it), stop the running one, or read the status (what runs, and the entries of the last days to answer « how many hours this week? »).",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "action": { "type": "string", "enum": ["start", "stop", "status"] },
+                    "description": { "type": "string", "description": "What the user works on, short, in their language (for start)." },
+                    "project": { "type": "string", "description": "The project's name as the user said it (for start); empty for none." }
+                },
+                "required": ["action"]
+            }
+        }),
         json!({ "type": "web_search_20250305", "name": "web_search", "max_uses": 3 }),
     ]
 }
@@ -110,7 +123,7 @@ quick, warm, a little playful. It is {:04}-{:02}-{:02} {:02}:{:02}.\n\
 Everything you write is read aloud: answer in the language the user spoke, in one or two short sentences, \
 no markdown, no lists, no emojis, no links.\n\
 Act with the tools instead of describing: pills, music, service_info for the user's own data, open_app, \
-prepare_email, reminder (\"remind me to … at …\"){web}. \
+prepare_email, reminder (\"remind me to … at …\"), timer (Clockify: start, stop, hours){web}. \
 Never invent the user's data.\n\
 Email: gather the recipient's address, the subject and what to say (write the text yourself from what the user \
 wants to say, in the language they used), asking for what is missing one short question at a time, then call \

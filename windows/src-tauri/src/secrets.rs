@@ -29,6 +29,8 @@ pub const KNOWN_KEYS: &[&str] = &[
     "calcom-api-key",
     "aircall-api-id",
     "aircall-api-token",
+    "clockify-api-key",
+    "clockify-url",
     // Microsoft 365 (msgraph/): the Entra app, the account, and the refresh token in pieces.
     "msgraph-client-id",
     "msgraph-tenant",

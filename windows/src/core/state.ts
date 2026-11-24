@@ -196,6 +196,8 @@ export interface Settings {
   phoneDetails?: boolean;
   /** Which models the phone may use, "provider/model". Rust owns it too. */
   phoneChatModels?: string[];
+  /** Clockify: the project picked for each folder an agent works in. */
+  clockifyFolders?: Record<string, string>;
   /** Ronron on the desktop. Rust owns it: whatever the page sends back is ignored. */
   desktopCat?: {
     onDesktop: boolean;
