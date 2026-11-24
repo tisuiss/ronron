@@ -12,6 +12,8 @@ import { createMiniBot, pruneMiniBots } from "../cat/minibots";
 import { buildPrompt } from "./chat";
 import { buildChoose, buildUpload, buildUploading } from "./upload";
 import { idleStatus, renderIntegrationCard, type IntegrationCardHooks } from "./integrations";
+import { Notices, waitingViews } from "../core/notifications";
+import { buildHistory } from "./history";
 import { CLOCKIFY_ID } from "../core/clockify";
 import { clockifySuggestion } from "../island/clockify";
 import { overdueCount, readTasks } from "./todo";
@@ -81,6 +83,8 @@ export interface ViewActions {
   openPill(): void;
   /** OK or Join on a calendar reminder. */
   dismissReminder(): void;
+  /** « In 5 min » on a calendar reminder: it rings again then. */
+  snoozeReminder(): void;
   /** Done on one of your reminders: it goes. */
   alarmDone(): void;
   /** In 10 min / In 1 h on one of your reminders: it rings again then. */
@@ -141,7 +145,13 @@ function stack(padLeft: number, padRight: number, ...children: Node[]): HTMLElem
 export function buildHeader(actions: ViewActions): ViewHost {
   const tabHome = h("button", { class: "tab", title: tl("Overview"), onclick: () => go("overview") }, svg(ICONS.house, 17));
   const tabChat = h("button", { class: "tab", title: tl("Ask"), onclick: () => go("prompt") }, svg(ICONS.bubbleRound, 19));
-  const tabDrop = h("button", { class: "tab", title: tl("Drop"), onclick: () => go("upload") }, svg(ICONS.plus, 16));
+  // The notifications of this run (views/history.ts), the unread ones counted.
+  // A file is still dropped by dragging it onto the island.
+  const historyCount = h("i", { class: "badge alert tab-count" });
+  const tabHistory = h("button", { class: "tab", title: tl("Notifications"), onclick: () => go("history") },
+    svg(ICONS.bell, 17, { stroke: 1.7 }), historyCount);
+  // What waits behind the view on screen (a reminder covered by a request…): one click back to it.
+  const waitingChip = h("button", { class: "waiting-chip" });
   // A new Claude Code session, in a project, from here (Mac: the terminal tab).
   const tabLaunch = h(
     "button",
@@ -175,8 +185,8 @@ export function buildHeader(actions: ViewActions): ViewHost {
     { id: "header" },
     h("div", { class: "tabs" }, tabHome),
     spaceTabs,
-    h("div", { class: "tabs rest" }, tabChat, tabDrop, tabLaunch),
-    h("div", { class: "header-actions" }, planPills, gearBtn, soundBtn, closeBtn),
+    h("div", { class: "tabs rest" }, tabChat, tabHistory, tabLaunch),
+    h("div", { class: "header-actions" }, waitingChip, planPills, gearBtn, soundBtn, closeBtn),
   );
   const headerActions = el.lastElementChild as HTMLElement;
 
@@ -186,14 +196,24 @@ export function buildHeader(actions: ViewActions): ViewHost {
       const v = State.view;
       tabHome.classList.toggle("on", v === "overview" || v === "empty");
       tabChat.classList.toggle("on", v === "prompt");
-      tabDrop.classList.toggle("on", v === "upload");
+      tabHistory.classList.toggle("on", v === "history");
+      const unread = Notices.unread();
+      historyCount.textContent = unread > 9 ? "9+" : String(unread);
+      historyCount.style.display = unread > 0 && v !== "history" ? "" : "none";
+      const waiting = waitingViews(State).filter((w) => w !== v);
+      waitingChip.style.display = waiting.length > 0 ? "" : "none";
+      if (waiting.length > 0) {
+        waitingChip.textContent = t("{n} waiting", { n: waiting.length });
+        waitingChip.onclick = () => go(waiting[0]);
+      }
       tabLaunch.classList.toggle("on", v === "launch");
       gearBtn.classList.toggle("on", v === "settings");
       clear(gearBtn);
       gearBtn.append(v === "settings" ? svg(ICONS.gearFill, 18) : svg(ICONS.gearLine, 18, { stroke: 1.6 }));
       clear(soundBtn);
       soundBtn.append(svg(State.settings.soundEnabled ? ICONS.speakerLine : ICONS.speakerSlashLine, 18, { stroke: 1.6 }));
-      closeBtn.style.display = State.pendingApproval ? "none" : "";
+      // A card or a reminder waiting for an answer keeps the island: no ✕ then.
+      closeBtn.style.display = State.pendingApproval || v === "reminder" || v === "alarm" ? "none" : "";
       syncPlanPills();
       syncSpaceTabs();
       el.style.opacity = v === "confused" ? "0" : "1";
@@ -1011,6 +1031,7 @@ export function buildViews(
   map.set("reminder", buildReminder(actions));
   map.set("reminders", buildRemindersSpace(actions));
   map.set("alarm", buildAlarm(actions));
+  map.set("history", buildHistory(actions));
   // Not in the Windows v1: sending a file by email, window attach + web result.
   map.set("mail", buildPlaceholder(tl("Sending by email isn't in this version."), ""));
   map.set("searching", buildPlaceholder(tl("Claude is searching…"), ""));

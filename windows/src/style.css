@@ -5010,3 +5010,66 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
   align-items: center;
   gap: 8px;
 }
+
+/* The notifications' bell in the header, with the unread count. */
+.tab {
+  position: relative;
+}
+.tab .tab-count {
+  position: absolute;
+  top: 1px;
+  right: 0;
+  min-width: 13px;
+  height: 13px;
+  padding: 0 3px;
+  border-radius: 7px;
+  background: #f4505e;
+  color: #fff;
+  font: 600 9px/13px var(--font);
+  font-style: normal;
+  text-align: center;
+  pointer-events: none;
+}
+/* What waits behind the view on screen: one click back to it. */
+.waiting-chip {
+  height: 20px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 10px;
+  background: #f5a52429;
+  color: #f5a524;
+  font: 600 11px var(--font);
+  cursor: pointer;
+  white-space: nowrap;
+}
+/* The notifications list (views/history.ts). */
+.hs-row {
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.hs-row.new {
+  background: #ffffff0a;
+}
+.hs-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+.hs-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.hs-text .sp-name,
+.hs-detail {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hs-detail {
+  font-size: 11px;
+}

@@ -46,6 +46,9 @@ export function buildReminder(actions: ViewActions): ViewHost {
         const url = b.webUrl;
         buttons.append(h("button", { class: "sp-btn", text: t("Open"), onclick: () => void Bridge.openUrl(url) }));
       }
+      if (b.start.getTime() - now > 60_000 || b.end.getTime() - now > 5 * 60_000) {
+        buttons.append(h("button", { class: "sp-btn", text: t("In 5 min"), onclick: () => actions.snoozeReminder() }));
+      }
       buttons.append(h("button", { class: "sp-btn rm-ok", text: t("OK"), onclick: () => actions.dismissReminder() }));
     },
   };

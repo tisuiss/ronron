@@ -59,6 +59,9 @@ You can also [build it yourself](#build-it-yourself).
 | On the desktop: click / right-click / double-click Ronron | Poke him / the wardrobe / he flies home. Drag him to move him |
 | Drag a file onto the island | Ronron turns into a box, swallows it, then offers to answer questions about it |
 | Drag a file onto the island and let go on one of the sessions listed on the right ("Or into a session") | That session's terminal or editor comes forward and the file's path is pasted into Claude Code's prompt, as a drag onto the terminal would write it. When its window can't be found, the path is copied instead |
+| The bell in the island's header | **Notifications**: everything the island showed or badged since Ronron started — calendar reminders, your reminders, requests from the agents, turns finished or failed, WhatsApp messages, missed Aircall calls, Clockify suggestions — newest first, with a red count of the unread ones. A click goes where it belongs (the request still waiting, the reminder, the pill). Kept in memory only: nothing is written to disk |
+| Two things at once (a calendar reminder, then a request from Claude) | Nothing is lost: the request comes first, then the island goes back to the reminder. **« 1 waiting »** in the header leads back to what waits behind the view on screen. A turn finishing never covers a reminder or a request: it waits on its pill and in the notifications |
+| A calendar reminder | It stays until **OK**, **Join the meeting** or **In 5 min** (it rings again then), or ten minutes after the event starts; the ✕ is hidden while it waits |
 | The terminal tab in the island's header | **New Claude Code session**: pick a project (the folders your sessions ran in, or **Choose a folder…**), type what Claude should do, and your terminal opens there running `claude` with it |
 | Click a file in the session ticker | Its diff opens in the island; ↗ opens the file in VS Code, ‹ or `Esc` goes back |
 | `Esc` | Closes the island |

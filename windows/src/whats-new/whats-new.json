@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.15.0",
+      "items": [
+        {
+          "icon": "bell",
+          "title": {
+            "en": "All your notifications",
+            "zh-Hans": "你的全部通知",
+            "hi": "आपकी सभी सूचनाएँ",
+            "es": "Todas tus notificaciones",
+            "ar": "كل إشعاراتك",
+            "fr": "Toutes tes notifications",
+            "bn": "আপনার সব বিজ্ঞপ্তি",
+            "pt-BR": "Todas as suas notificações",
+            "ru": "Все ваши уведомления",
+            "id": "Semua notifikasimu",
+            "de": "Alle deine Benachrichtigungen",
+            "tr": "Tüm bildirimlerin",
+            "ko": "모든 알림",
+            "ja": "すべての通知"
+          },
+          "detail": {
+            "en": "The bell in the header lists what you missed: reminders, requests, messages, calls.",
+            "zh-Hans": "顶部的铃铛会列出你错过的内容：提醒、请求、消息、通话。",
+            "hi": "हेडर की घंटी बताती है कि आपसे क्या छूटा: रिमाइंडर, अनुरोध, संदेश, कॉल।",
+            "es": "La campana de la cabecera muestra lo que te perdiste: recordatorios, solicitudes, mensajes, llamadas.",
+            "ar": "يعرض الجرس في الأعلى ما فاتك: التذكيرات والطلبات والرسائل والمكالمات.",
+            "fr": "La cloche de l'en-tête liste ce que tu as raté : rappels, demandes, messages, appels.",
+            "bn": "হেডারের ঘণ্টা দেখায় কী মিস করেছেন: রিমাইন্ডার, অনুরোধ, বার্তা, কল।",
+            "pt-BR": "O sino no topo mostra o que você perdeu: lembretes, pedidos, mensagens, chamadas.",
+            "ru": "Колокольчик в заголовке покажет пропущенное: напоминания, запросы, сообщения, звонки.",
+            "id": "Lonceng di atas menampilkan yang terlewat: pengingat, permintaan, pesan, panggilan.",
+            "de": "Die Glocke oben zeigt, was du verpasst hast: Erinnerungen, Anfragen, Nachrichten, Anrufe.",
+            "tr": "Üstteki zil kaçırdıklarını listeler: hatırlatıcılar, istekler, mesajlar, aramalar.",
+            "ko": "상단의 종이 놓친 것을 보여 줘요: 리마인더, 요청, 메시지, 통화.",
+            "ja": "ヘッダーのベルで見逃したものを一覧：リマインダー、リクエスト、メッセージ、通話。"
+          }
+        },
+        {
+          "icon": "checklist",
+          "title": {
+            "en": "Nothing gets covered",
+            "zh-Hans": "不再被覆盖",
+            "hi": "कुछ भी नहीं छिपता",
+            "es": "Nada queda tapado",
+            "ar": "لا شيء يُحجب",
+            "fr": "Plus rien n'est écrasé",
+            "bn": "কিছুই ঢাকা পড়ে না",
+            "pt-BR": "Nada fica escondido",
+            "ru": "Ничего не теряется",
+            "id": "Tak ada yang tertimpa",
+            "de": "Nichts wird verdeckt",
+            "tr": "Hiçbir şey örtülmez",
+            "ko": "가려지는 알림 없음",
+            "ja": "何も上書きされません"
+          },
+          "detail": {
+            "en": "A request first, then back to your reminder; it stays until OK or In 5 min.",
+            "zh-Hans": "先处理请求，再回到你的提醒；提醒会一直保留，直到点击“好”或“5 分钟后”。",
+            "hi": "पहले अनुरोध, फिर आपका रिमाइंडर वापस; यह OK या 5 मिनट में तक रहता है।",
+            "es": "Primero la solicitud, luego vuelve tu recordatorio; se queda hasta OK o En 5 min.",
+            "ar": "الطلب أولًا ثم يعود تذكيرك؛ ويبقى حتى «موافق» أو «بعد 5 دقائق».",
+            "fr": "La demande d'abord, puis retour au rappel ; il reste jusqu'à OK ou Dans 5 min.",
+            "bn": "আগে অনুরোধ, তারপর আপনার রিমাইন্ডার ফেরে; OK বা ৫ মিনিটে পর্যন্ত থাকে।",
+            "pt-BR": "Primeiro o pedido, depois volta o lembrete; ele fica até OK ou Em 5 min.",
+            "ru": "Сначала запрос, потом снова напоминание; оно ждёт до «ОК» или «Через 5 мин».",
+            "id": "Permintaan dulu, lalu kembali ke pengingat; tetap ada sampai OK atau Dalam 5 mnt.",
+            "de": "Erst die Anfrage, dann zurück zur Erinnerung; sie bleibt bis OK oder In 5 Min.",
+            "tr": "Önce istek, sonra hatırlatıcına dönülür; Tamam ya da 5 dk sonra diyene kadar kalır.",
+            "ko": "요청이 먼저, 그다음 리마인더로 돌아가요. 확인이나 5분 후를 누를 때까지 남아요.",
+            "ja": "リクエストが先、その後リマインダーに戻ります。OK か 5 分後まで表示されます。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.14.0",
       "items": [
         {

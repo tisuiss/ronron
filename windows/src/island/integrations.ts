@@ -5,6 +5,7 @@
 import { onEvent, Bridge, type IntegrationUpdate } from "../core/bridge";
 import { gitHubAlert, type GitHubEvent } from "../core/github";
 import { availablePills } from "../core/pills";
+import { Notices } from "../core/notifications";
 import { Sound } from "../core/sound";
 import { State } from "../core/state";
 
@@ -105,6 +106,11 @@ export function handleIntegrationUpdate(update: IntegrationUpdate) {
   if (event) {
     const task = State.tasks.find((t) => t.id === update.id);
     if (task) {
+      Notices.push({
+        kind: update.id === "integration_aircall" ? "call" : event.success ? "finished" : "error",
+        title: event.detail ? `${task.name} · ${event.label}` : task.name,
+        detail: event.detail ?? event.label, color: task.color, pillId: task.id,
+      });
       task.state = event.success ? "finished" : "error";
       task.steps = event.detail ? [event.label, event.detail] : [event.label];
       task.stepIndex = task.steps.length - 1;

@@ -157,6 +157,22 @@ const NOT_AN_APP: &[&str] = &["org", "mpris", "mediaplayer2", "exe", "crx", "ins
 /// The browsers that publish themselves on MPRIS as `chromium.instance…`.
 const CHROMIUM_FAMILY: &[&str] = &["chromium", "chrome", "msedge", "brave", "vivaldi", "opera"];
 
+/// A web app installed from a Chromium browser: Edge's packaged ones
+/// ("music.youtube.com-5929F88E_vezhnr0wkvrcy!App": the site, then a package
+/// hash) and Chrome's ("Chrome._crx_…").
+fn is_web_app(source: &str) -> bool {
+    if source.to_ascii_lowercase().contains("_crx_") {
+        return true;
+    }
+    let head = source.split('!').next().unwrap_or(source);
+    let Some((site, rest)) = head.split_once('-') else { return false };
+    site.contains('.')
+        && !site.contains(' ')
+        && rest.len() > 9
+        && rest.as_bytes()[..8].iter().all(u8::is_ascii_hexdigit)
+        && rest.as_bytes()[8] == b'_'
+}
+
 fn letters(s: &str) -> String {
     s.chars().filter(|c| c.is_ascii_alphanumeric()).collect::<String>().to_ascii_lowercase()
 }
@@ -179,6 +195,10 @@ pub fn app_matches(source: &str, app: &str) -> bool {
         .filter(|w| w.len() >= 3 && !NOT_AN_APP.contains(&w.as_str()) && !w.starts_with("instance"))
         .collect();
     if words.iter().any(|w| *w == app || (w == "chromium" && CHROMIUM_FAMILY.contains(&app.as_str()))) {
+        return true;
+    }
+    // A site installed as an app from Edge or Chrome plays through the browser.
+    if is_web_app(source) && CHROMIUM_FAMILY.contains(&app.as_str()) {
         return true;
     }
     // An app whose name is several words of the id: "YouTube Music.exe" for
@@ -713,6 +733,13 @@ mod tests {
         assert!(!app_matches("org.mpris.MediaPlayer2.vlc", "org"));
         assert!(!app_matches("org.mpris.MediaPlayer2.vlc", "mpris"));
         assert!(!app_matches("Foo.exe", "exe"));
+        // A site installed as an app from Edge plays through Edge, not WebView2 (Teams, Ronron).
+        assert!(app_matches("music.youtube.com-5929F88E_vezhnr0wkvrcy!App", "msedge.exe"));
+        assert!(app_matches("music.youtube.com-5929F88E_vezhnr0wkvrcy!App", "chrome.exe"));
+        assert!(!app_matches("music.youtube.com-5929F88E_vezhnr0wkvrcy!App", "msedgewebview2.exe"));
+        assert!(!app_matches("music.youtube.com-5929F88E_vezhnr0wkvrcy!App", "ms-teams.exe"));
+        assert!(!app_matches("SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify", "msedge.exe"));
+        assert!(!app_matches("Microsoft.ZuneMusic_8wekyb3d8bbwe!Microsoft.ZuneMusic", "msedge.exe"));
         // A desktop app whose exe name is several words of its id.
         assert!(app_matches("com.github.th-ch.youtube-music", "YouTube Music.exe"));
         assert!(app_matches("com.ytmdesktop.youtube.music.desktop", "YouTube Music Desktop.exe"));

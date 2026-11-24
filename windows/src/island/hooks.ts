@@ -15,6 +15,7 @@ import type { Island } from "./island";
 import { parseClaudePlan, restorePlanUsage } from "../core/plan";
 import { setClaudePlanUsage, storedClaudePlanUsage } from "../views/usage";
 import { N_, t } from "../i18n/i18n";
+import { Notices, WAITING_VIEWS } from "../core/notifications";
 import { Launch } from "../core/launch";
 
 const CLAUDE_ID = "integration_claude";
@@ -61,7 +62,10 @@ export function dropPendingCard(island: Island): void {
   }
   island.dropPin();
   if (State.view === "approval" || State.view === "question") {
-    island.setView(State.defaultView());
+    // A reminder the request covered comes back, pinned as it was.
+    const next = State.defaultView();
+    if (next === "reminder" || next === "alarm") island.setPinned(true);
+    island.setView(next);
   }
   State.notify();
 }
@@ -400,8 +404,15 @@ function handleHook(island: Island, payload: HookPayload) {
    */
   const surface = (view: Parameters<Island["alert"]>[0], isAlert: boolean) => {
     if (!isAlert) return;
-    if (State.mode === "expanded") island.setView(view);
-    else island.alert(view);
+    if (State.mode === "expanded") {
+      // A request or a reminder on screen is never covered: the news waits on
+      // its pill and in the history.
+      if (WAITING_VIEWS.has(State.view)) {
+        if (view === "finished" || view === "error") State.setPillBadge(agentId, view);
+        return;
+      }
+      island.setView(view);
+    } else island.alert(view);
   };
 
   /**
@@ -410,6 +421,13 @@ function handleHook(island: Island, payload: HookPayload) {
    * pill keeps a badge instead.
    */
   const announce = (view: "finished" | "error") => {
+    const task = State.tasks.find((x) => x.id === agentId);
+    Notices.push({
+      kind: view,
+      title: task?.name ?? agentId,
+      detail: view === "error" ? t("Something went wrong") : task?.finalLine || t("Finished"),
+      color: task?.color, pillId: agentId,
+    });
     if (State.mode !== "hidden" && showsAlert(agentId, focused)) surface(view, true);
     else State.setPillBadge(agentId, view);
   };
@@ -657,6 +675,13 @@ function handleHook(island: Island, payload: HookPayload) {
         ...(questions ? { questions } : {}),
       };
 
+      const asker = State.tasks.find((x) => x.id === agentId);
+      Notices.push({
+        kind: "request",
+        title: asker?.name ?? agentName(validAgent ?? "claude"),
+        detail: questions ? (questions[0]?.question ?? t("A question")) : `${tool} · ${info.command}`,
+        color: asker?.color, pillId: agentId, ref: requestId || null,
+      });
       // Ronron answers within 108 s or not at all; after that the terminal has
       // taken over and the card would be lying.
       armRequestTimeout(island, requestId);

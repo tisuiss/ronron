@@ -1,5 +1,6 @@
 // App state — mirror of AppState.swift (the parts the island needs).
 
+import { Notices, waitingViews } from "./notifications";
 import type { Booking, CalendarInfo } from "./calendar";
 import type { BotEmoteName, BotStateName, IslandMode, IslandViewName } from "./layout";
 import type { EyeShape } from "../cat/engine";
@@ -388,6 +389,7 @@ class AppState {
   endApproval() {
     const req = this.pendingApproval;
     if (!req) return;
+    if (req.requestId) Notices.settle(req.requestId);
     this.pendingApproval = null;
     this.isPinned = false;
     this.updateTask(req.pillId, "working");
@@ -583,8 +585,14 @@ class AppState {
    * What the island opens on. A card waiting for an answer comes first, so
    * reopening a folded island shows it again (Mac #117, #290).
    */
+  /**
+   * Where the island goes when it opens or when a card is answered: what waits
+   * first (a request, then a calendar reminder, then one of your reminders), else
+   * the overview.
+   */
   defaultView(): IslandViewName {
-    if (this.pendingApproval) return this.pendingApproval.questions ? "question" : "approval";
+    const waiting = waitingViews(this)[0];
+    if (waiting) return waiting;
     return this.tasks.length === 0 ? "empty" : "overview";
   }
 }
