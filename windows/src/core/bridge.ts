@@ -239,6 +239,9 @@ export const Bridge = {
   /** Clockify (src-tauri/src/clockify.rs): only ever from a click or « OK Ronron ». */
   clockifyStart: (description: string, projectId: string | null, taskId: string | null = null) =>
     callOrThrow<void>("clockify_start", { description, projectId, taskId }),
+  /** The entries from `from` to `to` as an Excel file in Downloads, opened; its name back. */
+  clockifyExport: (from: number, to: number) => callOrThrow<string>("clockify_export", { from, to }),
+  clockifyExportFolder: () => call<void>("clockify_export_folder"),
   clockifyTasks: (projectId: string) => callOrThrow<{ id: string; name: string }[]>("clockify_tasks", { projectId }),
   clockifyStop: () => callOrThrow<void>("clockify_stop"),
   /** Opens a GitLab link only when it belongs to the configured instance. */

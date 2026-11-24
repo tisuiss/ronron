@@ -5095,3 +5095,14 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
 .hs-detail {
   font-size: 11px;
 }
+/* Clockify's export frame. */
+.ck-export {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 0;
+}
+.ck-export-hint {
+  font: 400 11px var(--font);
+  color: var(--dim-3);
+}

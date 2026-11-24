@@ -159,3 +159,21 @@ export function suggestion(input: SuggestionInputs): Suggestion | null {
   }
   return null;
 }
+
+export type ExportRange = "thisWeek" | "lastWeek" | "thisMonth" | "lastMonth";
+
+/** The local days an export covers, as [from, to) in ms: weeks from Monday, months from the 1st. */
+export function exportRange(range: ExportRange, now = Date.now()): { from: number; to: number } {
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  if (range === "thisWeek" || range === "lastWeek") {
+    const monday = new Date(today);
+    monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7) - (range === "lastWeek" ? 7 : 0));
+    const next = new Date(monday);
+    next.setDate(next.getDate() + 7);
+    return { from: monday.getTime(), to: next.getTime() };
+  }
+  const first = new Date(today.getFullYear(), today.getMonth() - (range === "lastMonth" ? 1 : 0), 1);
+  const next = new Date(first.getFullYear(), first.getMonth() + 1, 1);
+  return { from: first.getTime(), to: next.getTime() };
+}

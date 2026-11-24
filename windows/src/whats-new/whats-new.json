@@ -38,6 +38,41 @@
             "ko": "무슨 작업인지, 그다음 프로젝트, 그다음 작업 — Clockify처럼.",
             "ja": "作業内容、プロジェクト、そのタスクの順に——Clockify と同じ。"
           }
+        },
+        {
+          "icon": "download",
+          "title": {
+            "en": "Your hours in Excel",
+            "zh-Hans": "导出工时到 Excel",
+            "hi": "आपके घंटे Excel में",
+            "es": "Tus horas en Excel",
+            "ar": "ساعاتك في Excel",
+            "fr": "Tes heures dans Excel",
+            "bn": "আপনার ঘণ্টা Excel-এ",
+            "pt-BR": "Suas horas no Excel",
+            "ru": "Ваши часы в Excel",
+            "id": "Jam kerjamu di Excel",
+            "de": "Deine Stunden in Excel",
+            "tr": "Saatlerin Excel'de",
+            "ko": "내 근무 시간을 Excel로",
+            "ja": "作業時間を Excel に"
+          },
+          "detail": {
+            "en": "Export a week or a month: Date, Task, Description, in Downloads.",
+            "zh-Hans": "导出一周或一个月：日期、任务、描述，保存到“下载”。",
+            "hi": "एक हफ़्ता या महीना निर्यात करें: तारीख, कार्य, विवरण, डाउनलोड में।",
+            "es": "Exporta una semana o un mes: Fecha, Tarea, Descripción, en Descargas.",
+            "ar": "صدّر أسبوعًا أو شهرًا: التاريخ والمهمة والوصف، في التنزيلات.",
+            "fr": "Exporte une semaine ou un mois : Date, Tâche, Description, dans Téléchargements.",
+            "bn": "এক সপ্তাহ বা এক মাস এক্সপোর্ট করুন: তারিখ, টাস্ক, বিবরণ, ডাউনলোডসে।",
+            "pt-BR": "Exporte uma semana ou um mês: Data, Tarefa, Descrição, em Downloads.",
+            "ru": "Экспорт недели или месяца: дата, задача, описание — в «Загрузки».",
+            "id": "Ekspor seminggu atau sebulan: Tanggal, Tugas, Deskripsi, di Unduhan.",
+            "de": "Eine Woche oder einen Monat exportieren: Datum, Aufgabe, Beschreibung, in Downloads.",
+            "tr": "Bir haftayı ya da ayı dışa aktar: Tarih, Görev, Açıklama, İndirilenler'e.",
+            "ko": "한 주나 한 달을 내보내기: 날짜, 작업, 설명, 다운로드 폴더에.",
+            "ja": "1 週間か 1 か月を書き出し：日付・タスク・説明をダウンロードに。"
+          }
         }
       ]
     },

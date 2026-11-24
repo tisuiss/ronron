@@ -8,11 +8,13 @@ import { h, svg, dot } from "./dom";
 import { ICONS } from "./icons";
 import { State } from "../core/state";
 import { Bridge } from "../core/bridge";
-import { CLOCKIFY_COLOR, folderName, hm, hms, readClockify, recent, totals, type ClockifyData, type ClockifyEntry, type Suggestion } from "../core/clockify";
+import { CLOCKIFY_COLOR, exportRange, type ExportRange, folderName, hm, hms, readClockify, recent, totals, type ClockifyData, type ClockifyEntry, type Suggestion } from "../core/clockify";
 import { clockifySuggestion, dismissClockify } from "../island/clockify";
 import { t } from "../i18n/i18n";
 
 let lastError: string | null = null;
+/** What the card's second frame shows: the details, or the export. */
+let panel: "details" | "export" = "details";
 
 async function act(run: () => Promise<void>, button?: HTMLButtonElement) {
   if (button) button.disabled = true;
@@ -177,11 +179,53 @@ export function clockifyCard(openDetail: () => void): HTMLElement {
   card.append(nowRow(data));
   if (lastError) card.append(h("div", { class: "int-status", style: "color:#F4505E", text: lastError }));
   if (!s) card.append(recentRows(data, data.running ? 3 : 2));
-  card.append(h("div", { class: "int-actions" }, h("span"), h("button", { class: "link-btn", text: t("Details"), onclick: openDetail })));
+  card.append(h("div", { class: "int-actions" }, h("span"),
+    h("button", { class: "link-btn", text: t("Export"), onclick: () => { panel = "export"; openDetail(); } }),
+    h("button", { class: "link-btn", text: t("Details"), onclick: () => { panel = "details"; openDetail(); } })));
   return card;
 }
 
+/** Export: which period, as an Excel file (Date, Task, Description) in Downloads. */
+function exportFrame(close: () => void): HTMLElement {
+  const root = h("div", { class: "int-card detail ck-card" });
+  root.append(h("div", { class: "int-detail-head" },
+    h("button", { class: "int-back", onclick: close }, svg(ICONS.chevronLeft, 10, { stroke: 2.4 })),
+    dot(CLOCKIFY_COLOR, 6), h("b", { text: t("Export to Excel") })));
+  const status = h("div", { class: "int-status" });
+  const ranges: [ExportRange, string][] = [
+    ["thisWeek", t("This week")], ["lastWeek", t("Last week")], ["thisMonth", t("This month")], ["lastMonth", t("Last month")],
+  ];
+  const buttons = h("div", { class: "ck-export" });
+  for (const [range, label] of ranges) {
+    const b = h("button", { class: "sp-chip", text: label }) as HTMLButtonElement;
+    b.addEventListener("click", async () => {
+      for (const x of buttons.querySelectorAll("button")) (x as HTMLButtonElement).disabled = true;
+      status.style.color = "";
+      status.replaceChildren(h("span", { text: t("Exporting…") }));
+      try {
+        const { from, to } = exportRange(range);
+        const name = await Bridge.clockifyExport(from, to);
+        status.style.color = "#22C55E";
+        status.replaceChildren(
+          h("span", { text: `✓ ${t("Saved in Downloads: {name}", { name })}` }),
+          h("button", { class: "link-btn", style: `color:${CLOCKIFY_COLOR}`, text: t("Show in folder"), onclick: () => void Bridge.clockifyExportFolder() }));
+      } catch (err) {
+        status.style.color = "#F4505E";
+        status.replaceChildren(h("span", { text: String(err).replace(/^Error:\s*/, "") }));
+      } finally {
+        for (const x of buttons.querySelectorAll("button")) (x as HTMLButtonElement).disabled = false;
+      }
+    });
+    buttons.append(b);
+  }
+  root.append(h("div", { class: "int-detail-body" },
+    h("div", { class: "hint ck-export-hint", text: t("Columns: Date, Task, Description. The file goes to Downloads and opens.") }),
+    buttons, status));
+  return root;
+}
+
 export function clockifyDetail(close: () => void): HTMLElement {
+  if (panel === "export") return exportFrame(() => { panel = "details"; close(); });
   const data = readClockify(State.integrations.integration_clockify?.data);
   const root = h("div", { class: "int-card detail ck-card" });
   root.append(h("div", { class: "int-detail-head" },

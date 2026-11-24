@@ -3,6 +3,7 @@
 ## 0.15.1 — November 24, 2026
 
 - **Clockify: a project, then its task**: with no timer running, the card asks what you work on, then the project, then one of its tasks (read from Clockify when the project is picked), as Clockify's own window does. The running timer and the last entries show their task, and starting one again keeps it.
+- **Clockify → Export**: a frame on the card picks this week, last week, this month or last month, and Ronron writes an Excel file (Date, Task, Description — one row per entry, oldest first, real dates you can sort and filter) to your Downloads folder and opens it.
 
 ## 0.15.0 — November 24, 2026
 

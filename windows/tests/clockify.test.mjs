@@ -84,3 +84,17 @@ test("with a timer running, only a very long or late one is pointed out", () => 
   assert.equal(suggestion(base({ now: late, data: data([], entry("r", late - H, null)) })).kind, "long");
   assert.equal(suggestion(base({ data: null, agents })), null);
 });
+
+test("an export covers whole local weeks from Monday and whole months from the 1st", async () => {
+  const { exportRange } = await import("../src/core/clockify.ts");
+  const day = (ms) => { const d = new Date(ms); return [d.getFullYear(), d.getMonth() + 1, d.getDate(), d.getHours()]; };
+  // NOW is Wednesday 25 November 2026.
+  let r = exportRange("thisWeek", NOW);
+  assert.deepEqual([day(r.from), day(r.to)], [[2026, 11, 23, 0], [2026, 11, 30, 0]]);
+  r = exportRange("lastWeek", NOW);
+  assert.deepEqual([day(r.from), day(r.to)], [[2026, 11, 16, 0], [2026, 11, 23, 0]]);
+  r = exportRange("thisMonth", NOW);
+  assert.deepEqual([day(r.from), day(r.to)], [[2026, 11, 1, 0], [2026, 12, 1, 0]]);
+  r = exportRange("lastMonth", new Date(2026, 0, 10).getTime());
+  assert.deepEqual([day(r.from), day(r.to)], [[2025, 12, 1, 0], [2026, 1, 1, 0]]);
+});
