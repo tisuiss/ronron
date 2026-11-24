@@ -49,7 +49,7 @@ test("the catalog holds the Mac's pills with the Claude Code label for Windows a
     ["integration_whatsapp", "WhatsApp", "#25D366", "service", "Integration"],
   ];
   assert.deepEqual(
-    PILL_CATALOG.filter((p) => !["integration_gitlab", "integration_gitea", "integration_todo", "integration_calendar", "integration_aircall"].includes(p.id))
+    PILL_CATALOG.filter((p) => !["integration_gitlab", "integration_gitea", "integration_todo", "integration_calendar", "integration_aircall", "integration_clockify"].includes(p.id))
       .map((p) => [p.id, p.name, p.color, p.category, p.subtitle]),
     mac,
   );
@@ -69,6 +69,14 @@ test("Aircall is a service pill connected by its API token", () => {
     pillDefinition("integration_aircall"),
     { id: "integration_aircall", name: "Aircall", color: "#00B388", category: "service",
       subtitle: "Integration", source: "n8n", support: "yes", connect: { kind: "key", key: "aircall-api-token" } },
+  );
+});
+
+test("Clockify is a service pill connected by its API key", () => {
+  assert.deepEqual(
+    pillDefinition("integration_clockify"),
+    { id: "integration_clockify", name: "Clockify", color: "#03A9F4", category: "service",
+      subtitle: "Integration", source: "n8n", support: "yes", connect: { kind: "key", key: "clockify-api-key" } },
   );
 });
 

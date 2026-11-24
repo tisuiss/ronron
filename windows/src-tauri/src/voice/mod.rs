@@ -432,6 +432,7 @@ pub fn run_tool(app: &AppHandle, name: &str, input: &Value) -> (String, bool) {
             (format!("The mail app opened with the email to {to}. Nothing is sent until the user sends it."), true)
         }
         "reminder" => reminder(app, input),
+        "timer" => crate::clockify::voice(app, input),
         _ => (format!("unknown tool {name}"), false),
     }
 }

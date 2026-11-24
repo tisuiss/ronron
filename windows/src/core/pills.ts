@@ -133,6 +133,9 @@ export const PILL_CATALOG: readonly PillDefinition[] = [
   // The team's calls (src-tauri/src/aircall.rs): the company's API ID and token.
   { id: "integration_aircall", name: "Aircall", color: "#00B388", category: "service",
     subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("aircall-api-token") },
+  // Time tracking (src-tauri/src/clockify.rs): the user's own API key.
+  { id: "integration_clockify", name: "Clockify", color: "#03A9F4", category: "service",
+    subtitle: N_("Integration"), source: "n8n", support: "yes", connect: key("clockify-api-key") },
   // Microsoft 365 through Graph (src-tauri/src/msgraph): one sign-in in Settings; the
   // first piece of its refresh token says "connected".
   { id: "integration_todo", name: "To Do", color: "#2564CF", category: "service",

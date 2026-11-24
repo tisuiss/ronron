@@ -12,6 +12,8 @@ import { createMiniBot, pruneMiniBots } from "../cat/minibots";
 import { buildPrompt } from "./chat";
 import { buildChoose, buildUpload, buildUploading } from "./upload";
 import { idleStatus, renderIntegrationCard, type IntegrationCardHooks } from "./integrations";
+import { CLOCKIFY_ID } from "../core/clockify";
+import { clockifySuggestion } from "../island/clockify";
 import { overdueCount, readTasks } from "./todo";
 import { highlightRow, listRows, openRow } from "./github";
 import { pillDefinition, sessionSubtitle } from "../core/pills";
@@ -527,6 +529,7 @@ function buildOverview(actions: ViewActions): ViewHost {
           language(), task.id, task.color, detailOpen, task.state, task.steps.join("|"),
           info?.loaded, info?.error, info?.configured,
           JSON.stringify(info?.data ?? {}),
+          task.id === CLOCKIFY_ID ? clockifySuggestion()?.key ?? "" : "",
         ].join("~");
         if (key !== cardKey) {
           cardKey = key;

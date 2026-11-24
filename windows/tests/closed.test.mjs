@@ -46,6 +46,14 @@ test("what plays, with its note; the time when nothing plays", () => {
   assert.equal(closedContent("music", input({ music: { title: "Intro", artist: "" } })).text, "Intro");
 });
 
+test("the running Clockify timer, with its project's colour; the time when none runs", () => {
+  assert.equal(closedContent("timer", input()).text, "20:28");
+  const start = NOW.getTime() - (65 * 60_000 + 30_000);
+  assert.deepEqual(closedContent("timer", input({ timer: { label: "Ronron", color: "#E91E63", start } })),
+    { text: "Ronron · 1:05", dot: "#E91E63", note: false });
+  assert.equal(closedContent("timer", input({ timer: { label: "", color: "", start } })).dot, "#03A9F4");
+});
+
 test("the island is as wide as its line, within bounds", () => {
   assert.equal(closedWidth(0), CLOSED_MIN_W);
   assert.equal(closedWidth(Number.NaN), CLOSED_MIN_W);

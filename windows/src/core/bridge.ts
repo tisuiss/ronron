@@ -236,6 +236,9 @@ export const Bridge = {
   openUrl: (url: string) => call<void>("open_url", { url }),
   /** Aircall's "Call back": the system's phone app (tel:) with the number. */
   aircallCall: (number: string) => callOrThrow<void>("aircall_call", { number }),
+  /** Clockify (src-tauri/src/clockify.rs): only ever from a click or « OK Ronron ». */
+  clockifyStart: (description: string, projectId: string | null) => callOrThrow<void>("clockify_start", { description, projectId }),
+  clockifyStop: () => callOrThrow<void>("clockify_stop"),
   /** Opens a GitLab link only when it belongs to the configured instance. */
   openGitLabUrl: (url: string) => call<void>("open_gitlab_url", { url }),
   /** Opens the configured Gitea instance without exposing its URL to the page. */

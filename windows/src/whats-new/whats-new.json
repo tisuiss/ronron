@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.14.0",
+      "items": [
+        {
+          "icon": "clock",
+          "title": {
+            "en": "Clockify in the island",
+            "zh-Hans": "岛中的 Clockify",
+            "hi": "आइलैंड में Clockify",
+            "es": "Clockify en la isla",
+            "ar": "Clockify في الجزيرة",
+            "fr": "Clockify dans l'îlot",
+            "bn": "আইল্যান্ডে Clockify",
+            "pt-BR": "Clockify na ilha",
+            "ru": "Clockify на острове",
+            "id": "Clockify di pulau",
+            "de": "Clockify auf der Insel",
+            "tr": "Adada Clockify",
+            "ko": "아일랜드에 Clockify",
+            "ja": "アイランドに Clockify"
+          },
+          "detail": {
+            "en": "The running timer, Start and Stop, today's and the week's hours — even in the closed island.",
+            "zh-Hans": "正在运行的计时器、开始和停止、今天和本周的时长——在收起的岛中也能看到。",
+            "hi": "चलता टाइमर, शुरू और बंद, आज और इस हफ़्ते के घंटे — बंद आइलैंड में भी।",
+            "es": "El temporizador en curso, iniciar y detener, las horas de hoy y de la semana, incluso con la isla cerrada.",
+            "ar": "المؤقت الجاري، البدء والإيقاف، ساعات اليوم والأسبوع — حتى في الجزيرة المغلقة.",
+            "fr": "Le chrono en cours, Démarrer et Arrêter, les heures du jour et de la semaine — même îlot fermé.",
+            "bn": "চলমান টাইমার, শুরু ও বন্ধ, আজ ও এই সপ্তাহের ঘণ্টা — বন্ধ আইল্যান্ডেও।",
+            "pt-BR": "O cronômetro em andamento, iniciar e parar, as horas do dia e da semana — até com a ilha fechada.",
+            "ru": "Текущий таймер, старт и стоп, часы за день и неделю — даже в свёрнутом острове.",
+            "id": "Timer yang berjalan, mulai dan berhenti, jam hari ini dan minggu ini — bahkan saat pulau tertutup.",
+            "de": "Der laufende Timer, Start und Stopp, die Stunden von heute und der Woche — auch bei geschlossener Insel.",
+            "tr": "Çalışan zamanlayıcı, başlat ve durdur, bugünün ve haftanın saatleri — kapalı adada bile.",
+            "ko": "실행 중인 타이머, 시작과 정지, 오늘과 이번 주 시간 — 닫힌 아일랜드에서도.",
+            "ja": "実行中のタイマー、開始と停止、今日と今週の時間——閉じたアイランドでも。"
+          }
+        },
+        {
+          "icon": "sparkles",
+          "title": {
+            "en": "A timer when you start work",
+            "zh-Hans": "开始工作时提示计时",
+            "hi": "काम शुरू करते ही टाइमर",
+            "es": "Un temporizador al empezar",
+            "ar": "مؤقت عند بدء العمل",
+            "fr": "Un chrono quand tu t'y mets",
+            "bn": "কাজ শুরু করলেই টাইমার",
+            "pt-BR": "Um cronômetro ao começar",
+            "ru": "Таймер, когда вы начинаете",
+            "id": "Timer saat mulai bekerja",
+            "de": "Ein Timer, wenn du loslegst",
+            "tr": "İşe başlayınca zamanlayıcı",
+            "ko": "작업을 시작하면 타이머",
+            "ja": "作業を始めたらタイマー"
+          },
+          "detail": {
+            "en": "An agent at work or a meeting starting: Ronron offers a timer on the right project. Your click.",
+            "zh-Hans": "代理开始工作或会议开始时，Ronron 会建议在对应项目上计时，由你点击决定。",
+            "hi": "एजेंट काम पर हो या मीटिंग शुरू हो: Ronron सही प्रोजेक्ट पर टाइमर सुझाता है। क्लिक आपका।",
+            "es": "Un agente trabajando o una reunión que empieza: Ronron propone un temporizador en el proyecto. Tú decides.",
+            "ar": "وكيل يعمل أو اجتماع يبدأ: يقترح Ronron مؤقتًا على المشروع المناسب. النقرة لك.",
+            "fr": "Un agent au travail ou une réunion qui commence : Ronron propose un chrono sur le bon projet. Tu cliques.",
+            "bn": "এজেন্ট কাজ করছে বা মিটিং শুরু হচ্ছে: Ronron সঠিক প্রকল্পে টাইমার প্রস্তাব করে। ক্লিক আপনার।",
+            "pt-BR": "Um agente trabalhando ou uma reunião começando: o Ronron sugere um cronômetro no projeto certo. Você decide.",
+            "ru": "Агент работает или начинается встреча: Ronron предложит таймер на нужный проект. Решаете вы.",
+            "id": "Agen sedang bekerja atau rapat dimulai: Ronron menawarkan timer di proyek yang tepat. Kamu yang klik.",
+            "de": "Ein Agent arbeitet oder ein Meeting beginnt: Ronron schlägt einen Timer fürs richtige Projekt vor. Du klickst.",
+            "tr": "Bir ajan çalışırken ya da toplantı başlarken Ronron doğru projede zamanlayıcı önerir. Tıklamak sende.",
+            "ko": "에이전트가 작업하거나 회의가 시작되면 Ronron이 맞는 프로젝트로 타이머를 제안해요. 클릭은 내가.",
+            "ja": "エージェントの作業や会議の開始時に、Ronron が適切なプロジェクトでタイマーを提案。決めるのはあなた。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.13.0",
       "items": [
         {
