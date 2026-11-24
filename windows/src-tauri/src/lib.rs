@@ -12,6 +12,7 @@ mod claude_code;
 mod cli_relay;
 mod codex_plan;
 mod config_file;
+mod xlsx;
 mod desktop;
 mod files;
 mod flow;
@@ -938,6 +939,9 @@ pub fn run() {
             boot,
             aircall::aircall_call,
             clockify::clockify_start,
+            clockify::clockify_tasks,
+            clockify::clockify_export,
+            clockify::clockify_export_folder,
             clockify::clockify_stop,
             mail::mail_refresh,
             msgraph::ms_account,

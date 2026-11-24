@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.15.1",
+      "items": [
+        {
+          "icon": "clock",
+          "title": {
+            "en": "Clockify tasks",
+            "zh-Hans": "Clockify 任务",
+            "hi": "Clockify कार्य",
+            "es": "Tareas de Clockify",
+            "ar": "مهام Clockify",
+            "fr": "Les tâches Clockify",
+            "bn": "Clockify টাস্ক",
+            "pt-BR": "Tarefas do Clockify",
+            "ru": "Задачи Clockify",
+            "id": "Tugas Clockify",
+            "de": "Clockify-Aufgaben",
+            "tr": "Clockify görevleri",
+            "ko": "Clockify 작업",
+            "ja": "Clockify のタスク"
+          },
+          "detail": {
+            "en": "What you work on, then the project, then its task — as in Clockify.",
+            "zh-Hans": "先写你在做什么，再选项目，然后选任务——和 Clockify 一样。",
+            "hi": "आप किस पर काम कर रहे हैं, फिर प्रोजेक्ट, फिर उसका कार्य — Clockify की तरह।",
+            "es": "En qué trabajas, luego el proyecto y después su tarea, como en Clockify.",
+            "ar": "ما تعمل عليه، ثم المشروع، ثم مهمته — كما في Clockify.",
+            "fr": "Sur quoi tu travailles, puis le projet, puis sa tâche — comme dans Clockify.",
+            "bn": "কী নিয়ে কাজ করছেন, তারপর প্রকল্প, তারপর তার টাস্ক — Clockify-এর মতো।",
+            "pt-BR": "No que você trabalha, depois o projeto e a tarefa dele — como no Clockify.",
+            "ru": "Над чем работаете, затем проект, затем его задача — как в Clockify.",
+            "id": "Apa yang kamu kerjakan, lalu proyek, lalu tugasnya — seperti di Clockify.",
+            "de": "Woran du arbeitest, dann das Projekt, dann seine Aufgabe — wie in Clockify.",
+            "tr": "Ne üzerinde çalıştığın, sonra proje, sonra görevi — Clockify'daki gibi.",
+            "ko": "무슨 작업인지, 그다음 프로젝트, 그다음 작업 — Clockify처럼.",
+            "ja": "作業内容、プロジェクト、そのタスクの順に——Clockify と同じ。"
+          }
+        },
+        {
+          "icon": "download",
+          "title": {
+            "en": "Your hours in Excel",
+            "zh-Hans": "导出工时到 Excel",
+            "hi": "आपके घंटे Excel में",
+            "es": "Tus horas en Excel",
+            "ar": "ساعاتك في Excel",
+            "fr": "Tes heures dans Excel",
+            "bn": "আপনার ঘণ্টা Excel-এ",
+            "pt-BR": "Suas horas no Excel",
+            "ru": "Ваши часы в Excel",
+            "id": "Jam kerjamu di Excel",
+            "de": "Deine Stunden in Excel",
+            "tr": "Saatlerin Excel'de",
+            "ko": "내 근무 시간을 Excel로",
+            "ja": "作業時間を Excel に"
+          },
+          "detail": {
+            "en": "Export a week or a month: Date, Task, Description, in Downloads.",
+            "zh-Hans": "导出一周或一个月：日期、任务、描述，保存到“下载”。",
+            "hi": "एक हफ़्ता या महीना निर्यात करें: तारीख, कार्य, विवरण, डाउनलोड में।",
+            "es": "Exporta una semana o un mes: Fecha, Tarea, Descripción, en Descargas.",
+            "ar": "صدّر أسبوعًا أو شهرًا: التاريخ والمهمة والوصف، في التنزيلات.",
+            "fr": "Exporte une semaine ou un mois : Date, Tâche, Description, dans Téléchargements.",
+            "bn": "এক সপ্তাহ বা এক মাস এক্সপোর্ট করুন: তারিখ, টাস্ক, বিবরণ, ডাউনলোডসে।",
+            "pt-BR": "Exporte uma semana ou um mês: Data, Tarefa, Descrição, em Downloads.",
+            "ru": "Экспорт недели или месяца: дата, задача, описание — в «Загрузки».",
+            "id": "Ekspor seminggu atau sebulan: Tanggal, Tugas, Deskripsi, di Unduhan.",
+            "de": "Eine Woche oder einen Monat exportieren: Datum, Aufgabe, Beschreibung, in Downloads.",
+            "tr": "Bir haftayı ya da ayı dışa aktar: Tarih, Görev, Açıklama, İndirilenler'e.",
+            "ko": "한 주나 한 달을 내보내기: 날짜, 작업, 설명, 다운로드 폴더에.",
+            "ja": "1 週間か 1 か月を書き出し：日付・タスク・説明をダウンロードに。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.15.0",
       "items": [
         {

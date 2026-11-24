@@ -8,11 +8,13 @@ import { h, svg, dot } from "./dom";
 import { ICONS } from "./icons";
 import { State } from "../core/state";
 import { Bridge } from "../core/bridge";
-import { CLOCKIFY_COLOR, folderName, hm, hms, readClockify, recent, totals, type ClockifyData, type ClockifyEntry, type Suggestion } from "../core/clockify";
+import { CLOCKIFY_COLOR, exportRange, type ExportRange, folderName, hm, hms, readClockify, recent, totals, type ClockifyData, type ClockifyEntry, type Suggestion } from "../core/clockify";
 import { clockifySuggestion, dismissClockify } from "../island/clockify";
 import { t } from "../i18n/i18n";
 
 let lastError: string | null = null;
+/** What the card's second frame shows: the details, or the export. */
+let panel: "details" | "export" = "details";
 
 async function act(run: () => Promise<void>, button?: HTMLButtonElement) {
   if (button) button.disabled = true;
@@ -27,8 +29,26 @@ async function act(run: () => Promise<void>, button?: HTMLButtonElement) {
   }
 }
 
-const start = (description: string, projectId: string | null, button?: HTMLButtonElement) =>
-  act(() => Bridge.clockifyStart(description, projectId), button);
+const start = (description: string, projectId: string | null, button?: HTMLButtonElement, taskId: string | null = null) =>
+  act(() => Bridge.clockifyStart(description, projectId, projectId ? taskId : null), button);
+
+/** The task list of the project picked: empty and off until a project is picked, then its tasks. */
+function taskSelect(project: HTMLSelectElement): HTMLSelectElement {
+  const select = h("select", { class: "ck-select ck-task" }) as HTMLSelectElement;
+  const fill = async () => {
+    const projectId = project.value;
+    select.replaceChildren(h("option", { value: "", text: projectId ? t("No task") : t("Pick a project first") }));
+    select.disabled = true;
+    if (!projectId) return;
+    const tasks = await Bridge.clockifyTasks(projectId).catch(() => []);
+    if (project.value !== projectId) return; // another project was picked meanwhile
+    for (const task of tasks) select.append(h("option", { value: task.id, text: task.name }));
+    select.disabled = tasks.length === 0;
+  };
+  project.addEventListener("change", () => void fill());
+  void fill();
+  return select;
+}
 const stop = (button?: HTMLButtonElement) => act(() => Bridge.clockifyStop(), button);
 
 function saveFolder(folder: string, projectId: string | null) {
@@ -121,17 +141,19 @@ function nowRow(data: ClockifyData): HTMLElement {
       dot(r.projectColor || CLOCKIFY_COLOR, 6),
       h("div", { class: "ck-now-text" },
         h("span", { class: "int-name", style: "color:#e8e9eb", text: entryLabel(r) }),
-        r.projectName && r.description ? h("span", { class: "int-sub", text: r.projectName }) : h("span")),
+        r.projectName && r.description ? h("span", { class: "int-sub", text: r.taskName ? `${r.projectName} · ${r.taskName}` : r.projectName }) : h("span")),
       ticking(r.start), b);
   }
+  // As in Clockify: what, then the project, then its task.
   const input = h("input", { class: "todo-input", placeholder: t("What are you working on?"), spellcheck: "false" }) as HTMLInputElement;
-  const select = projectSelect(data, null);
-  const go = playButton((b) => void start(input.value, select.value || null, b), t("Start"));
+  const project = projectSelect(data, null);
+  const task = taskSelect(project);
+  const go = playButton((b) => void start(input.value, project.value || null, b, task.value || null), t("Start"));
   input.addEventListener("keydown", (e) => {
     e.stopPropagation();
     if (e.key === "Enter") go.click();
   });
-  return h("div", { class: "ck-start" }, input, select, go);
+  return h("div", { class: "ck-start" }, input, h("div", { class: "ck-pick" }, project, task, go));
 }
 
 function recentRows(data: ClockifyData, n: number): HTMLElement {
@@ -140,9 +162,9 @@ function recentRows(data: ClockifyData, n: number): HTMLElement {
     rows.append(h("div", { class: "int-row" },
       dot(e.projectColor || "#6B7079", 5),
       h("span", { class: "int-name", text: entryLabel(e) }),
-      e.projectName && e.description ? h("span", { class: "int-sub", text: e.projectName }) : h("span"),
+      e.projectName && e.description ? h("span", { class: "int-sub", text: e.taskName ? `${e.projectName} · ${e.taskName}` : e.projectName }) : h("span"),
       h("span", { style: "margin-left:auto" }),
-      playButton((b) => void start(e.description, e.projectId, b), t("Start again"))));
+      playButton((b) => void start(e.description, e.projectId, b, e.taskId ?? null), t("Start again"))));
   }
   return rows;
 }
@@ -157,11 +179,53 @@ export function clockifyCard(openDetail: () => void): HTMLElement {
   card.append(nowRow(data));
   if (lastError) card.append(h("div", { class: "int-status", style: "color:#F4505E", text: lastError }));
   if (!s) card.append(recentRows(data, data.running ? 3 : 2));
-  card.append(h("div", { class: "int-actions" }, h("span"), h("button", { class: "link-btn", text: t("Details"), onclick: openDetail })));
+  card.append(h("div", { class: "int-actions" }, h("span"),
+    h("button", { class: "link-btn", text: t("Export"), onclick: () => { panel = "export"; openDetail(); } }),
+    h("button", { class: "link-btn", text: t("Details"), onclick: () => { panel = "details"; openDetail(); } })));
   return card;
 }
 
+/** Export: which period, as an Excel file (Date, Task, Description) in Downloads. */
+function exportFrame(close: () => void): HTMLElement {
+  const root = h("div", { class: "int-card detail ck-card" });
+  root.append(h("div", { class: "int-detail-head" },
+    h("button", { class: "int-back", onclick: close }, svg(ICONS.chevronLeft, 10, { stroke: 2.4 })),
+    dot(CLOCKIFY_COLOR, 6), h("b", { text: t("Export to Excel") })));
+  const status = h("div", { class: "int-status" });
+  const ranges: [ExportRange, string][] = [
+    ["thisWeek", t("This week")], ["lastWeek", t("Last week")], ["thisMonth", t("This month")], ["lastMonth", t("Last month")],
+  ];
+  const buttons = h("div", { class: "ck-export" });
+  for (const [range, label] of ranges) {
+    const b = h("button", { class: "sp-chip", text: label }) as HTMLButtonElement;
+    b.addEventListener("click", async () => {
+      for (const x of buttons.querySelectorAll("button")) (x as HTMLButtonElement).disabled = true;
+      status.style.color = "";
+      status.replaceChildren(h("span", { text: t("Exporting…") }));
+      try {
+        const { from, to } = exportRange(range);
+        const name = await Bridge.clockifyExport(from, to);
+        status.style.color = "#22C55E";
+        status.replaceChildren(
+          h("span", { text: `✓ ${t("Saved in Downloads: {name}", { name })}` }),
+          h("button", { class: "link-btn", style: `color:${CLOCKIFY_COLOR}`, text: t("Show in folder"), onclick: () => void Bridge.clockifyExportFolder() }));
+      } catch (err) {
+        status.style.color = "#F4505E";
+        status.replaceChildren(h("span", { text: String(err).replace(/^Error:\s*/, "") }));
+      } finally {
+        for (const x of buttons.querySelectorAll("button")) (x as HTMLButtonElement).disabled = false;
+      }
+    });
+    buttons.append(b);
+  }
+  root.append(h("div", { class: "int-detail-body" },
+    h("div", { class: "hint ck-export-hint", text: t("Columns: Date, Task, Description. The file goes to Downloads and opens.") }),
+    buttons, status));
+  return root;
+}
+
 export function clockifyDetail(close: () => void): HTMLElement {
+  if (panel === "export") return exportFrame(() => { panel = "details"; close(); });
   const data = readClockify(State.integrations.integration_clockify?.data);
   const root = h("div", { class: "int-card detail ck-card" });
   root.append(h("div", { class: "int-detail-head" },

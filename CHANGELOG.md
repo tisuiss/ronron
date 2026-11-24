@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.15.1 — November 24, 2026
+
+- **Clockify: a project, then its task**: with no timer running, the card asks what you work on, then the project, then one of its tasks (read from Clockify when the project is picked), as Clockify's own window does. The running timer and the last entries show their task, and starting one again keeps it.
+- **Clockify → Export**: a frame on the card picks this week, last week, this month or last month, and Ronron writes an Excel file (Date, Task, Description — one row per entry, oldest first, real dates you can sort and filter) to your Downloads folder and opens it.
+
 ## 0.15.0 — November 24, 2026
 
 - **Notifications**: the **+** of the island's header (a file is still dropped by dragging it onto the island) makes way for a bell with the count of unread notifications. It opens everything the island showed or badged since Ronron started — calendar reminders, your reminders, requests from the agents, turns finished or failed, WhatsApp messages, missed calls, Clockify suggestions — newest first; a click goes where each belongs. In memory only.

@@ -34,6 +34,8 @@ struct Cache {
     workspace: String,
     projects: Vec<Value>,
     projects_at: Option<Instant>,
+    /// Each project's active tasks, read when the project is picked, for 10 minutes.
+    tasks: std::collections::HashMap<String, (Instant, Vec<Value>)>,
     data: Value,
 }
 
@@ -184,6 +186,8 @@ fn parse_entries(raw: &Value) -> Result<Vec<Value>, String> {
                 "projectId": e["projectId"].as_str().or_else(|| e["project"]["id"].as_str()),
                 "projectName": e["project"]["name"].as_str().unwrap_or(""),
                 "projectColor": e["project"]["color"].as_str().unwrap_or(""),
+                "taskId": e["taskId"].as_str().or_else(|| e["task"]["id"].as_str()),
+                "taskName": e["task"]["name"].as_str().unwrap_or(""),
                 "start": start,
                 "end": end,
             }))
@@ -216,12 +220,16 @@ fn parse_projects(raw: &Value) -> Vec<Value> {
 // ── Starting and stopping ─────────────────────────────────────────────────────
 
 /// Starts a timer now (Clockify stops the one running, if any).
-pub async fn start(description: &str, project: Option<&str>) -> Result<(), String> {
+pub async fn start(description: &str, project: Option<&str>, task: Option<&str>) -> Result<(), String> {
     let api = Api::new()?;
     let (_, ws) = api.who().await?;
     let mut body = json!({ "start": iso_utc(now_ms()), "description": description.trim() });
     if let Some(p) = project.map(str::trim).filter(|p| !p.is_empty()) {
         body["projectId"] = json!(p);
+        // A task only goes with its project.
+        if let Some(t) = task.map(str::trim).filter(|t| !t.is_empty()) {
+            body["taskId"] = json!(t);
+        }
     }
     let url = format!("{}/workspaces/{ws}/time-entries", api.base);
     api.send(api.http.post(url).json(&body)).await.map(|_| ())
@@ -236,10 +244,54 @@ pub async fn stop() -> Result<(), String> {
 }
 
 #[tauri::command]
-pub async fn clockify_start(app: AppHandle, description: String, project_id: Option<String>) -> Result<(), String> {
-    start(&description, project_id.as_deref()).await?;
+pub async fn clockify_start(
+    app: AppHandle,
+    description: String,
+    project_id: Option<String>,
+    task_id: Option<String>,
+) -> Result<(), String> {
+    start(&description, project_id.as_deref(), task_id.as_deref()).await?;
     poll(app).await;
     Ok(())
+}
+
+/// A project's active tasks (id and name, sorted), for the card's task list.
+#[tauri::command]
+pub async fn clockify_tasks(project_id: String) -> Result<Vec<Value>, String> {
+    let project = project_id.trim().to_string();
+    if project.is_empty() || !project.chars().all(|c| c.is_ascii_alphanumeric()) {
+        return Ok(Vec::new());
+    }
+    let cached = CACHE
+        .lock()
+        .unwrap()
+        .as_ref()
+        .and_then(|c| c.tasks.get(&project).filter(|(at, _)| at.elapsed() < PROJECTS_EVERY).map(|(_, t)| t.clone()));
+    if let Some(tasks) = cached {
+        return Ok(tasks);
+    }
+    let api = Api::new()?;
+    let (_, ws) = api.who().await?;
+    let raw = api
+        .get(&format!("/workspaces/{ws}/projects/{project}/tasks"), &[("is-active", "true".into()), ("page-size", "500".into())])
+        .await?;
+    let tasks = parse_tasks(&raw);
+    let mut cache = CACHE.lock().unwrap();
+    cache.get_or_insert_with(Cache::default).tasks.insert(project, (Instant::now(), tasks.clone()));
+    Ok(tasks)
+}
+
+fn parse_tasks(raw: &Value) -> Vec<Value> {
+    let mut out: Vec<Value> = raw
+        .as_array()
+        .map(|l| l.as_slice())
+        .unwrap_or_default()
+        .iter()
+        .filter(|t| t["status"].as_str() != Some("DONE"))
+        .filter_map(|t| Some(json!({ "id": t["id"].as_str()?, "name": t["name"].as_str().unwrap_or("") })))
+        .collect();
+    out.sort_by_key(|t| t["name"].as_str().unwrap_or("").to_lowercase());
+    out
 }
 
 #[tauri::command]
@@ -247,6 +299,114 @@ pub async fn clockify_stop(app: AppHandle) -> Result<(), String> {
     stop().await?;
     poll(app).await;
     Ok(())
+}
+
+// ── Export ────────────────────────────────────────────────────────────────────
+
+/// The user's Downloads folder: XDG_DOWNLOAD_DIR on Linux, else ~/Downloads.
+fn downloads_dir() -> std::path::PathBuf {
+    let home = crate::platform::home_dir();
+    if let Some(dir) = xdg_downloads(&home) {
+        return dir;
+    }
+    let d = home.join("Downloads");
+    if d.is_dir() {
+        d
+    } else {
+        home
+    }
+}
+
+#[cfg(target_os = "linux")]
+fn xdg_downloads(home: &std::path::Path) -> Option<std::path::PathBuf> {
+    let dirs = std::fs::read_to_string(home.join(".config/user-dirs.dirs")).ok()?;
+    let line = dirs.lines().find_map(|l| l.strip_prefix("XDG_DOWNLOAD_DIR="))?;
+    let dir = std::path::PathBuf::from(line.trim().trim_matches('"').replace("$HOME", &home.to_string_lossy()));
+    dir.is_dir().then_some(dir)
+}
+
+#[cfg(not(target_os = "linux"))]
+fn xdg_downloads(_: &std::path::Path) -> Option<std::path::PathBuf> {
+    None
+}
+
+/// The local day of an instant.
+fn local_day(ms: i64) -> Option<chrono::NaiveDate> {
+    Some(chrono::DateTime::from_timestamp_millis(ms)?.with_timezone(&chrono::Local).date_naive())
+}
+
+/// The rows of the export, oldest first: date, task, description.
+fn export_rows(entries: &[Value]) -> Vec<Vec<crate::xlsx::Cell>> {
+    use crate::xlsx::Cell;
+    let mut sorted: Vec<&Value> = entries.iter().collect();
+    sorted.sort_by_key(|e| e["start"].as_i64().unwrap_or(0));
+    sorted
+        .iter()
+        .filter_map(|e| {
+            let day = local_day(e["start"].as_i64()?)?;
+            Some(vec![
+                Cell::Date(day),
+                Cell::Text(e["taskName"].as_str().unwrap_or("").to_string()),
+                Cell::Text(e["description"].as_str().unwrap_or("").to_string()),
+            ])
+        })
+        .collect()
+}
+
+/// A name that is not taken yet in `dir`: "name.xlsx", then "name (2).xlsx"…
+fn free_path(dir: &std::path::Path, name: &str) -> std::path::PathBuf {
+    let first = dir.join(format!("{name}.xlsx"));
+    if !first.exists() {
+        return first;
+    }
+    (2..1000).map(|n| dir.join(format!("{name} ({n}).xlsx"))).find(|p| !p.exists()).unwrap_or(first)
+}
+
+/// Settings card → Export: the entries from `from` to `to` (ms) as an Excel
+/// file in Downloads (Date, Task, Description), opened at once. Its name back.
+#[tauri::command]
+pub async fn clockify_export(from: i64, to: i64) -> Result<String, String> {
+    if to <= from || to - from > 400 * 86_400_000 {
+        return Err(crate::i18n::t("Unexpected API response."));
+    }
+    let api = Api::new()?;
+    let (user, ws) = api.who().await?;
+    let mut entries = Vec::new();
+    for page in 1..=20 {
+        let raw = api
+            .get(
+                &format!("/workspaces/{ws}/user/{user}/time-entries"),
+                &[
+                    ("start", iso_utc(from)),
+                    ("end", iso_utc(to)),
+                    ("hydrated", "true".into()),
+                    ("page-size", "500".into()),
+                    ("page", page.to_string()),
+                ],
+            )
+            .await?;
+        let got = raw.as_array().map(Vec::len).unwrap_or(0);
+        entries.extend(parse_entries(&raw)?);
+        if got < 500 {
+            break;
+        }
+    }
+    let rows = export_rows(&entries);
+    let day = |ms: i64| local_day(ms).map(|d| d.format("%Y-%m-%d").to_string()).unwrap_or_default();
+    let name = format!("Clockify {} - {}", day(from), day(to - 1));
+    let header = [crate::i18n::t("Date"), crate::i18n::t("Task"), crate::i18n::t("Description")];
+    let header: Vec<&str> = header.iter().map(String::as_str).collect();
+    let bytes = crate::xlsx::workbook("Clockify", &header, &[12.0, 36.0, 60.0], &rows);
+    let path = free_path(&downloads_dir(), &name);
+    std::fs::write(&path, bytes).map_err(|e| e.to_string())?;
+    crate::platform::open_url(&path.to_string_lossy());
+    Ok(path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or(name))
+}
+
+/// "Show in folder" after an export: the Downloads folder.
+#[tauri::command]
+pub fn clockify_export_folder() {
+    crate::platform::reveal_folder(&downloads_dir().to_string_lossy());
 }
 
 // ── « OK Ronron » ─────────────────────────────────────────────────────────────
@@ -283,7 +443,7 @@ pub fn voice(app: &AppHandle, input: &Value) -> (String, bool) {
             }
             let id = project.as_ref().and_then(|p| p["id"].as_str()).map(str::to_string);
             let done = tauri::async_runtime::block_on(async {
-                let r = start(&description, id.as_deref()).await;
+                let r = start(&description, id.as_deref(), None).await;
                 poll(app.clone()).await;
                 r
             });
@@ -380,6 +540,32 @@ mod tests {
         let p = parse_projects(&raw);
         assert_eq!(p.iter().map(|p| p["id"].as_str().unwrap()).collect::<Vec<_>>(), ["1", "2"]);
         assert_eq!(p[1]["client"], "ACME");
+    }
+
+    #[test]
+    fn the_export_is_oldest_first_with_date_task_and_description() {
+        let entries = vec![
+            json!({ "start": 1_764_000_000_000i64, "taskName": "149-0-004", "description": "Later" }),
+            json!({ "start": 1_763_900_000_000i64, "taskName": "", "description": "Earlier" }),
+            json!({ "description": "no start" }),
+        ];
+        let rows = export_rows(&entries);
+        assert_eq!(rows.len(), 2);
+        assert!(matches!(&rows[0][2], crate::xlsx::Cell::Text(s) if s == "Earlier"));
+        assert!(matches!(&rows[1][1], crate::xlsx::Cell::Text(s) if s == "149-0-004"));
+        assert!(matches!(rows[0][0], crate::xlsx::Cell::Date(_)));
+    }
+
+    #[test]
+    fn tasks_are_sorted_and_done_ones_left_out() {
+        let raw = json!([
+            { "id": "t2", "name": "80244-270-Ceremonies", "status": "ACTIVE" },
+            { "id": "t1", "name": "149-0-004", "status": "ACTIVE" },
+            { "id": "t3", "name": "Old", "status": "DONE" }
+        ]);
+        let t = parse_tasks(&raw);
+        assert_eq!(t.iter().map(|t| t["id"].as_str().unwrap()).collect::<Vec<_>>(), ["t1", "t2"]);
+        assert!(parse_tasks(&json!({})).is_empty());
     }
 
     #[test]
