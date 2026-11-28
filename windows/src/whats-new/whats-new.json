@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.15.3",
+      "items": [
+        {
+          "icon": "mic",
+          "title": {
+            "en": "Ronron learns your voice",
+            "zh-Hans": "Ronron 学习你的声音",
+            "hi": "Ronron आपकी आवाज़ सीखता है",
+            "es": "Ronron aprende tu voz",
+            "ar": "Ronron يتعلّم صوتك",
+            "fr": "Ronron apprend ta voix",
+            "bn": "Ronron আপনার কণ্ঠ শেখে",
+            "pt-BR": "O Ronron aprende sua voz",
+            "ru": "Ronron запоминает ваш голос",
+            "id": "Ronron mempelajari suaramu",
+            "de": "Ronron lernt deine Stimme",
+            "tr": "Ronron sesini öğrenir",
+            "ko": "Ronron이 목소리를 배워요",
+            "ja": "Ronron があなたの声を学習"
+          },
+          "detail": {
+            "en": "Voice → Learn: say « OK Ronron » 3 times and he wakes on your way of saying it.",
+            "zh-Hans": "语音 → 学习：说 3 次“OK Ronron”，他就能听懂你的说法。",
+            "hi": "आवाज़ → सीखें: « OK Ronron » 3 बार कहें, वह आपके अंदाज़ पर जागेगा।",
+            "es": "Voz → Aprender: di « OK Ronron » 3 veces y despertará con tu forma de decirlo.",
+            "ar": "الصوت ← تعلّم: قل « OK Ronron » 3 مرات فيستيقظ على طريقتك.",
+            "fr": "Voix → Apprendre : dis « OK Ronron » 3 fois, il se réveille sur ta façon de le dire.",
+            "bn": "ভয়েস → শেখান: « OK Ronron » ৩ বার বলুন, আপনার ধরনে সে জাগবে।",
+            "pt-BR": "Voz → Aprender: diga « OK Ronron » 3 vezes e ele acorda do seu jeito.",
+            "ru": "Голос → Обучить: скажите « OK Ronron » 3 раза — он запомнит вашу манеру.",
+            "id": "Suara → Pelajari: ucapkan « OK Ronron » 3 kali, ia bangun dengan caramu.",
+            "de": "Sprache → Lernen: sag « OK Ronron » 3-mal, dann wacht er auf deine Art auf.",
+            "tr": "Ses → Öğret: « OK Ronron »u 3 kez söyle, senin söyleyişinle uyanır.",
+            "ko": "음성 → 학습: « OK Ronron »을 3번 말하면 내 말투로 깨어나요.",
+            "ja": "音声 → 学習：「OK Ronron」を 3 回言えば、あなたの言い方で起きます。"
+          }
+        },
+        {
+          "icon": "keyboard",
+          "title": {
+            "en": "Ctrl+Alt+R to ask",
+            "zh-Hans": "Ctrl+Alt+R 提问",
+            "hi": "पूछने के लिए Ctrl+Alt+R",
+            "es": "Ctrl+Alt+R para preguntar",
+            "ar": "Ctrl+Alt+R للسؤال",
+            "fr": "Ctrl+Alt+R pour demander",
+            "bn": "জিজ্ঞাসার জন্য Ctrl+Alt+R",
+            "pt-BR": "Ctrl+Alt+R para perguntar",
+            "ru": "Ctrl+Alt+R — спросить",
+            "id": "Ctrl+Alt+R untuk bertanya",
+            "de": "Ctrl+Alt+R zum Fragen",
+            "tr": "Sormak için Ctrl+Alt+R",
+            "ko": "Ctrl+Alt+R로 묻기",
+            "ja": "Ctrl+Alt+R で質問"
+          },
+          "detail": {
+            "en": "Ask Ronron by voice from anywhere, no « OK Ronron » needed.",
+            "zh-Hans": "随时用语音问 Ronron，无需说“OK Ronron”。",
+            "hi": "कहीं से भी Ronron से आवाज़ में पूछें, « OK Ronron » की ज़रूरत नहीं।",
+            "es": "Pregunta a Ronron por voz desde donde sea, sin « OK Ronron ».",
+            "ar": "اسأل Ronron بالصوت من أي مكان، دون « OK Ronron ».",
+            "fr": "Demande à Ronron à voix haute de partout, sans « OK Ronron ».",
+            "bn": "যেকোনো জায়গা থেকে কণ্ঠে Ronron-কে জিজ্ঞাসা করুন, « OK Ronron » ছাড়াই।",
+            "pt-BR": "Pergunte ao Ronron por voz de qualquer lugar, sem « OK Ronron ».",
+            "ru": "Спросите Ronron голосом откуда угодно, без « OK Ronron ».",
+            "id": "Tanya Ronron dengan suara dari mana saja, tanpa « OK Ronron ».",
+            "de": "Frag Ronron per Sprache von überall, ohne « OK Ronron ».",
+            "tr": "Ronron'a her yerden sesle sor, « OK Ronron » gerekmez.",
+            "ko": "어디서든 음성으로 Ronron에게 물어요 — « OK Ronron » 없이.",
+            "ja": "どこからでも声で Ronron に質問。「OK Ronron」不要。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.15.2",
       "items": [
         {

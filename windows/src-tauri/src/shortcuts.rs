@@ -69,6 +69,8 @@ pub const ACTIONS: &[ActionDef] = &[
     action("muteToggle", "Ctrl+Alt+S", true, true),
     action("desktopToggle", "Ctrl+Alt+D", true, true),
     action("wardrobeToggle", "Ctrl+Alt+G", true, true),
+    // Windows and Linux only: a question to Ronron by voice, no « OK Ronron » (voice::voice_ask).
+    action("askVoice", "Ctrl+Alt+R", true, true),
 ];
 
 pub fn find(id: &str) -> Option<&'static ActionDef> {
@@ -92,6 +94,7 @@ pub fn description(id: &str) -> &'static str {
         "muteToggle" => n_("Mute or unmute Ronron"),
         "desktopToggle" => n_("Send Ronron to the desktop"),
         "wardrobeToggle" => n_("Open the wardrobe"),
+        "askVoice" => n_("Ask Ronron by voice"),
         _ => "Ronron",
     }
 }
@@ -688,9 +691,9 @@ mod wayland {
 mod tests {
     use super::*;
 
-    const MAC_IDS: [&str; 10] = [
+    const MAC_IDS: [&str; 11] = [
         "toggleIsland", "openChat", "goToAlert", "jumpToTerminal", "attachFrontWindow",
-        "nextPill", "prevPill", "muteToggle", "desktopToggle", "wardrobeToggle",
+        "nextPill", "prevPill", "muteToggle", "desktopToggle", "wardrobeToggle", "askVoice",
     ];
 
     fn never(_: &Shortcut) -> Option<String> {
