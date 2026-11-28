@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.15.2 — November 28, 2026
+
+- **Ask by voice from the island**: a microphone button in the island's header — Ronron listens to one question, no « OK Ronron » needed. It works with *Listen for « OK Ronron »* off too: the microphone opens for that question only. What is missing (the voice model, a key) shows in the pill.
+- **Voice → Test the microphone**: for 30 seconds, a bar shows your microphone's level and the line speech must pass to be heard, then what Parakeet understood of each sentence and whether it counts as « OK Ronron ». Nothing heard is kept. The listening pauses during the test.
+
 ## 0.15.1 — November 24, 2026
 
 - **Clockify: a project, then its task**: with no timer running, the card asks what you work on, then the project, then one of its tasks (read from Clockify when the project is picked), as Clockify's own window does. The running timer and the last entries show their task, and starting one again keeps it.

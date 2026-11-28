@@ -150,6 +150,11 @@ export function buildHeader(actions: ViewActions): ViewHost {
   const historyCount = h("i", { class: "badge alert tab-count" });
   const tabHistory = h("button", { class: "tab", title: tl("Notifications"), onclick: () => go("history") },
     svg(ICONS.bell, 17, { stroke: 1.7 }), historyCount);
+  // Ask Ronron by voice, without saying « OK Ronron »: the pill at the bottom listens.
+  const tabVoice = h("button", { class: "tab", title: tl("Ask Ronron by voice"), onclick: () => {
+    actions.blip();
+    void Bridge.voiceAsk().catch(() => {});
+  } }, svg(ICONS.mic, 17, { stroke: 1.7 }));
   // What waits behind the view on screen (a reminder covered by a request…): one click back to it.
   const waitingChip = h("button", { class: "waiting-chip" });
   // A new Claude Code session, in a project, from here (Mac: the terminal tab).
@@ -185,7 +190,7 @@ export function buildHeader(actions: ViewActions): ViewHost {
     { id: "header" },
     h("div", { class: "tabs" }, tabHome),
     spaceTabs,
-    h("div", { class: "tabs rest" }, tabChat, tabHistory, tabLaunch),
+    h("div", { class: "tabs rest" }, tabChat, tabVoice, tabHistory, tabLaunch),
     h("div", { class: "header-actions" }, waitingChip, planPills, gearBtn, soundBtn, closeBtn),
   );
   const headerActions = el.lastElementChild as HTMLElement;

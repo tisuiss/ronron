@@ -1174,3 +1174,54 @@ button.hub-icon svg {
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgba(255, 255, 255, 0.3);
 }
+
+/* Voice → Test (pages/voice.ts): the microphone's level and the line speech must pass. */
+.vt-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 2px 8px;
+}
+.vt-meter {
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.vt-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 5px;
+  background: #8a8f98;
+  transition: width 90ms linear;
+}
+.vt-fill.on {
+  background: var(--hub-green);
+}
+.vt-mark {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: #f5a524;
+}
+.vt-results {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.vt-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+}
+.vt-ok {
+  color: var(--hub-green);
+  font-weight: 700;
+}
+.vt-no {
+  color: var(--hub-red);
+  font-weight: 700;
+}

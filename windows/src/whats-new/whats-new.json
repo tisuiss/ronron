@@ -2,6 +2,81 @@
   "about": "What's new, shown once in the island after Ronron updates itself (src/whats-new/). Every Windows and Linux release adds its entry here, in the 14 languages: 1 to 4 items, a short title and one line each, an icon from scripts/test-whats-new.py. python3 scripts/test-whats-new.py checks it.",
   "releases": [
     {
+      "version": "0.15.2",
+      "items": [
+        {
+          "icon": "mic",
+          "title": {
+            "en": "Ask with one click",
+            "zh-Hans": "一键提问",
+            "hi": "एक क्लिक में पूछें",
+            "es": "Pregunta con un clic",
+            "ar": "اسأل بنقرة",
+            "fr": "Demande en un clic",
+            "bn": "এক ক্লিকে জিজ্ঞাসা",
+            "pt-BR": "Pergunte com um clique",
+            "ru": "Спросите в один клик",
+            "id": "Tanya dengan satu klik",
+            "de": "Mit einem Klick fragen",
+            "tr": "Tek tıkla sor",
+            "ko": "클릭 한 번으로 묻기",
+            "ja": "ワンクリックで質問"
+          },
+          "detail": {
+            "en": "The island's microphone listens to one question — no « OK Ronron » needed.",
+            "zh-Hans": "岛上的麦克风会听一个问题，无需说“OK Ronron”。",
+            "hi": "आइलैंड का माइक्रोफ़ोन एक सवाल सुनता है — « OK Ronron » कहने की ज़रूरत नहीं।",
+            "es": "El micrófono de la isla escucha una pregunta, sin decir « OK Ronron ».",
+            "ar": "ميكروفون الجزيرة يستمع إلى سؤال واحد — دون قول « OK Ronron ».",
+            "fr": "Le micro de l'îlot écoute une question — sans dire « OK Ronron ».",
+            "bn": "আইল্যান্ডের মাইক্রোফোন একটি প্রশ্ন শোনে — « OK Ronron » বলতে হয় না।",
+            "pt-BR": "O microfone da ilha ouve uma pergunta — sem dizer « OK Ronron ».",
+            "ru": "Микрофон острова выслушает один вопрос — без « OK Ronron ».",
+            "id": "Mikrofon pulau mendengar satu pertanyaan — tanpa « OK Ronron ».",
+            "de": "Das Mikrofon der Insel hört eine Frage — ohne « OK Ronron ».",
+            "tr": "Adadaki mikrofon bir soruyu dinler — « OK Ronron » demeden.",
+            "ko": "아일랜드 마이크가 질문 하나를 들어요 — « OK Ronron » 없이.",
+            "ja": "アイランドのマイクが 1 つの質問を聞きます——「OK Ronron」不要。"
+          }
+        },
+        {
+          "icon": "eye",
+          "title": {
+            "en": "Test your microphone",
+            "zh-Hans": "测试你的麦克风",
+            "hi": "अपना माइक्रोफ़ोन जाँचें",
+            "es": "Prueba tu micrófono",
+            "ar": "اختبر الميكروفون",
+            "fr": "Teste ton micro",
+            "bn": "আপনার মাইক্রোফোন পরীক্ষা",
+            "pt-BR": "Teste seu microfone",
+            "ru": "Проверьте микрофон",
+            "id": "Uji mikrofonmu",
+            "de": "Teste dein Mikrofon",
+            "tr": "Mikrofonunu test et",
+            "ko": "마이크 테스트",
+            "ja": "マイクをテスト"
+          },
+          "detail": {
+            "en": "Voice → Test: your level, and what Ronron understood of « OK Ronron ».",
+            "zh-Hans": "语音 → 测试：你的音量，以及 Ronron 听到的“OK Ronron”。",
+            "hi": "आवाज़ → जाँच: आपका स्तर, और Ronron ने « OK Ronron » में क्या समझा।",
+            "es": "Voz → Probar: tu nivel y lo que Ronron entendió de « OK Ronron ».",
+            "ar": "الصوت ← اختبار: مستواك وما فهمه Ronron من « OK Ronron ».",
+            "fr": "Voix → Tester : ton niveau, et ce que Ronron a compris de « OK Ronron ».",
+            "bn": "ভয়েস → পরীক্ষা: আপনার লেভেল, আর Ronron « OK Ronron » কী বুঝল।",
+            "pt-BR": "Voz → Testar: seu nível e o que o Ronron entendeu de « OK Ronron ».",
+            "ru": "Голос → Проверить: уровень и что Ronron понял из « OK Ronron ».",
+            "id": "Suara → Uji: levelmu, dan apa yang Ronron pahami dari « OK Ronron ».",
+            "de": "Sprache → Testen: dein Pegel und was Ronron von « OK Ronron » verstand.",
+            "tr": "Ses → Test: seviyen ve Ronron'un « OK Ronron »dan anladığı.",
+            "ko": "음성 → 테스트: 내 음량과 Ronron이 알아들은 « OK Ronron ».",
+            "ja": "音声 → テスト：音量と、Ronron が認識した「OK Ronron」。"
+          }
+        }
+      ]
+    },
+    {
       "version": "0.15.1",
       "items": [
         {

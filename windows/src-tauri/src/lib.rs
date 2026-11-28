@@ -938,6 +938,9 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             boot,
             aircall::aircall_call,
+            voice::voice_ask,
+            voice::voice_test_start,
+            voice::voice_test_stop,
             clockify::clockify_start,
             clockify::clockify_tasks,
             clockify::clockify_export,
