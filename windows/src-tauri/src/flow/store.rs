@@ -114,6 +114,9 @@ pub struct Prefs {
     /// provider of openai_compat.rs or a model server of local_chat.rs — the
     /// chat's providers, with the model picked for it there (voice/llm.rs).
     pub voice_provider: String,
+    /// How Parakeet writes « OK Ronron » for this user, kept by Voice → Learn
+    /// (voice/wake.rs `after_wake_with`). At most 8.
+    pub wake_variants: Vec<String>,
     /// The other apps' sound is muted while Ronron listens to you (Windows).
     pub mute_others: bool,
     /// How Ronron answers out loud: "system", "elevenlabs" or "off".
@@ -140,6 +143,7 @@ impl Default for Prefs {
             open_at_launch: true,
             voice: false,
             voice_provider: "anthropic".into(),
+            wake_variants: Vec::new(),
             mute_others: true,
             voice_output: "system".into(),
             voice_gender: "female".into(),

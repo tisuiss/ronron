@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.3 — November 28, 2026
+
+- **« OK Ronron » heard more often**: Parakeet doesn't know the word « Ronron » and writes what it thinks it heard. « Okay, on », « OK rond » and the like now wake Ronron when said alone — never inside a sentence (« ok, on y va » stays a sentence).
+- **Voice → Learn how you say « OK Ronron »**: say it 3 times; what Parakeet writes for your voice and microphone wakes Ronron from then on. The learned phrases show on the page, each with ✕ to forget it.
+- **Ctrl+Alt+R** asks Ronron by voice from anywhere, like the island's microphone — no « OK Ronron » needed (Settings → Island → Shortcuts).
+
 ## 0.15.2 — November 28, 2026
 
 - **Ask by voice from the island**: a microphone button in the island's header — Ronron listens to one question, no « OK Ronron » needed. It works with *Listen for « OK Ronron »* off too: the microphone opens for that question only. What is missing (the voice model, a key) shows in the pill.

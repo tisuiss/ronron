@@ -132,6 +132,12 @@ export function runGlobalShortcut(host: ShortcutHost, action: string, resume: ()
       host.flyOutOrHome();
       break;
 
+    // A question by voice, no « OK Ronron »: the pill at the bottom listens.
+    case "askVoice":
+      Sound.play("blip");
+      void Bridge.voiceAsk().catch(() => {});
+      break;
+
     // wardrobeToggle never comes this way (Rust sends `open-wardrobe`), and
     // attachFrontWindow isn't in this version.
     default:

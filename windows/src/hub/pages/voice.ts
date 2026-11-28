@@ -29,7 +29,16 @@ let testListening = false;
  * then what Parakeet understood and whether it counts as « OK Ronron ».
  * Nothing heard is kept: it only shows here.
  */
-function voiceTest(): HTMLElement {
+/** Words of a heard phrase as Rust counts them (voice/wake.rs `usable_phrase`): 1 to 6, at least 4 letters. */
+function learnable(heard: string): boolean {
+  const words = heard.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+  return words.length >= 1 && words.length <= 6 && words.join("").length >= 4;
+}
+
+const LEARN_TIMES = 3;
+const MAX_VARIANTS = 8;
+
+function voiceTest(ctx: HubContext, variants: string[]): HTMLElement {
   if (!testListening) {
     testListening = true;
     void onEvent<VoiceTestView>("voice-test", (v) => testView?.(v));
@@ -41,15 +50,38 @@ function voiceTest(): HTMLElement {
   const results = h("div", { class: "vt-results" });
   const box = h("div", { class: "vt-box", style: "display:none" }, meter, state, results);
   let running = false;
+  /** Learning: what Parakeet wrote each time « OK Ronron » was said, kept once there are three. */
+  let learning: string[] | null = null;
   const button = h("button", { class: "hub-btn primary small", text: t("Test") }) as HTMLButtonElement;
+  const learnButton = h("button", { class: "hub-btn small", text: t("Learn") }) as HTMLButtonElement;
   const stopTest = () => {
     running = false;
+    learning = null;
     button.textContent = t("Test");
+    learnButton.textContent = t("Learn");
     void FlowBridge.voiceTestStop();
   };
+  learnButton.addEventListener("click", async () => {
+    if (running) return stopTest();
+    clear(results);
+    learning = [];
+    state.textContent = t("Say « OK Ronron » alone, {n} times, with a pause after each.", { n: LEARN_TIMES });
+    state.style.color = "";
+    box.style.display = "";
+    try {
+      await FlowBridge.voiceTestStart();
+      running = true;
+      learnButton.textContent = t("Stop");
+    } catch (err) {
+      learning = null;
+      state.textContent = String(err).replace(/^Error:\s*/, "");
+      state.style.color = "var(--hub-red, #f4505e)";
+    }
+  });
   button.addEventListener("click", async () => {
     if (running) return stopTest();
     clear(results);
+    learning = null;
     state.textContent = t("Say « OK Ronron », then a question. The test stops after 30 seconds.");
     state.style.color = "";
     box.style.display = "";
@@ -81,6 +113,26 @@ function voiceTest(): HTMLElement {
     fill.style.width = `${meterPct(v.level)}%`;
     fill.classList.toggle("on", v.level > v.threshold);
     mark.style.left = `${meterPct(v.threshold)}%`;
+    if (v.heard != null && learning) {
+      const heard = v.heard.trim();
+      if (!heard || !learnable(heard)) {
+        results.prepend(h("div", { class: "vt-row" }, h("span", { class: "vt-no", text: "·" }),
+          h("span", { text: heard ? `« ${heard} »` : t("(nothing understood)") }),
+          h("span", { class: "hub-note", text: t("Too long or too short: say it alone") })));
+        return;
+      }
+      learning.push(heard);
+      results.prepend(h("div", { class: "vt-row" }, h("span", { class: "vt-ok", text: `${learning.length}/${LEARN_TIMES}` }),
+        h("span", { text: `« ${heard} »` })));
+      if (learning.length >= LEARN_TIMES) {
+        const learned = learning;
+        stopTest();
+        const all = [...variants];
+        for (const x of learned) if (!all.some((y) => y.toLowerCase() === x.toLowerCase())) all.push(x);
+        void ctx.setPrefs((p) => (p.wakeVariants = all.slice(-MAX_VARIANTS))).then(() => ctx.navigate("voice"));
+      }
+      return;
+    }
     if (v.heard != null) {
       const ok = v.wake === true;
       results.prepend(h("div", { class: "vt-row" },
@@ -90,8 +142,22 @@ function voiceTest(): HTMLElement {
       while (results.childElementCount > 5) results.lastElementChild?.remove();
     }
   };
+  // What was learned: each phrase wakes Ronron too; ✕ forgets one.
+  const learned = h("div", { class: "vt-learned" });
+  for (const v of variants) {
+    learned.append(h("span", { class: "vt-chip" }, h("span", { text: `« ${v} »` }),
+      h("button", { class: "vt-x", title: t("Remove"), text: "✕",
+        onclick: () => void ctx.setPrefs((p) => (p.wakeVariants = (p.wakeVariants ?? []).filter((x) => x !== v))).then(() => ctx.navigate("voice")) })));
+  }
   return h("div", {},
     row(t("Test the microphone"), t("The bar must pass the line when you speak; then what Parakeet understood shows below."), button),
+    divider(),
+    row(t("Learn how you say « OK Ronron »"),
+      variants.length > 0
+        ? t("Ronron also wakes on what Parakeet writes when you say it:")
+        : t("Say it 3 times: what Parakeet writes for your voice wakes Ronron from then on."),
+      learnButton),
+    variants.length > 0 ? learned : null,
     box);
 }
 
@@ -153,7 +219,7 @@ export async function voicePage(page: HTMLElement, ctx: HubContext) {
   } else if (prefs.voice && !ready) {
     main.append(h("div", { class: "hub-warn", text: t("Download the voice model so Ronron can hear you.") }));
   }
-  if (ready) main.append(divider(), voiceTest());
+  if (ready) main.append(divider(), voiceTest(ctx, prefs.wakeVariants ?? []));
   main.append(h("div", { class: "hub-note", style: "padding:6px 2px 0", text: t("No need to say « OK Ronron »: the microphone button in the island's header listens to one question.") }));
   page.append(main);
 

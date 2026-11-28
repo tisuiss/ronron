@@ -61,6 +61,11 @@ fn pending() -> &'static Mutex<HashMap<u64, mpsc::Sender<String>>> {
 }
 static NEXT_ID: AtomicU64 = AtomicU64::new(1);
 
+/// The phrases Voice → Learn kept for this user.
+fn learned(app: &AppHandle) -> Vec<String> {
+    crate::flow::get(app).map(|f| f.store.lock().unwrap().prefs.wake_variants.clone()).unwrap_or_default()
+}
+
 /// The model that answers, as the voice page and the chat settings say, or
 /// what is missing for it.
 pub fn backend(app: &AppHandle) -> Result<llm::Backend, String> {
@@ -246,7 +251,7 @@ fn run(app: AppHandle, stop: Arc<AtomicBool>, one_shot: bool) {
                 continue;
             }
             let question = match &mut mode {
-                Mode::Wake => match wake::after_wake(&heard) {
+                Mode::Wake => match wake::after_wake_with(&heard, &learned(&app)) {
                     Some(rest) => {
                         crate::log::line("voice: « OK Ronron » heard");
                         hide_at = None;
@@ -395,7 +400,7 @@ fn test_run(app: AppHandle, stop: Arc<AtomicBool>) {
                 continue;
             }
             let heard = speech::transcribe(&segment).map(|t| t.text.trim().to_string()).unwrap_or_default();
-            let wake = !heard.is_empty() && wake::after_wake(&heard).is_some();
+            let wake = !heard.is_empty() && wake::after_wake_with(&heard, &learned(&app)).is_some();
             emit(TestView { level: vad.level, threshold: vad.threshold(), heard: Some(heard), wake: Some(wake), ..Default::default() });
         }
         if last.elapsed() >= Duration::from_millis(100) {

@@ -29,6 +29,7 @@ export const SHORTCUT_TEXT = {
   muteToggle: N_("Mute or unmute Ronron"),
   desktopToggle: N_("Send Ronron to the desktop"),
   wardrobeToggle: N_("Open the wardrobe"),
+  askVoice: N_("Ask Ronron by voice"),
   island: {
     nextPrev: N_("Next or previous pill"),
     byNumber: N_("Go to pill 1 to 9"),
@@ -56,7 +57,9 @@ export type ShortcutId =
   | "prevPill"
   | "muteToggle"
   | "desktopToggle"
-  | "wardrobeToggle";
+  | "wardrobeToggle"
+  /** Windows and Linux only: a question by voice, no « OK Ronron ». */
+  | "askVoice";
 
 export interface ShortcutDef {
   id: ShortcutId;
@@ -81,6 +84,7 @@ export const SHORTCUTS: readonly ShortcutDef[] = [
   def("muteToggle", "Ctrl+Alt+S", true, true),
   def("desktopToggle", "Ctrl+Alt+D", true, true),
   def("wardrobeToggle", "Ctrl+Alt+G", true, true),
+  def("askVoice", "Ctrl+Alt+R", true, true),
 ];
 
 export interface Binding {

@@ -54,6 +54,8 @@ export interface FlowPrefs {
   voice: boolean;
   /** Who answers « OK Ronron » (src-tauri/src/voice/llm.rs). */
   voiceProvider: VoiceProvider;
+  /** How Parakeet writes « OK Ronron » for this user (Voice → Learn). */
+  wakeVariants?: string[];
   voiceOutput: VoiceOutput;
   voiceGender: "female" | "male";
   /** The other apps go quiet while Ronron listens to you (Windows). */

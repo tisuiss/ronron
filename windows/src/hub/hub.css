@@ -1225,3 +1225,29 @@ button.hub-icon svg {
   color: var(--hub-red);
   font-weight: 700;
 }
+.vt-learned {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 2px 8px;
+}
+.vt-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px 2px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  font-size: 12px;
+}
+.vt-x {
+  border: none;
+  background: none;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  font-size: 10px;
+}
+.vt-x:hover {
+  opacity: 1;
+}

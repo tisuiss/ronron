@@ -45,6 +45,62 @@ fn is_ronron_pair(a: &str, b: &str) -> bool {
     )
 }
 
+/// What Parakeet keeps of « Ronron » when it barely hears it: "Okay, on",
+/// "OK rond". Only taken when nothing else was said in the same breath — "ok,
+/// on y va" is a sentence, not Ronron's name.
+fn is_ronron_hint(word: &str) -> bool {
+    matches!(
+        word,
+        "on" | "ron" | "rond" | "ronds" | "rons" | "ronde" | "rom" | "rome" | "rhum" | "hon" | "rong" | "rang" | "ran" | "wrong"
+    )
+}
+
+/// The wake phrase, also as Parakeet writes it for this user: `learned` are
+/// the phrases Voice → Learn kept (what was written when they said it).
+pub fn after_wake_with(text: &str, learned: &[String]) -> Option<String> {
+    if let Some(rest) = after_wake(text) {
+        return Some(rest);
+    }
+    let norm = normalize(text);
+    let tokens: Vec<&str> = norm.split(' ').filter(|w| !w.is_empty()).collect();
+    // « OK » and one or two half-heard words, said alone: the question comes next.
+    if (2..=3).contains(&tokens.len()) && is_ok(tokens[0]) && tokens[1..].iter().all(|w| is_ronron_hint(w)) {
+        return Some(String::new());
+    }
+    learned_match(text, learned)
+}
+
+/// A learned phrase anywhere in `text`, on word boundaries: what follows it.
+fn learned_match(text: &str, learned: &[String]) -> Option<String> {
+    let words: Vec<&str> = text.split_whitespace().collect();
+    // Each normalised token, with the word it comes from ("ron-ron" gives two).
+    let mut tokens: Vec<(String, usize)> = Vec::new();
+    for (i, w) in words.iter().enumerate() {
+        for t in normalize(w).split(' ').filter(|t| !t.is_empty()) {
+            tokens.push((t.to_string(), i));
+        }
+    }
+    for phrase in learned {
+        let want: Vec<String> = normalize(phrase).split(' ').filter(|t| !t.is_empty()).map(str::to_string).collect();
+        if !usable_phrase(&want) || want.len() > tokens.len() {
+            continue;
+        }
+        for start in 0..=tokens.len() - want.len() {
+            if tokens[start..start + want.len()].iter().map(|(t, _)| t).eq(want.iter()) {
+                let last = tokens[start + want.len() - 1].1;
+                return Some(words[last + 1..].join(" ").trim_start_matches([',', '.', '!', ' ']).trim().to_string());
+            }
+        }
+    }
+    None
+}
+
+/// A learned phrase is kept when it can wake Ronron without waking him all
+/// the time: 1 to 6 words ("c'est" counts two), at least 4 letters.
+pub fn usable_phrase(tokens: &[String]) -> bool {
+    (1..=6).contains(&tokens.len()) && tokens.iter().map(|t| t.len()).sum::<usize>() >= 4
+}
+
 /// When `text` holds the wake phrase, what was said after it (maybe nothing).
 /// The words keep their case and punctuation, as Parakeet wrote them.
 pub fn after_wake(text: &str) -> Option<String> {
@@ -228,6 +284,30 @@ mod tests {
         assert_eq!(after_wake("on a dit ronron à Paul"), None);
         assert_eq!(after_wake("ok let's go"), None);
         assert_eq!(normalize("Ça VA, Élodie ?"), "ca va elodie");
+    }
+
+    #[test]
+    fn a_half_heard_ronron_said_alone_wakes_him_but_not_inside_a_sentence() {
+        let none: Vec<String> = Vec::new();
+        assert_eq!(after_wake_with("Okay, on", &none).as_deref(), Some(""));
+        assert_eq!(after_wake_with("OK rond.", &none).as_deref(), Some(""));
+        assert_eq!(after_wake_with("Ok, rond rond.", &none).as_deref(), Some(""));
+        assert_eq!(after_wake_with("ok on y va", &none), None);
+        assert_eq!(after_wake_with("Okay, on se voit demain", &none), None);
+        assert_eq!(after_wake_with("Mm-hmm.", &none), None);
+        assert_eq!(after_wake_with("OK Ronron, quelle heure ?", &none).as_deref(), Some("quelle heure ?"));
+    }
+
+    #[test]
+    fn a_learned_phrase_wakes_him_and_what_follows_is_the_question() {
+        let learned = vec!["C'est le haut qui ont".to_string(), "au caron".to_string(), "ok".to_string()];
+        assert_eq!(after_wake_with("C'est le haut qui ont, quelle heure est-il ?", &learned).as_deref(), Some("quelle heure est-il ?"));
+        assert_eq!(after_wake_with("Au caron.", &learned).as_deref(), Some(""));
+        // Too short to learn: "ok" alone would wake him all the time.
+        assert_eq!(after_wake_with("ok merci", &learned), None);
+        assert_eq!(after_wake_with("le caron du voisin", &learned), None);
+        assert!(!usable_phrase(&["ok".to_string()]));
+        assert!(usable_phrase(&["au".to_string(), "caron".to_string()]));
     }
 
     #[test]
