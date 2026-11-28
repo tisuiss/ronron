@@ -234,6 +234,8 @@ export const Bridge = {
   listMonitors: () => call<{ key: string; label: string }[]>("list_monitors"),
 
   openUrl: (url: string) => call<void>("open_url", { url }),
+  /** The island's microphone: Ronron listens to a question now, no « OK Ronron » needed. */
+  voiceAsk: () => callOrThrow<void>("voice_ask"),
   /** Aircall's "Call back": the system's phone app (tel:) with the number. */
   aircallCall: (number: string) => callOrThrow<void>("aircall_call", { number }),
   /** Clockify (src-tauri/src/clockify.rs): only ever from a click or « OK Ronron ». */

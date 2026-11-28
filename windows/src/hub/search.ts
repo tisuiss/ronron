@@ -150,7 +150,7 @@ export const SETTINGS_ENTRIES: SettingsSearchEntry[] = [
     ],
   },
   { id: "phone.android", page: "phone", title: "phone.title", terms: ["phone.status", "phone.pairing", "phone.approvals"] },
-  { id: "voice.wake", page: "voice", title: "«\u202FOK Ronron\u202F» — voice wake word", terms: ["Enable voice command", "Request permissions", "Ronron answers with"] },
+  { id: "voice.wake", page: "voice", title: "«\u202FOK Ronron\u202F» — voice wake word", terms: ["Enable voice command", "Request permissions", "Ronron answers with", "Test the microphone"] },
   { id: "voice.language", page: "voice", title: "Language", terms: ["voice.listen-language", "voice.language"] },
   { id: "voice.tts", page: "voice", title: "voice.tts-engine", terms: ["voice.tts-gender", "voice.tts-test"] },
   { id: "voice.history", page: "voice", title: "voice.history-title", terms: [] },

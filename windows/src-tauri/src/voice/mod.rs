@@ -43,7 +43,14 @@ pub struct VoiceView {
 
 struct Running {
     stop: Arc<AtomicBool>,
+    /// Started by the island's microphone button for one question, with « OK Ronron » off.
+    one_shot: bool,
 }
+
+/// The island's microphone button, while Ronron listens anyway: the next words are the question.
+static ASK: AtomicBool = AtomicBool::new(false);
+/// Voice → Test is on: the listening loop leaves the microphone to it.
+static TESTING: AtomicBool = AtomicBool::new(false);
 
 static RUNNING: Mutex<Option<Running>> = Mutex::new(None);
 
@@ -74,13 +81,17 @@ pub fn requirements_met(app: &AppHandle) -> bool {
 pub fn sync(app: &AppHandle) {
     let wanted = crate::flow::get(app).is_some_and(|f| f.store.lock().unwrap().prefs.voice);
     let mut running = RUNNING.lock().unwrap();
+    // A one-question run (the island's button) finishes on its own, then calls sync again.
+    if running.as_ref().is_some_and(|r| r.one_shot) {
+        return;
+    }
     match (wanted && requirements_met(app), running.is_some()) {
         (true, false) => {
             let stop = Arc::new(AtomicBool::new(false));
             let app2 = app.clone();
             let stop2 = stop.clone();
-            std::thread::Builder::new().name("ronron-voice".into()).spawn(move || run(app2, stop2)).ok();
-            *running = Some(Running { stop });
+            std::thread::Builder::new().name("ronron-voice".into()).spawn(move || run(app2, stop2, false)).ok();
+            *running = Some(Running { stop, one_shot: false });
             speech::preload();
             crate::log::line("voice: « OK Ronron » listening");
         }
@@ -101,6 +112,39 @@ pub fn sync(app: &AppHandle) {
 /// « OK Ronron » is listening (the voice model stays loaded).
 pub fn is_listening() -> bool {
     RUNNING.lock().unwrap().is_some()
+}
+
+/// The island's microphone button: Ronron listens to a question now, no
+/// « OK Ronron » needed — through the listening already running, or for this
+/// one question when « OK Ronron » is off. What is missing shows in the pill.
+#[tauri::command]
+pub fn voice_ask(app: AppHandle) -> Result<(), String> {
+    let problem = if !speech::is_ready() {
+        Some(crate::i18n::t("Download the voice model so Ronron can hear you."))
+    } else {
+        backend(&app).err()
+    };
+    if let Some(err) = problem {
+        show(&app, Some(VoiceView { phase: "speaking".into(), heard: String::new(), answer: err.clone() }));
+        let app2 = app.clone();
+        std::thread::spawn(move || {
+            std::thread::sleep(Duration::from_secs(6));
+            show(&app2, None);
+        });
+        return Err(err);
+    }
+    let mut running = RUNNING.lock().unwrap();
+    if running.is_some() {
+        ASK.store(true, Ordering::Relaxed);
+        return Ok(());
+    }
+    let stop = Arc::new(AtomicBool::new(false));
+    let app2 = app.clone();
+    let stop2 = stop.clone();
+    std::thread::Builder::new().name("ronron-voice".into()).spawn(move || run(app2, stop2, true)).ok();
+    *running = Some(Running { stop, one_shot: true });
+    speech::preload();
+    Ok(())
 }
 
 /// Starts again on another microphone.
@@ -124,7 +168,7 @@ enum Mode {
     FollowUp { until: Instant },
 }
 
-fn run(app: AppHandle, stop: Arc<AtomicBool>) {
+fn run(app: AppHandle, stop: Arc<AtomicBool>, one_shot: bool) {
     let mic = crate::flow::get(&app).map(|f| f.store.lock().unwrap().prefs.mic.clone()).unwrap_or_default();
     let (tx, rx) = mpsc::channel::<Vec<f32>>();
     let capture = audio::Capture::start(audio::Source::Mic(if mic.is_empty() { None } else { Some(mic) }), move |s| {
@@ -140,12 +184,27 @@ fn run(app: AppHandle, stop: Arc<AtomicBool>) {
     };
     let mut vad = wake::Vad::default();
     let mut mode = Mode::Wake;
+    if one_shot {
+        ASK.store(true, Ordering::Relaxed);
+    }
     let mut brain = brain::Brain::default();
     let mut hide_at: Option<Instant> = None;
     // Silence for the question that follows « OK Ronron » (flow/hush.rs).
     let mut hush: Option<crate::flow::hush::Guard> = None;
     let quiet = || crate::flow::get(&app).is_some_and(|f| f.store.lock().unwrap().prefs.mute_others);
     while !stop.load(Ordering::Relaxed) {
+        // The island's microphone button: what comes next is the question.
+        if ASK.swap(false, Ordering::Relaxed) {
+            vad.reset();
+            vad.hangover = 40;
+            hide_at = None;
+            mode = Mode::Command { text: String::new(), until: Instant::now() + Duration::from_secs(8) };
+            show(&app, Some(VoiceView { phase: "listening".into(), heard: String::new(), answer: String::new() }));
+        }
+        // One question asked and answered (or nothing came): this run is over.
+        if one_shot && matches!(mode, Mode::Wake) && hide_at.is_none() {
+            break;
+        }
         // Listening for a question or an answer: the other apps are quiet.
         let asking = matches!(mode, Mode::Command { .. } | Mode::FollowUp { .. });
         if asking && hush.is_none() {
@@ -173,7 +232,7 @@ fn run(app: AppHandle, stop: Arc<AtomicBool>) {
             _ => {}
         }
         // Dictation and calls have the microphone: Ronron doesn't listen meanwhile.
-        if pill::dictating(&app) || crate::notes::is_recording(&app) {
+        if pill::dictating(&app) || crate::notes::is_recording(&app) || TESTING.load(Ordering::Relaxed) {
             vad.reset();
             continue;
         }
@@ -248,6 +307,111 @@ fn run(app: AppHandle, stop: Arc<AtomicBool>) {
     }
     capture.stop();
     show(&app, None);
+    if one_shot {
+        {
+            let mut running = RUNNING.lock().unwrap();
+            if running.as_ref().is_some_and(|r| Arc::ptr_eq(&r.stop, &stop)) {
+                *running = None;
+            }
+        }
+        // « OK Ronron » may have been turned on meanwhile; else the model can go.
+        sync(&app);
+        let keep = crate::flow::get(&app).is_some_and(|f| {
+            let p = &f.store.lock().unwrap().prefs;
+            p.enabled || p.voice
+        });
+        if !keep && !crate::notes::is_recording(&app) {
+            speech::unload();
+        }
+    }
+}
+
+// ── Voice → Test ──────────────────────────────────────────────────────────────
+
+/// What the test shows: the microphone's loudness against the speech threshold,
+/// then what Parakeet understood and whether it counts as « OK Ronron ».
+/// Nothing of it is kept: it goes to the window, never to disk.
+#[derive(Serialize, Clone, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct TestView {
+    pub level: f32,
+    pub threshold: f32,
+    pub speaking: bool,
+    pub heard: Option<String>,
+    pub wake: Option<bool>,
+    pub done: bool,
+    pub error: Option<String>,
+}
+
+static TEST_STOP: Mutex<Option<Arc<AtomicBool>>> = Mutex::new(None);
+const TEST_FOR: Duration = Duration::from_secs(30);
+
+/// Voice → Test: 30 seconds of the microphone (`voice-test` events), then it stops.
+#[tauri::command]
+pub fn voice_test_start(app: AppHandle) -> Result<(), String> {
+    if !speech::is_ready() {
+        return Err(crate::i18n::t("Download the voice model so Ronron can hear you."));
+    }
+    let stop = Arc::new(AtomicBool::new(false));
+    if let Some(old) = TEST_STOP.lock().unwrap().replace(stop.clone()) {
+        old.store(true, Ordering::Relaxed);
+    }
+    speech::preload();
+    std::thread::Builder::new().name("ronron-voice-test".into()).spawn(move || test_run(app, stop)).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn voice_test_stop() {
+    if let Some(stop) = TEST_STOP.lock().unwrap().take() {
+        stop.store(true, Ordering::Relaxed);
+    }
+}
+
+fn test_run(app: AppHandle, stop: Arc<AtomicBool>) {
+    let emit = |v: TestView| {
+        let _ = app.emit("voice-test", v);
+    };
+    let mic = crate::flow::get(&app).map(|f| f.store.lock().unwrap().prefs.mic.clone()).unwrap_or_default();
+    let (tx, rx) = mpsc::channel::<Vec<f32>>();
+    let capture = audio::Capture::start(audio::Source::Mic(if mic.is_empty() { None } else { Some(mic) }), move |s| {
+        let _ = tx.send(s.to_vec());
+    });
+    let mut capture = match capture {
+        Ok(c) => c,
+        Err(err) => {
+            emit(TestView { done: true, error: Some(err.to_string()), ..Default::default() });
+            return;
+        }
+    };
+    TESTING.store(true, Ordering::Relaxed);
+    let mut vad = wake::Vad::default();
+    let started = Instant::now();
+    let mut last = Instant::now();
+    while !stop.load(Ordering::Relaxed) && started.elapsed() < TEST_FOR {
+        let Ok(chunk) = rx.recv_timeout(Duration::from_millis(200)) else { continue };
+        for segment in vad.feed(&chunk) {
+            if segment.len() < speech::SAMPLE_RATE as usize * 35 / 100 {
+                continue;
+            }
+            let heard = speech::transcribe(&segment).map(|t| t.text.trim().to_string()).unwrap_or_default();
+            let wake = !heard.is_empty() && wake::after_wake(&heard).is_some();
+            emit(TestView { level: vad.level, threshold: vad.threshold(), heard: Some(heard), wake: Some(wake), ..Default::default() });
+        }
+        if last.elapsed() >= Duration::from_millis(100) {
+            last = Instant::now();
+            emit(TestView { level: vad.level, threshold: vad.threshold(), speaking: vad.in_speech(), ..Default::default() });
+        }
+    }
+    capture.stop();
+    TESTING.store(false, Ordering::Relaxed);
+    {
+        let mut current = TEST_STOP.lock().unwrap();
+        if current.as_ref().is_some_and(|s| Arc::ptr_eq(s, &stop)) {
+            *current = None;
+        }
+    }
+    emit(TestView { done: true, ..Default::default() });
 }
 
 // ── Speaking ──────────────────────────────────────────────────────────────────

@@ -209,7 +209,20 @@ export interface VoiceView {
 export type VoiceOutput = "system" | "elevenlabs" | "off";
 export type VoiceProvider = "anthropic" | "google" | "openai" | "openrouter" | "ollama" | "lmstudio" | "custom";
 
+/** Voice → Test (src-tauri/src/voice/mod.rs): the microphone against the speech threshold, then what was understood. */
+export interface VoiceTestView {
+  level: number;
+  threshold: number;
+  speaking: boolean;
+  heard?: string | null;
+  wake?: boolean | null;
+  done: boolean;
+  error?: string | null;
+}
+
 export const FlowBridge = {
+  voiceTestStart: () => callOrThrow<void>("voice_test_start"),
+  voiceTestStop: () => call<void>("voice_test_stop"),
   status: () => call<FlowStatus>("flow_status"),
   /** The Ronron window is on screen (shown, not minimised); `hub-visible` tells when it changes. */
   hubShown: () => call<boolean>("hub_shown"),

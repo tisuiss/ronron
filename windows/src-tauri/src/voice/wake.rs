@@ -98,7 +98,12 @@ pub struct Vad {
     preroll: std::collections::VecDeque<f32>,
     /// Silence that ends a stretch, in frames.
     pub hangover: usize,
+    /// The last frame's loudness (RMS), for Voice → Test.
+    pub level: f32,
 }
+
+/// Below this loudness (RMS) nothing is speech, however quiet the room.
+pub const MIN_SPEECH_RMS: f32 = 0.012;
 
 pub const FRAME: usize = 480; // 30 ms at 16 kHz
 const PREROLL: usize = 16_000 * 3 / 10;
@@ -115,14 +120,19 @@ impl Default for Vad {
             current: Vec::new(),
             preroll: std::collections::VecDeque::with_capacity(PREROLL),
             hangover: 25,
+            level: 0.0,
         }
     }
 }
 
 impl Vad {
-    #[cfg(test)]
     pub fn in_speech(&self) -> bool {
         self.in_speech
+    }
+
+    /// The loudness a frame needs to count as speech now: three times the room's noise, at least MIN_SPEECH_RMS.
+    pub fn threshold(&self) -> f32 {
+        (self.floor * 3.0).max(MIN_SPEECH_RMS)
     }
 
     /// Feeds 16 kHz samples; the stretches of speech that ended.
@@ -134,7 +144,8 @@ impl Vad {
                 continue;
             }
             let rms = (self.frame.iter().map(|x| x * x).sum::<f32>() / FRAME as f32).sqrt();
-            let speech = rms > (self.floor * 3.0).max(0.012);
+            self.level = rms;
+            let speech = rms > self.threshold();
             if !speech && !self.in_speech {
                 self.floor = self.floor * 0.97 + rms * 0.03;
             }

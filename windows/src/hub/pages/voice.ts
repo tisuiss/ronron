@@ -4,7 +4,8 @@
 import { h, clear } from "../../views/dom";
 import { t } from "../../i18n/i18n";
 import { Bridge } from "../../core/bridge";
-import type { VoiceOutput, VoiceProvider } from "../../core/flow";
+import { FlowBridge, type VoiceOutput, type VoiceProvider, type VoiceTestView } from "../../core/flow";
+import { onEvent } from "../../core/bridge";
 import type { HubContext } from "../shell";
 import { button, card, divider, label, row, segmented, select, toggle } from "../ui";
 import { modelsControl } from "./flowsettings";
@@ -12,6 +13,87 @@ import { modelsControl } from "./flowsettings";
 const ELEVEN = "elevenlabs-api-key";
 /** Where secrets.rs keeps the keys on this OS (same words as AI agents → Chat). */
 const KEY_STORE = navigator.userAgent.includes("Windows") ? "Windows Credential Manager" : "Secret Service (GNOME Keyring, KWallet)";
+
+/** The loudness on a 0–100 scale (decibels from −60 to 0), so a quiet voice still moves the bar. */
+function meterPct(rms: number): number {
+  const db = 20 * Math.log10(Math.max(rms, 1e-6));
+  return Math.max(0, Math.min(100, ((db + 60) / 60) * 100));
+}
+
+/** The test on screen now: the `voice-test` events go to it alone. */
+let testView: ((v: VoiceTestView) => void) | null = null;
+let testListening = false;
+
+/**
+ * Voice → Test: the microphone's level against the threshold speech must pass,
+ * then what Parakeet understood and whether it counts as « OK Ronron ».
+ * Nothing heard is kept: it only shows here.
+ */
+function voiceTest(): HTMLElement {
+  if (!testListening) {
+    testListening = true;
+    void onEvent<VoiceTestView>("voice-test", (v) => testView?.(v));
+  }
+  const fill = h("div", { class: "vt-fill" });
+  const mark = h("div", { class: "vt-mark", title: t("Speech starts here") });
+  const meter = h("div", { class: "vt-meter" }, fill, mark);
+  const state = h("div", { class: "hub-note" });
+  const results = h("div", { class: "vt-results" });
+  const box = h("div", { class: "vt-box", style: "display:none" }, meter, state, results);
+  let running = false;
+  const button = h("button", { class: "hub-btn primary small", text: t("Test") }) as HTMLButtonElement;
+  const stopTest = () => {
+    running = false;
+    button.textContent = t("Test");
+    void FlowBridge.voiceTestStop();
+  };
+  button.addEventListener("click", async () => {
+    if (running) return stopTest();
+    clear(results);
+    state.textContent = t("Say « OK Ronron », then a question. The test stops after 30 seconds.");
+    state.style.color = "";
+    box.style.display = "";
+    try {
+      await FlowBridge.voiceTestStart();
+      running = true;
+      button.textContent = t("Stop");
+    } catch (err) {
+      state.textContent = String(err).replace(/^Error:\s*/, "");
+      state.style.color = "var(--hub-red, #f4505e)";
+    }
+  });
+  testView = (v) => {
+    if (!box.isConnected) {
+      testView = null;
+      void FlowBridge.voiceTestStop();
+      return;
+    }
+    if (v.error) {
+      state.textContent = v.error;
+      state.style.color = "var(--hub-red, #f4505e)";
+    }
+    if (v.done) {
+      running = false;
+      button.textContent = t("Test");
+      fill.style.width = "0%";
+      return;
+    }
+    fill.style.width = `${meterPct(v.level)}%`;
+    fill.classList.toggle("on", v.level > v.threshold);
+    mark.style.left = `${meterPct(v.threshold)}%`;
+    if (v.heard != null) {
+      const ok = v.wake === true;
+      results.prepend(h("div", { class: "vt-row" },
+        h("span", { class: ok ? "vt-ok" : "vt-no", text: ok ? "✓" : "✗" }),
+        h("span", { text: v.heard ? `« ${v.heard} »` : t("(nothing understood)") }),
+        h("span", { class: "hub-note", text: ok ? t("Counts as « OK Ronron »") : t("Not « OK Ronron »") })));
+      while (results.childElementCount > 5) results.lastElementChild?.remove();
+    }
+  };
+  return h("div", {},
+    row(t("Test the microphone"), t("The bar must pass the line when you speak; then what Parakeet understood shows below."), button),
+    box);
+}
 
 function elevenKey(): HTMLElement {
   const box = h("div", { style: "display:flex;align-items:center;gap:8px" });
@@ -71,6 +153,8 @@ export async function voicePage(page: HTMLElement, ctx: HubContext) {
   } else if (prefs.voice && !ready) {
     main.append(h("div", { class: "hub-warn", text: t("Download the voice model so Ronron can hear you.") }));
   }
+  if (ready) main.append(divider(), voiceTest());
+  main.append(h("div", { class: "hub-note", style: "padding:6px 2px 0", text: t("No need to say « OK Ronron »: the microphone button in the island's header listens to one question.") }));
   page.append(main);
 
   page.append(label(t("Answers")));
